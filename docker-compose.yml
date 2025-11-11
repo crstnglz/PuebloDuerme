@@ -1,29 +1,70 @@
-# La Base de Datos (MySQL)
 version: '3.8'
 
 services:
+  # 1. EL BACKEND (backLobotron)
+  # Usa 'php artisan serve' como servidor web, eliminando la necesidad de Nginx.
+  backend: # <--- Renombrado de 'server' a 'backend'
+    build:
+      context: ./backLobotron
+    container_name: back_lobotron_server
+    working_dir: /var/www/html # Define el directorio de trabajo (donde está artisan)
+    
+    # Exponemos el puerto 8000 que usa 'artisan serve'
+    ports:
+      - "8000:8000" 
+    
+    volumes:
+      - ./backLobotron:/var/www/html
+      
+    depends_on:
+      - db # Necesita que la BBDD esté encendida antes de arrancar
+      
+    # COMANDO CRÍTICO: 
+    # 1. composer install (Instala dependencias)
+    # 2. php artisan migrate (Crea las tablas)
+    # 3. php artisan serve (Inicia el servidor web interno de Laravel)
+    command: sh -c "composer install && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
+
+  # 2. EL CLIENTE (frontLobotron)
+  client:
+    build:
+      context: ./frontLobotron
+    container_name: front_lobotron_client
+    working_dir: /app # Directorio de trabajo
+    ports:
+      - "5173:5173" # Acceso al frontend en http://localhost:5173
+    volumes:
+      - ./frontLobotron:/app
+      - /app/node_modules # Evita conflictos
+    depends_on:
+      - backend # Depende del backend para hacer llamadas a la API
+    # Iniciamos el servidor Vite
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+
+  # 3. BASE DE DATOS PRINCIPAL (DB)
   db:
     image: mysql:8.0
     container_name: el_lobotron_db
     restart: unless-stopped
     ports:
-      - "3307:3306" 
+      - "3307:3306" # Puerto 3307 en tu PC, 3306 en el contenedor
     environment:
-      MYSQL_DATABASE: el_lobotron_db
+      MYSQL_DATABASE: el_lobotron_db 
       MYSQL_USER: ellobotron
       MYSQL_PASSWORD: elcubatron
       MYSQL_ROOT_PASSWORD: ipemolaconana
     volumes:
-      - db_data:/var/lib/mysql 
+      - db_data:/var/lib/mysql
 
+  # 4. BASE DE DATOS DE TESTS
   db_test:
     image: mysql:8.0
-    container_name: hombres_lobo_db_test
+    container_name: el_lobotron_db_test
     environment:
-      MYSQL_DATABASE: werewolf_test_db 
+      MYSQL_DATABASE: el_lobotron_test_db
       MYSQL_USER: ellobotron
-      MYSQL_PASSWORD: elcubatron 
+      MYSQL_PASSWORD: elcubatron
       MYSQL_ROOT_PASSWORD: ipemolaconana
-    
-volumes: 
+
+volumes:
   db_data:
