@@ -1,0 +1,29 @@
+# La Base de Datos (MySQL)
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: el_lobotron_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306" 
+    environment:
+      MYSQL_DATABASE: el_lobotron_db
+      MYSQL_USER: ellobotron
+      MYSQL_PASSWORD: elcubatron
+      MYSQL_ROOT_PASSWORD: ipemolaconana
+    volumes:
+      - db_data:/var/lib/mysql 
+
+  db_test:
+    image: mysql:8.0
+    container_name: hombres_lobo_db_test
+    environment:
+      MYSQL_DATABASE: werewolf_test_db 
+      MYSQL_USER: ellobotron
+      MYSQL_PASSWORD: elcubatron 
+      MYSQL_ROOT_PASSWORD: ipemolaconana
+    
+volumes: 
+  db_data:
