@@ -1,9 +1,19 @@
 :root{
+  --dark-color: #553f2c;
   --second-color: #909a7d;
+  --third-color: #9b746b;
+  --font-tittle: 'Medieval';
+  --accent-font: 'Barber';
 }
+
 @font-face {
   font-family: 'Medieval';
   src: url(../public/MedievalSharp-Regular.ttf);
+}
+
+@font-face{
+  font-family: 'Barber';
+  src: url(../public/Barber.otf);
 }
 
 /* Estilos Generales */
@@ -17,21 +27,26 @@ body{
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
+  color: white;
 }
 
-/* Nombre */
+/* Cabecera */
+.header{
+  position: relative;
+  padding: 1rem 1.5rem;
+}
+
+/* Título */
 .name{
+  display: block;
+  font-size: 6rem;
+  width: 100%;
+  margin-top: 100px;
+  text-align: center;
   color: white;
   font-family: 'Medieval';
-  font-size: 100px;
-  width: 300px;
-  height: 200px;
-  display: inline-block;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transform-origin: 50% 60%;
   animation: temblor 0.4s infinite;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 @keyframes temblor{
@@ -45,21 +60,34 @@ body{
 /* Perfil */
 .profile{
   position: absolute;
-  top: 16px;
-  left: 1140px;
+  top: 45px;
+  left: 1030px;
   width: 45px;
   height: 45px;
-  filter: invert();
+  filter: invert(1);
+  transition: transform 0.3s ease;
 }
 
-/* Lobo Caminando */
+.profile:hover{
+  transform:scale(1.1);
+}
+
+/* Escenario */
+.stage{
+  position: relative;
+  width: 100%;
+  height: 900px;
+  text-align: center;
+}
+
+/* Lobo*/
 .wolf{
   width: 128px;
   height: 128px;
   background-image: url('../images/wolf-walk.png');
   transform: scale(2.5);
   position: absolute;
-  bottom: 885px;
+  bottom: 970px;
   left: -900px;
   animation:
     walk 1s steps(7) infinite,
@@ -74,4 +102,42 @@ body{
 @keyframes walk{
   from{background-position: 0 0;}
   to{background-position: -1800px;}
+}
+
+/* Botón de Jugar */
+.play{
+  position: absolute;
+  bottom: 700px;
+  right: 650px;
+  
+  cursor: pointer;
+  font-family: var(--accent-font);
+  color: white;
+  font-size: 65px;
+
+  background-color: var(--second-color);
+  border-radius: 10px;
+  padding: 0.6rem;
+  width: 300px;
+  height: 90px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  border: 4px solid white;
+  
+  margin-top: 150px;
+
+  animation: pulse 1.5s infinite;
+  transition: all 0.3s ease;
+}
+
+@keyframes pulse
+{
+  0%   { box-shadow: 0 0 10px rgba(255,255,255,0.6); }
+  50%  { box-shadow: 0 0 25px rgba(255,255,255,1); }
+  100% { box-shadow: 0 0 10px rgba(255,255,255,0.6); }
+}
+
+.play:hover{
+  background-color: var(--dark-color);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
 }
