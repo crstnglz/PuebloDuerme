@@ -23,6 +23,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'), 
             'is_bot' => false, 
+            'rol' => 'user',
             
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
@@ -36,6 +37,16 @@ class UserFactory extends Factory
             'nickname' => 'Bot_' . fake()->userName(),
             'is_bot' => true,
             'email' => 'bot_' . fake()->unique()->safeEmail(),
+            'rol' => 'user'
         ]);
+    }
+
+    public function admin(): static
+    {
+
+        return $this->state(fn (array $attributes) => [
+            'rol' => 'admin',
+        ]);
+
     }
 }

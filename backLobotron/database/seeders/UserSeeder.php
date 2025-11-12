@@ -19,5 +19,14 @@ class UserSeeder extends Seeder
 
         //crea 2 usuarios "bot".
         User::factory(2)->bot()->create();
+        
+        // crea un admin
+        User::factory()
+            ->admin()  
+            ->create([ 
+                'nickname' => 'Admin',
+                'email' => 'admin@lobotron.com',
+                'password' => 'admin1234' 
+            ]);
     }
 }
