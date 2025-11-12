@@ -118,7 +118,7 @@ body{
 /* Botón de Jugar */
 .play{
   position: absolute;
-  bottom: 700px;
+  bottom: 650px;
   right: 650px;
   
   cursor: pointer;
@@ -156,7 +156,7 @@ body{
 /* Botón de Rol */
 .rol{
   position: absolute;
-  bottom: 600px;
+  bottom: 550px;
   right: 700px;
 
   cursor: pointer;
@@ -184,7 +184,7 @@ body{
 /* Botón de Guía*/
 .guide{
   position: absolute;
-  bottom: 500px;
+  bottom: 450px;
   right: 700px;
 
   cursor: pointer;
