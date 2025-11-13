@@ -16,16 +16,26 @@
   src: url(../public/Barber.otf);
 }
 
-/* Estilos Generales */
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fondo */
 body{
-  position: relative;            
-  width: 500px;
-  height: 1100px;
-  margin: 0 auto;
+  width: 1920px;
+  height: 1080px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-direction: flex-start;
+
   background-image: url('../images/background.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
   overflow: hidden;
   color: white;
 }
@@ -33,16 +43,23 @@ body{
 /* Cabecera */
 .header{
   position: relative;
-  padding: 1rem 1.5rem;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Título */
 .name{
-  display: block;
-  font-size: 6rem;
+  position: relative;
+  font-size: 140px;
   width: 100%;
-  margin-top: 100px;
-  text-align: center;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   color: white;
   font-family: 'Medieval';
   animation: temblor 0.4s infinite;
@@ -57,13 +74,13 @@ body{
   100%{ transform: translate(0, 0) rotate(0deg); }
 }
 
-/* Perfil */
+/* Icono de Perfil */
 .profile{
   position: absolute;
-  top: 45px;
-  left: 1030px;
-  width: 45px;
-  height: 45px;
+  top: 40px;
+  right: 60px;
+  width: 50px;
+  height: 50px;
   filter: invert(1);
   transition: transform 0.3s ease;
 }
@@ -76,27 +93,34 @@ body{
 .stage{
   position: relative;
   width: 100%;
-  height: 900px;
+  height: 880px;
+  display: flex;
+  flex-direction: column;
   text-align: center;
+  justify-content: flex-start;
 }
 
 /* Lobo*/
 .wolf{
-  width: 128px;
+  width: 120px;
   height: 128px;
+
   background-image: url('../images/wolf-walk.png');
+  background-position: 0 0;
   transform: scale(2.5);
+
   position: absolute;
-  bottom: 970px;
-  left: -900px;
+  top: 30px;
+  left: -200px;
+  
   animation:
     walk 1s steps(7) infinite,
-    move 10s linear normal infinite;
+    move 12s linear normal infinite;
 }
 
 @keyframes move{
   0%{translate:0;}
-  100%{translate: 2200px;}
+  100%{translate: 2400px;}
 }
 
 @keyframes walk{
@@ -105,39 +129,46 @@ body{
 }
 
 /* Chica */
-.girl{
+/* .girl{
   width: 128px;
   height: 128px;
+
   background-image: url('../images/girl-run.png');
   transform: scale(1.5);
-  animation: 
-    /* walk 2s steps(8) infinite, */
-    move 10s linear normal infinite;
-}
 
-/* Botón de Jugar */
-.play{
   position: absolute;
-  bottom: 650px;
-  right: 650px;
-  
+  top: 80px;
+  left: -200px;
+
+  animation: 
+    walk 2s steps(8) infinite,2
+    move 11s linear normal infinite;
+} */
+
+/* Botones */
+button{
   cursor: pointer;
   font-family: var(--accent-font);
   color: white;
-  font-size: 65px;
-
-  background-color: var(--second-color);
+  border: 4px solid white;
   border-radius: 10px;
-  padding: 0.6rem;
+  background-color: var(--second-color);
+  transition: all 0.3s ease;
+}
+
+/* Botón principal (JUGAR) */
+.play{
+  position: absolute;
+  bottom: 450px;
+  right: 800px;
+  
+  font-size: 65px;
   width: 300px;
   height: 90px;
+  padding: 10px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-  border: 4px solid white;
-  
-  margin-top: 150px;
 
   animation: pulse 1.5s infinite;
-  transition: all 0.3s ease;
 }
 
 @keyframes pulse
@@ -149,62 +180,50 @@ body{
 
 .play:hover{
   background-color: var(--dark-color);
-  transform: scale(1.05);
+  transform: scale(1.2);
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+  z-index: 10;
 }
 
 /* Botón de Rol */
 .rol{
   position: absolute;
-  bottom: 550px;
-  right: 700px;
+  bottom: 330px;
+  right: 860px;
 
-  cursor: pointer;
-  font-family: var(--accent-font);
-  color: white;
   font-size: 50px;
-
-  background-color: var(--second-color);
-  border-radius: 10px;
-  padding: 0.6rem;
   width: 200px;
-  height: 90px;
-  border: 4px solid white;
-
+  height: 80px;
+  padding: 10px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-
-  transition: all 0.3s ease;
 }
 
 .rol:hover{
   background-color: var(--dark-color);
-  transform: scale(1.05);
+  transform: scale(1.2);
+  z-index: 10;
 }
 
 /* Botón de Guía*/
 .guide{
   position: absolute;
-  bottom: 450px;
-  right: 700px;
+  bottom: 220px;
+  right: 860px;
 
-  cursor: pointer;
-  font-family: var(--accent-font);
-  color: white;
   font-size: 50px;
+  width: 200px;
+  height: 80px;
+  padding: 10px;
 
   background-color: var(--second-color);
   border-radius: 10px;
   padding: 0.5rem;
-  width: 200px;
-  height: 90px;
   border: 4px solid white;
-
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-
-  transition: all 0.3s ease;
 }
 
 .guide:hover{
   background-color: var(--dark-color);
-  transform: scale(1.05);
+  transform: scale(1.2);
+  z-index: 10;
 }
