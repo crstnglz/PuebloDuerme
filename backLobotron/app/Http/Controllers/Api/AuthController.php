@@ -41,7 +41,7 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $profile_photo = 'images/piloto_predeterminado.png';
+        $profile_photo = 'images/usuario_predeterminado.png';
 
         //Crear el Usuario
         $user = User::create([
