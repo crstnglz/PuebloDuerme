@@ -10,7 +10,19 @@
   <body>
     <header class="header">
       <h1 class="name">LOBOTRON</h1>
-      <img class="profile" src="images/profile.png" alt="Perfil del jugador" />
+
+      <div class="profile">
+        <img
+          class="profile-img"
+          src="images/profile.png"
+          alt="Perfil del jugador"
+        />
+
+        <ul class="profile-menu">
+          <li><a href="#">Ver mi perfil</a></li>
+          <li><a href="#">Cerrar sesion</a></li>
+        </ul>
+      </div>
     </header>
 
     <main class="stage">
@@ -21,5 +33,11 @@
       <button class="rol" type="button">ROL</button>
       <button class="guide" type="button">GUIA</button>
     </main>
+
+    <audio autoplay loop>
+      <source src="images/music.mp3" />
+      Tu navegador no soporta el audio.
+    </audio>
+    <script src="src/main.ts"></script>
   </body>
 </html>

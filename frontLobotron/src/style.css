@@ -72,20 +72,56 @@ body{
   100%{ transform: translate(0, 0) rotate(0deg); }
 }
 
-/* Icono de Perfil */
+/* Perfil */
 .profile{
   position: absolute;
-  top: 40px;
-  right: 60px;
+  top: 20px;
+  right: 20px;
+
   width: 50px;
   height: 50px;
-  filter: invert(1);
-  transition: transform 0.3s ease;
+
+  cursor: pointer;
+  z-index: 9999;
+
+font-family: 'Barber';
 }
 
-.profile:hover{
-  transform:scale(1.1);
+.profile-img{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  filter: invert(1);
 }
+
+.profile-menu{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 170px;
+
+  background: var(--second-color);
+  border-radius: 6px;
+
+  position: absolute;
+  top: 60px;
+  right: 0;
+  display: none;
+}
+
+.profile-menu li a{
+  display: block;
+  padding: 14px 18px;
+  font-size: 16px;
+  color: white;
+  text-decoration: none;
+}
+
+.profile-menu li a:hover{
+  background: var(--dark-color);
+  transform: scale(1.2);
+}
+
 
 /* Escenario */
 .stage{
