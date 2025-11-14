@@ -41,6 +41,8 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $profile_photo = 'images/piloto_predeterminado.png';
+
         //Crear el Usuario
         $user = User::create([
             'nickname' => $request->nickname,
@@ -49,6 +51,7 @@ class AuthController extends Controller
             'is_bot' => false,
             // Asignamos el rol por defecto como user
             'rol' => 'user', 
+            'profile_photo' => $profile_photo,
         ]);
 
         // Se crea el token (Esto es como un Auto-Login)
@@ -59,6 +62,7 @@ class AuthController extends Controller
             'nickname' => $user->nickname,
             'rol' => $user->rol,
             'token' => $tokenResult->plainTextToken,
+            'profile_photo' => $user->profile_photo
         ];
 
         // Se envia la respuesta
