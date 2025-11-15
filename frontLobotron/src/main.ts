@@ -5,9 +5,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if(!profile || !menu) return;
 
-  profile.addEventListener('click', () => {
-    const isVisible = menu.style.display === 'block';
-    menu.style.display = isVisible ? 'none' : 'block';
+  profile.addEventListener("click", (e) => {
+    e.stopPropagation()
+    const isVisible = menu.style.display === "block";
+    menu.style.display = isVisible ? "none" : "block";
+  });
+
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if(!profile.contains(target) && !menu.contains(target))
+    {
+      menu.style.display = "none";
+    }
   })
 
   /* Modal de la Guía */
@@ -36,6 +45,16 @@ document.addEventListener("DOMContentLoaded", () => {
       closeBtn.addEventListener("click", () => {
         modal.style.display="none";
       });
+    }
+
+    if(modal)
+    {
+      modal.addEventListener("click", (e) => {
+        if(e.target === modal)
+        {
+          modal.style.display = "none"
+        }
+      })
     }
 
     if(next)
