@@ -21,8 +21,8 @@ class AuthController extends Controller
         ];
 
         $messages = [
-            'nickname.required' => 'El nickname es obligatorio.',
-            'nickname.unique' => 'Ese nickname ya está en uso.',
+            'nickname.required' => 'El nombre de usuario es obligatorio.',
+            'nickname.unique' => 'Ese nombre de usuario ya está en uso.',
             'email.required' => 'El email es obligatorio.',
             'email.email' => 'Debe ser un email válido.',
             'email.unique' => 'El email ya está registrado en la base de datos.',
@@ -59,5 +59,5 @@ class AuthController extends Controller
 
         return $this->login($loginRequest);
     }
-
+    
 }
