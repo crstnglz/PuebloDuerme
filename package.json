@@ -1,0 +1,24 @@
+{
+  "name": "pueblo-duerme",
+  "version": "1.0.0",
+  "description": "Desarrollo de una aplicación web interactiva que permita jugar en línea, de forma automatizada, accesible y dinámica el juego de Hombres lobo de Castronegro.",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crstnglz/Pueblo-Duerme.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crstnglz/Pueblo-Duerme/issues"
+  },
+  "homepage": "https://github.com/crstnglz/Pueblo-Duerme#readme",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
