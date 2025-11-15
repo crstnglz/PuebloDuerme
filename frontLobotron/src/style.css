@@ -237,6 +237,35 @@ body {
 .flip-card__input.input-error {
   border: 2px solid #b00020;
 }
+
+/* OJO DE LA CONTRASEÑA */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+
+  background-image: url('../public/images/ojo-abierto.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+
+  transition: opacity 0.2s ease-in-out;
+}
+
+.toggle-password.open {
+  background-image: url('../public/images/ojo-cerrado.png');
+  opacity: 0.8;
+}
+
+
 /* Para tablets */
 @media (max-width: 768px) {
 
