@@ -31,7 +31,30 @@
 
       <button class="play" type="button">JUGAR</button>
       <button class="rol" type="button">ROL</button>
-      <button class="guide" type="button">GUIA</button>
+
+      <button id="open-guide" class="guide" type="button">GUIA</button>
+      <div id="guide-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+
+          <div class="book">
+            <div class="page active">
+              <h2>Introducción</h2>
+              <p>Los hombres lobos de Castronegro es un juego de deducción...</p>
+            </div>
+
+            <div class="page">
+              <h2>Consejos</h2>
+              <p>Texto de la segunda página...</p>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="prev" class="page-btn"><</button>
+            <button id="next" class="page-btn">></button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <audio autoplay loop>
