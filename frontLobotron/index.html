@@ -32,12 +32,94 @@
       <button class="play" type="button">JUGAR</button>
 
       <button id="open-rol" class="rol" type="button">ROL</button>
-      <div id="rol-modal" class="modal">
+      <div id="roles-modal" class="modal">
         <div class="modal-content">
-          <span class="close rol-close">&times;</span>
+          <span class="close close-roles">&times;</span>
 
-          <h1>Roles del juego</h1>
-        </div>
+          <div class="roles-bar">
+            <img src="images/roles/aldeano.png" alt="Aldeano" class="role-icon" data-role="aldeano">
+            <img src="images/roles/lobo.png" alt="Hombre Lobo" class="role-icon" data-role="lobo">
+            <img src="images/roles/vidente.png" alt="Vidente" class="role-icon" data-role="vidente">
+            <img src="images/roles/ladron.png" alt="Ladrón" class="role-icon" data-role="ladron">
+            <img src="images/roles/cupido.png" alt="Cupido" class="role-icon" data-role="cupido">
+            <img src="images/roles/ninia.png" alt="Niña" class="role-icon" data-role="ninia">
+            <img src="images/roles/bruja.png" alt="Bruja" class="role-icon" data-role="bruja">
+            <img src="images/roles/cazador.png" alt="Cazador" class="role-icon" data-role="cazador">
+            <img src="images/roles/alguacil.png" alt="Alguacil" class="role-icon" data-role="alguacil">
+          </div>
+
+          <div class="book roles-book">
+            <div class="page active" data-page="aldeano">
+              <h1>Aldeano</h1>
+              <p>No tiene ninguna habilidad o poder. Sus únicas armas son la 
+                capacidad de análisis de los comportamientos para identificar a 
+                los Hombres Lobo y su fuerza de convicción para impedir la ejecución de inocentes.
+              </p>
+            </div>
+
+            <div class="page" data-page="lobo">
+              <h1>Hombre Lobo</h1>
+              <p>Durante cada noche, devoran a un aldeano. Durante el día tienen 
+                que ocultar su identidad nocturna para evitar el linchamiento popular.
+              </p>
+            </div>
+
+            <div class="page" data-page="vidente">
+              <h1>Vidente</h1>
+              <p>
+                Es la líder de los defensores de la aldea. Cada noche
+                puede mirar el rol real de un jugador.
+                Debe ayudar a los aldeanos, pero debe ser discreta, 
+                si los hombres lobo la descubren, será el final de su equipo.
+              </p>
+            </div>
+
+            <div class="page" data-page="cupido">
+              <h1>Cupido</h1>
+              <p>
+                Podrá enamorar a 2 jugadores para toda la partida.
+                La primera noche (turno preeliminar), designa a 2 jugadores 
+                enamorados. Cupido puede, si quiere, designarse a sí mismo como 
+                uno de los enamorados. 
+                Si uno de ellos muere, el otro morirá de pena inmediatamente.
+              </p>
+            </div>
+
+            <div class="page" data-page="ninia">
+              <h1>La niña</h1>
+              <p>Puede espiar a los Hombres Lobo por la noche, 
+                mientras cometen sus cacerías. Si la descubren, morirá inmediatamente.
+              </p>
+            </div>
+
+            <div class="page" data-page="ladron">
+              <h1>Ladrón</h1>
+              <p>
+                Una vez durante la partida, este personaje podrá elegir cambiar su carta
+                por la de otro jugador. El personaje que reciba la carta no podrá 
+                volver a cambiarla y será ladrón para el resto de la partida. 
+                El ladrón adquirirá la habilidad del personaje que le haya tocado 
+                obligatoriamente, le guste o no.
+              </p>
+            </div>
+
+            <div class="page" data-page="bruja">
+              <h1>Bruja</h1>
+              <p>Tiene dos pociones: salvar o matar. Una vez cada una.</p>
+            </div>
+
+            <div class="page" data-page="cazador">
+              <h1>Cazador</h1>
+              <p>Al morir puede llevarse a alguien consigo.</p>
+            </div>
+
+            <div class="page" data-page="alguacil">
+              <h1>Alguacil</h1>
+              <p>En el linchamiento, en caso de empate, su voto vale doble.</p>
+            </div>
+          </div>
+
+          </div>
       </div>
 
       <button id="open-guide" class="guide" type="button">GUIA</button>
@@ -135,10 +217,10 @@
       </div>
     </main>
 
-    <!-- <audio autoplay loop>
+    <audio autoplay loop>
       <source src="images/music.mp3" />
       Tu navegador no soporta el audio.
-    </audio> -->
+    </audio>
     <script src="src/main.ts"></script>
   </body>
 </html>

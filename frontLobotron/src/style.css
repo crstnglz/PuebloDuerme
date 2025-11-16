@@ -236,6 +236,43 @@ button{
   z-index: 10;
 }
 
+/* Modal de los Roles */
+.roles-bar{
+  display: flex;
+  gap: 12px;
+
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.role-icon{
+  width: 55px;
+  height: 55px;
+  
+  cursor: pointer;
+  transition: transform .2s,
+              filter .2s;
+  filter: brightness(0.5);
+}
+
+.role-icon:hover{
+  transform: scale(1.15);
+  filter: brightness(1)
+}
+
+.role-icon.selected{
+  filter:brightness(1) !important;
+  transform: scale(1.05);
+}
+
+.roles-book .page{
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
 /* Botón de Guía*/
 .guide{
   position: absolute;
@@ -291,8 +328,8 @@ button{
 
 .close{
   position: absolute;
-  top: 20px;
-  right: 70px;
+  top: 40px;
+  right: 90px;
   font-size: 40px;
   cursor: pointer;
   color: var(--dark-color);

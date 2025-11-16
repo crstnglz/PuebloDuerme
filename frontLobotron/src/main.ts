@@ -19,6 +19,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })
 
+  /* Modal de los Roles */
+  const openRol = document.getElementById("open-rol") as HTMLElement
+  const roleIcons = document.querySelectorAll(".role-icon") as NodeListOf<HTMLElement>
+  const rolePages = document.querySelectorAll(".roles-book .page") as NodeListOf<HTMLElement>
+  const rolesModal = document.getElementById("roles-modal") as HTMLElement
+  const closeRoles = document.querySelector(".close-roles") as HTMLElement
+
+
+  openRol.addEventListener("click", () => {
+    rolesModal.style.display = "flex"
+  })
+
+  roleIcons.forEach(icon => {
+    icon.addEventListener("click", () => {
+      const role = icon.dataset.role
+
+      roleIcons.forEach(i => i.classList.remove("selected"))
+      icon.classList.add("selected")
+
+      rolePages.forEach(p => {
+        if(p.dataset.page === role)
+        {
+          p.classList.add("active")
+        }
+        else
+        {
+          p.classList.remove("active")
+        }
+      })
+    })
+  })
+
+  document.addEventListener("click", (e) => {
+    if (rolesModal.style.display === "flex" && e.target === rolesModal)
+    {
+      rolesModal.style.display = "none"
+    }
+  })
+
+  closeRoles.addEventListener("click", () => {
+    rolesModal.style.display = "none"
+  })
+
   /* Modal de la Guía */
   const modal = document.getElementById("guide-modal") as HTMLElement | null;
   const openBtn = document.getElementById("open-guide") as HTMLElement | null;
