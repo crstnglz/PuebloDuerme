@@ -67,9 +67,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const openBtn = document.getElementById("open-guide") as HTMLElement | null;
   const closeBtn = document.querySelector(".close") as HTMLElement | null;
 
-  const pages = Array.from(
-    document.querySelectorAll(".page")
-  ) as HTMLElement[];
+  const pages = modal
+  ? Array.from(modal.querySelectorAll(".page")) as HTMLElement[]
+  : []
 
   const next = document.getElementById("next") as HTMLElement | null;
   const prev = document.getElementById("prev") as HTMLElement | null;
