@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lobotron</title>
+    <link rel="stylesheet" href="src/main.css" />
+    <link rel="icon" href="images/logo.jpeg" />
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="name">LOBOTRON</h1>
+
+      <div class="profile">
+        <img
+          class="profile-img"
+          src="images/profile.png"
+          alt="Perfil del jugador"
+        />
+
+        <ul class="profile-menu">
+          <li><a href="#">Ver mi perfil</a></li>
+          <li><a href="#">Cerrar sesion</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="wolf"></div>
+      <div class="girl"></div>
+
+      <button class="play" type="button">JUGAR</button>
+
+      <button id="open-rol" class="rol" type="button">ROL</button>
+      <div id="roles-modal" class="modal">
+        <div class="modal-content">
+          <span class="close close-roles">&times;</span>
+
+          <div class="roles-bar">
+            <img src="images/roles/aldeano.png" alt="Aldeano" class="role-icon" data-role="aldeano">
+            <img src="images/roles/lobo.png" alt="Hombre Lobo" class="role-icon" data-role="lobo">
+            <img src="images/roles/vidente.png" alt="Vidente" class="role-icon" data-role="vidente">
+            <img src="images/roles/ladron.png" alt="Ladrón" class="role-icon" data-role="ladron">
+            <img src="images/roles/cupido.png" alt="Cupido" class="role-icon" data-role="cupido">
+            <img src="images/roles/ninia.png" alt="Niña" class="role-icon" data-role="ninia">
+            <img src="images/roles/bruja.png" alt="Bruja" class="role-icon" data-role="bruja">
+            <img src="images/roles/cazador.png" alt="Cazador" class="role-icon" data-role="cazador">
+            <img src="images/roles/alguacil.png" alt="Alguacil" class="role-icon" data-role="alguacil">
+          </div>
+
+          <div class="book roles-book">
+            <div class="page active" data-page="aldeano">
+              <h1>Aldeano</h1>
+              <p>No tiene ninguna habilidad o poder. Sus únicas armas son la 
+                capacidad de análisis de los comportamientos para identificar a 
+                los Hombres Lobo y su fuerza de convicción para impedir la ejecución de inocentes.
+              </p>
+            </div>
+
+            <div class="page" data-page="lobo">
+              <h1>Hombre Lobo</h1>
+              <p>Durante cada noche, devoran a un aldeano. Durante el día tienen 
+                que ocultar su identidad nocturna para evitar el linchamiento popular.
+              </p>
+            </div>
+
+            <div class="page" data-page="vidente">
+              <h1>Vidente</h1>
+              <p>
+                Es la líder de los defensores de la aldea. Cada noche
+                puede mirar el rol real de un jugador.
+                Debe ayudar a los aldeanos, pero debe ser discreta, 
+                si los hombres lobo la descubren, será el final de su equipo.
+              </p>
+            </div>
+
+            <div class="page" data-page="cupido">
+              <h1>Cupido</h1>
+              <p>
+                Podrá enamorar a 2 jugadores para toda la partida.
+                La primera noche (turno preeliminar), designa a 2 jugadores 
+                enamorados. Cupido puede, si quiere, designarse a sí mismo como 
+                uno de los enamorados. 
+                Si uno de ellos muere, el otro morirá de pena inmediatamente.
+              </p>
+            </div>
+
+            <div class="page" data-page="ninia">
+              <h1>La niña</h1>
+              <p>Puede espiar a los Hombres Lobo por la noche, 
+                mientras cometen sus cacerías. Si la descubren, morirá inmediatamente.
+              </p>
+            </div>
+
+            <div class="page" data-page="ladron">
+              <h1>Ladrón</h1>
+              <p>
+                Una vez durante la partida, este personaje podrá elegir cambiar su carta
+                por la de otro jugador. El personaje que reciba la carta no podrá 
+                volver a cambiarla y será ladrón para el resto de la partida. 
+                El ladrón adquirirá la habilidad del personaje que le haya tocado 
+                obligatoriamente, le guste o no.
+              </p>
+            </div>
+
+            <div class="page" data-page="bruja">
+              <h1>Bruja</h1>
+              <p>Tiene dos pociones: salvar o matar. Una vez cada una.</p>
+            </div>
+
+            <div class="page" data-page="cazador">
+              <h1>Cazador</h1>
+              <p>Al morir puede llevarse a alguien consigo.</p>
+            </div>
+
+            <div class="page" data-page="alguacil">
+              <h1>Alguacil</h1>
+              <p>En el linchamiento, en caso de empate, su voto vale doble.</p>
+            </div>
+          </div>
+
+          </div>
+      </div>
+
+      <button id="open-guide" class="guide" type="button">GUIA</button>
+      <div id="guide-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+
+          <div class="book">
+            <div class="page active">
+              <h1>Introducción</h1>
+              <p>
+                Los <strong>Lobos de Castronegro</strong> es un juego de deducción y roles
+                ocultos, donde los jugadores deben trabajar en equipo para 
+                descubrir quiénes son los lobos que acechan al pueblo. Los 
+                aldeanos deben eliminar a los lobos, mientras que los lobos 
+                intentan pasar desapercibidos y devorar a los aldeanos uno
+                por uno. El juego es dinámico y emocionante, con personajes 
+                especiales que añaden variedad a cada partida.
+              </p>
+            </div>
+
+            <div class="page">
+              <h1>Objetivo del juego</h1>
+              <p>
+                <strong>Aldeanos:</strong> el objetivo de los aldeanos es descubrir y
+                eliminar a todos los hombres lobo. Como 
+                los aldeanos no conocen la identidad de los
+                lobos, deben deducirla a través de discusiones y votaciones.
+                <br>
+                <strong>Hombres lobo:</strong> los lobos deben eliminar a todos los aldeanos sin ser descubiertos. 
+                Cada noche se reúnen en secreto para seleccionar a una víctima.
+                <br>
+                <strong>Tercer bando (opcional):</strong> si el personaje de Cupido está en juego, puede enamorar
+                a dos jugadores (uno lobo y uno aldeano), que formarán un bando independiente.
+                Su objetivo es sobrevivir juntos hasta el final de la partida.
+              </p>
+            </div>
+
+            <div class="page">
+                <h1>Preparación del juego</h1>
+                <p>
+                  <strong>Reparto de roles:</strong> Cada jugador recibe una carta en secreto que indica 
+                  su personaje (aldeano, hombre lobo o personaje especial). El narrador, que organiza el juego, 
+                  no participa directamente pero conoce los roles de todos.
+                  <br>
+                  <strong>Número de lobos:</strong> dependiendo del número de jugadores, se ajusta el número 
+                  de hombres lobo. Para 8 a 11 jugadores, se recomienda usar 2 lobos; para más de 12 jugadores, 3 lobos.
+                  <br>
+                  <strong>Posición de los jugadores:</strong> los jugadores se sientan en círculo, y el narrado 
+                  se ubica en un lugar desde donde pueda controlar las fases de la partida.
+                </p>
+            </div>
+
+            <div class="page">
+              <h1>Desarrollo de la partida</h1>
+              <p>
+                El juego se desarrolla en rondas que alternan entre noche y día. 
+                <br>
+                <strong>Noche:</strong> durante la noche, los lobos seleccionan en secreto a una víctima para devorar, 
+                y los personajes especiales como la vidente y la bruja actúan según sus poderes. 
+                <br>
+                <strong>Día:</strong> al amanecer, el narrador anunca quién fue devorado por los lobos durante la noche. El jugador eliminado revela 
+                su carta y sale del juego. Luego, comienza el debate entre los jugadores. Los aldeanos intentan descubrir quiénes son 
+                los lobos, mientras que los lobos deben fingir ser aldeanos para no ser descubiertos.
+                <br>
+                <strong>Elección de Alguacil:</strong> en cualquier momento del día, los jugadores pueden elegir a un Alguacil. El narrador les pedirá que voten por un jugador para ocupar este puesto.
+                <br>
+                <strong>Votación y linchamiento:</strong> después del debate, los jugadores votan para eliminar a un posible hombre lobo. 
+                El jugador que reciba más votos es linchado y debe revelar su carta. Si hay un empate, el voto del Alguacil tiene un valor decisivo.
+                Si no hay Alguacil, se puede hacer una segunda votación entre los jugadores empatados.
+                <br>
+                Tras la eliminación de un jugador, se repite el ciclo de noche y día hasta que un bando logre la victoria.
+              </p>
+            </div>
+
+            <div class="page">
+              <h1>Finalización del juego</h1>
+              <p>
+                <strong>Victoria de los aldeanos:</strong> si logran descubrir y eliminar a todos los hombres lobo.
+                <br>
+                <strong>Victoria de los hombres lobo:</strong> si eliminan a suficientes aldeanos para que el número de lobos iguale 
+                o supere al de los aldeanos. 
+                <br>
+                <strong>Victoria de los enamorados:</strong> si los dos jugadores enamorados sobreviven juntos hasta el final de la partida, 
+                ganan como un bando independiente.
+              </p>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="prev" class="page-btn"><</button>
+            <button id="next" class="page-btn">></button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <audio autoplay loop>
+      <source src="images/music.mp3" />
+      Tu navegador no soporta el audio.
+    </audio>
+    <script src="src/main.ts"></script>
+  </body>
+</html>
