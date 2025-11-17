@@ -8,12 +8,12 @@
 
 @font-face {
   font-family: 'Medieval';
-  src: url(../public/MedievalSharp-Regular.ttf);
+  src: url(../public/font/MedievalSharp-Regular.ttf);
 }
 
 @font-face{
   font-family: 'Barber';
-  src: url(../public/Barber.otf);
+  src: url(../public/font/Barber.otf);
 }
 
 *{
@@ -24,14 +24,13 @@
 
 /* Fondo */
 body{
-  width: 1920px;
-  height: 1080px;
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-direction: flex-start;
 
-  background-image: url('../images/background.png');
+  background-image: url('../imagesUI/background.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -44,22 +43,24 @@ body{
 .header{
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 40px;
 }
 
 /* Título */
 .name{
   position: relative;
-  font-size: 160px;
-  margin-top: 180px;
+  font-size: clamp(3rem, 8vw, 10rem);
+  margin-top: clamp(80px, 15vh, 180px);
+  margin-left: clamp(50px, 8vw, 200px);
   justify-content: center;
   text-align: center;
 
   color: white;
-  font-family: 'Medieval';
+  font-family: var(--font-tittle);
   animation: temblor 0.4s infinite;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
 }
@@ -84,7 +85,7 @@ body{
   cursor: pointer;
   z-index: 9999;
 
-font-family: 'Barber';
+font-family: var(--accent-font);
 }
 
 .profile-img{
@@ -126,11 +127,11 @@ font-family: 'Barber';
 .stage{
   position: relative;
   width: 100%;
-  height: 880px;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  text-align: center;
-  justify-content: flex-start;
+  justify-content: center;
+  padding: 40px;
 }
 
 /* Lobo*/
@@ -138,50 +139,29 @@ font-family: 'Barber';
   width: 120px;
   height: 128px;
 
-  background-image: url('../images/wolf-walk.png');
+  background-image: url('../imagesUI/wolf-walk2.png');
   background-position: 0 0;
-  transform: scale(3.5);
+  background-size: auto;
 
   position: absolute;
+  top: clamp(180px, 25vh, 260px);
   left: -200px;
+
+  transform: scale(clamp(1.5, 3vw, 3.5));
+  transform-origin: bottom left;
   
   animation:
     walk 1s steps(7) infinite,
     move 12s linear normal infinite;
 }
 
-@keyframes move{
-  0%{translate:0;}
-  100%{translate: 2400px;}
-}
-
-@keyframes walk{
-  from{background-position: 0 0;}
-  to{background-position: -1800px;}
-}
-
-/* Chica */
-/* .girl{
-  width: 128px;
-  height: 128px;
-
-  background-image: url('../images/girl-run.png');
-  transform: scale(1.5);
-
-  position: absolute;
-  top: 80px;
-  left: -200px;
-
-  animation: 
-    walk 2s steps(8) infinite,2
-    move 11s linear normal infinite;
-} */
-
 /* Botones */
 button{
   cursor: pointer;
   font-family: var(--accent-font);
   color: white;
+
+  width: clamp(150px, 40xw, 500px);
   border: 4px solid white;
   border-radius: 10px;
   background-color: var(--second-color);
@@ -190,14 +170,11 @@ button{
 
 /* Botón principal (JUGAR) */
 .play{
-  position: absolute;
-  bottom: 430px;
-  left: 200px;
-  
-  font-size: 80px;
-  width: 500px;
-  height: 110px;
-  padding: 10px;
+  font-size: clamp(2rem, 5vw, 5rem);
+  width: clamp(200px, 40vw, 500px);
+  height: clamp(60px, 10vh, 110px);
+  margin-bottom: 2rem;
+  margin-left: clamp(50px, 10vw, 200px);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
 
   animation: pulse 1.5s infinite;
@@ -217,16 +194,20 @@ button{
   z-index: 10;
 }
 
-/* Botón de Rol */
-.rol{
-  position: absolute;
-  bottom: 330px;
-  left: 200px;
 
-  font-size: 50px;
-  width: 230px;
-  height: 80px;
-  padding: 10px;
+/* Botones */
+.buttons{
+  display: flex;
+  justify-content: flex-start;
+  gap: 40px;
+  margin-left: clamp(50px, 10vw, 200px);
+  margin-bottom: 2rem;
+}
+
+.rol, .guide{
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  width: clamp(150px, 30vw, 230px);
+  height: clamp(50px, 8vh, 80px);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
 }
 
@@ -273,24 +254,6 @@ button{
   padding-right: 10px;
 }
 
-/* Botón de Guía*/
-.guide{
-  position: absolute;
-  bottom: 330px;
-  left: 470px;
-
-  font-size: 50px;
-  width: 230px;
-  height: 80px;
-  padding: 10px;
-
-  background-color: var(--second-color);
-  border-radius: 10px;
-  padding: 0.5rem;
-  border: 4px solid white;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-}
-
 .guide:hover{
   background-color: var(--dark-color);
   transform: scale(1.2);
@@ -315,11 +278,13 @@ button{
 }
 
 .modal-content{
+  max-width: 90%;
+  max-height: 80%;
   width: 900px;
   height: 600px;
   padding: 40px;
 
-  background: url('../images/parchment.png');
+  background: url('../imagesUI/parchment.png');
   background-size: cover;
   background-position: center;
 

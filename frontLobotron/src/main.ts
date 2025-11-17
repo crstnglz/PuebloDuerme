@@ -1,10 +1,14 @@
-// src/main.ts
-
+import { indexUI } from './indexUI';
 import { initRegisterForm } from './register';
-import { indexUI } from './indexUI'
-
 
 document.addEventListener('DOMContentLoaded', () => {
-    initRegisterForm();
+  const path = window.location.pathname;
+
+  if (path.includes("indexUI")) {
     indexUI();
+  }
+
+  if (path.includes("register")) {
+    initRegisterForm();
+  }
 });
