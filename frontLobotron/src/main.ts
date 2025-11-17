@@ -3,11 +3,27 @@
 import { initRegisterForm } from './register';
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    initRegisterForm();
-    
+document.addEventListener('DOMContentLoaded', () => {  /* Menú del Perfil */
+  const profile = document.querySelector('.profile') as HTMLElement | null;
+  const menu = document.querySelector('.profile-menu') as HTMLElement | null;
 
+  if(!profile || !menu) return;
+
+  profile.addEventListener("click", (e) => {
+    e.stopPropagation()
+    const isVisible = menu.style.display === "block";
+    menu.style.display = isVisible ? "none" : "block";
+  });
+
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if(!profile.contains(target) && !menu.contains(target))
+    {
+      menu.style.display = "none";
+    }
+    initRegisterForm();
 });
+
 document.addEventListener("DOMContentLoaded", () => {
   /* Menú del Perfil */
   const profile = document.querySelector('.profile') as HTMLElement | null;
