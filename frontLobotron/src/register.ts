@@ -158,7 +158,7 @@ async function handleRegisterSubmit(event: Event) {
     }));
 
     setTimeout(() => {
-      window.location.href = '/index.html';
+      window.location.href = '/main.html';
     }, 1500);
 
   } catch (errorData: any) {
