@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso - Lobos de Castronegro</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="/frontLobotron/public/images/logo.jpg"
+    />
+
+    <link rel="stylesheet" href="src/index.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="forest-eyes"></div>
+      <div class="flip-card__back">
+        <h1 class="title">Registrarse</h1>
+        <form id="register-form" class="flip-card__form" action="">
+          <input
+            id="nickname"
+            class="flip-card__input"
+            placeholder="Nombre de usuario"
+            type="nickname"
+            required
+            minlength="3"
+            maxlength="20"
+            pattern="^\S+$"
+            title="El nombre de usuario no puede contener espacios."
+          />
+          <input
+            id="email"
+            class="flip-card__input"
+            name="email"
+            placeholder="Email"
+            type="email"
+            required
+            pattern="^\S+$"
+            title="El correo no puede contener espacios en ninguna parte."
+          />
+          <div class="password-wrapper">
+            <input
+              id="password"
+              class="flip-card__input"
+              name="password"
+              placeholder="Contraseña"
+              type="password"
+              required
+              minlength="8"
+              maxlength="50"
+              pattern="^\S+$"
+              title="La contraseña no puede contener espacios."
+            />
+            <span class="toggle-password" data-target="password"></span>
+          </div>
+
+          <div class="password-wrapper">
+            <input
+              id="passwordConfirm"
+              class="flip-card__input"
+              name="password_confirm"
+              placeholder="Confirmar contraseña"
+              type="password"
+              required
+              minlength="8"
+              maxlength="50"
+              pattern="^\S+$"
+              title="La contraseña no puede contener espacios."
+            />
+            <span class="toggle-password" data-target="passwordConfirm"
+              ></span
+            >
+          </div>
+          <div id="general-message" class="message-box"></div>
+          <button class="flip-card__btn" type="submit">¡Unirse!</button>
+        </form>
+        <div class="switch-link">
+          ¿Ya tienes cuenta? <label for="flip-toggle">Acceder</label>
+        </div>
+      </div>
+    </div>
+    <script src="src/main.ts" type="module"></script>
+  </body>
+</html>

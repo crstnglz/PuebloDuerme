@@ -1,0 +1,27 @@
+:root {
+    /* Colores base de la guía */
+    --color-principal: #b39376;
+    --color-secundario: #c7ae90;
+    --color-neutro: #dfccb8;
+    --color-acento-1: #87765e;
+    --color-contraste: #553f2c;
+    --color-crema: #fdf8e4;
+    --color-acento-2: #9b746b;     
+    --color-acento-3: #909a7d;      
+    --color-ojos: #fa9716; 
+
+    /* Mapeo temático: usado por los componentes */
+    --main-color: var(--color-contraste);
+    --font-color: var(--color-contraste);
+    --font-color-sub: var(--color-acento-1);
+    --input-focus: var(--color-ojos);
+
+    --bg-color: var(--color-neutro);
+    --bg-color-alt: var(--color-secundario);
+
+    --card-bg: var(--color-principal);  
+
+    --light-font: var(--color-crema);
+
+    --dark-bg: #2a1f18; 
+}

@@ -1,3 +1,13 @@
+// src/main.ts
+
+import { initRegisterForm } from './register';
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    initRegisterForm();
+    
+
+});
 document.addEventListener("DOMContentLoaded", () => {
   /* Menú del Perfil */
   const profile = document.querySelector('.profile') as HTMLElement | null;
