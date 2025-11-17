@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lobotron</title>
-    <link rel="stylesheet" href="src/indexUI.css" />
-    <link rel="icon" href="images/logo.jpeg" />
+    <link rel="stylesheet" href="../src/indexUI.css" />
+    <link rel="icon" href="imagesUI/logo.jpeg" />
   </head>
   <body>
     <header class="header">
@@ -14,7 +14,7 @@
       <div class="profile">
         <img
           class="profile-img"
-          src="images/profile.png"
+          src="../imagesUI/profile.png"
           alt="Perfil del jugador"
         />
 
@@ -27,25 +27,29 @@
 
     <main class="stage">
       <div class="wolf"></div>
-      <div class="girl"></div>
 
       <button class="play" type="button">JUGAR</button>
 
+      <div class="buttons">
       <button id="open-rol" class="rol" type="button">ROL</button>
+      <button id="open-guide" class="guide" type="button">GUIA</button>
+      </div>
+
+      <!-- Modal de Roles -->
       <div id="roles-modal" class="modal">
         <div class="modal-content">
           <span class="close close-roles">&times;</span>
 
           <div class="roles-bar">
-            <img src="images/roles/aldeano.png" alt="Aldeano" class="role-icon" data-role="aldeano">
-            <img src="images/roles/lobo.png" alt="Hombre Lobo" class="role-icon" data-role="lobo">
-            <img src="images/roles/vidente.png" alt="Vidente" class="role-icon" data-role="vidente">
-            <img src="images/roles/ladron.png" alt="Ladrón" class="role-icon" data-role="ladron">
-            <img src="images/roles/cupido.png" alt="Cupido" class="role-icon" data-role="cupido">
-            <img src="images/roles/ninia.png" alt="Niña" class="role-icon" data-role="ninia">
-            <img src="images/roles/bruja.png" alt="Bruja" class="role-icon" data-role="bruja">
-            <img src="images/roles/cazador.png" alt="Cazador" class="role-icon" data-role="cazador">
-            <img src="images/roles/alguacil.png" alt="Alguacil" class="role-icon" data-role="alguacil">
+            <img src="imagesUI/roles/aldeano.png" alt="Aldeano" class="role-icon" data-role="aldeano">
+            <img src="imagesUI/roles/lobo.png" alt="Hombre Lobo" class="role-icon" data-role="lobo">
+            <img src="imagesUI/roles/vidente.png" alt="Vidente" class="role-icon" data-role="vidente">
+            <img src="imagesUI/roles/ladron.png" alt="Ladrón" class="role-icon" data-role="ladron">
+            <img src="imagesUI/roles/cupido.png" alt="Cupido" class="role-icon" data-role="cupido">
+            <img src="imagesUI/roles/ninia.png" alt="Niña" class="role-icon" data-role="ninia">
+            <img src="imagesUI/roles/bruja.png" alt="Bruja" class="role-icon" data-role="bruja">
+            <img src="imagesUI/roles/cazador.png" alt="Cazador" class="role-icon" data-role="cazador">
+            <img src="imagesUI/roles/alguacil.png" alt="Alguacil" class="role-icon" data-role="alguacil">
           </div>
 
           <div class="book roles-book">
@@ -122,7 +126,7 @@
           </div>
       </div>
 
-      <button id="open-guide" class="guide" type="button">GUIA</button>
+      <!-- Modal de Guía -->
       <div id="guide-modal" class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
@@ -218,9 +222,9 @@
     </main>
 
     <audio autoplay loop>
-      <source src="images/music.mp3" />
+      <source src="imagesUI/music.mp3" />
       Tu navegador no soporta el audio.
     </audio>
-    <script src="src/main.ts"></script>
+    <script type="module" src="src/main.ts"></script>
   </body>
 </html>
