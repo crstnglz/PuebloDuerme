@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // src/main.ts
 
 import { initRegisterForm } from './register';
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
 });
-=======
 document.addEventListener("DOMContentLoaded", () => {
   /* Menú del Perfil */
   const profile = document.querySelector('.profile') as HTMLElement | null;
@@ -140,4 +138,3 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 });
->>>>>>> dev
