@@ -1,6 +1,6 @@
-import { initRegisterForm } from './pages/index';
+import { initRegisterForm, clearRegisterForm } from './pages/register';
+import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
-import { initLoginForm , clearLoginForm} from './pages/login';
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
@@ -8,17 +8,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (path.endsWith("/") || path.endsWith("/index.html")) {
         initRegisterForm();
         initLoginForm();
+
+        const flipToggle = document.getElementById('flip-toggle') as HTMLInputElement;
+
+        if (flipToggle) {
+            flipToggle.addEventListener('change', () => {
+
+                if (flipToggle.checked) {
+                    // Mostrar LOGIN
+                    clearLoginForm();     
+                    initLoginForm();      
+                } else {
+                    // Mostrar REGISTER
+                    clearRegisterForm?.();
+                    initRegisterForm();   
+                }
+            });
+        }
     }
 
     if (path.includes("indexUI.html")) {
         indexUI();
     }
-
-    // Lógica para el flip entre login y registro (si es necesaria)
-    const flipToggle = document.getElementById('flip-toggle') as HTMLInputElement;
-    if (flipToggle) {
-        flipToggle.addEventListener('change', () => {
-            clearLoginForm;
-        });
-      }
 });

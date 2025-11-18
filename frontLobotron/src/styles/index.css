@@ -1,5 +1,22 @@
-@import url("variables.css");
+/* src/styles/index.css */
+
+/* Importa variables (si existe variables.css en la misma carpeta) */
+@import "./variables.css";
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&display=swap');
+
+/* FONTS (si pones los ttf/otf en public root) */
+@font-face {
+  font-family: 'Medieval';
+  src: url('/MedievalSharp-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Barber';
+  src: url('/Barber.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
 
 /* MODELO DE CAJA */
 *,
@@ -12,10 +29,11 @@
 body {
   margin: 0;
   font-family: "Merriweather", serif;
-  background-image: url("../public/images/fondo-inicio.jpg");
+  background-image: url("/images/fondo-inicio.jpg");
   background-size: cover;
   background-attachment: fixed;
   background-position: center center;
+  color: #fff;
 }
 
 /* WRAPPER */
@@ -25,9 +43,11 @@ body {
   place-items: center;
   background-color: rgba(29, 26, 24, 0.85);
   position: relative;
+  overflow: hidden;
+  padding: 20px;
 }
 
-/* OJOS DEL BOSQUE */
+/* OJOS ANIMADOS DEL FONDO */
 .forest-eyes {
   position: fixed;
   top: 0;
@@ -42,31 +62,76 @@ body {
   position: absolute;
   width: 90px;
   height: 55px;
-  background-image: url("../public/images/ojos.png");
+  background-image: url("/images/ojos.png");
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.9;
   animation: blink 4.5s infinite ease-in-out;
 }
 
+/* Posiciones por defecto (puedes ajustarlas) */
+.eye1 { left: 5vw;  top: 9vh;}
+.eye2 { left: 1vw;  top: 87vh; animation-delay: 1.2s; }
+.eye3 { left: 22vw; top: 8vh; animation-delay: 0.6s; }
+.eye4 { left: 69vw; top: 5vh; animation-delay: 2s; }
+.eye5 { left: 89vw; top: 7vh; animation-delay: 1.7s; }
+.eye6 { left: 45vw; top: 9vh; animation-delay: 0.3s; }
+.eye7 { left: 94vw; top: 88vh; animation-delay: 2.5s; }
+
 @keyframes blink {
   0%, 90%, 100% { transform: scaleY(1); }
   95% { transform: scaleY(0.1); }
 }
 
-/* CARD (LOGIN & REGISTRO) */
+/* TARJETAS (LOGIN + REGISTRO) */
+.flip-wrapper {
+  width: 300px;
+  height: 460px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s ease-in-out;
+  margin: 0 auto;
+  z-index: 20;
+  perspective: 1200px;
+}
+
+/* Estilo compartido de ambas caras */
 .flip-card__front,
 .flip-card__back {
   padding: 20px;
-  width: 300px;
-  background: rgba(179, 147, 118, 0.85);
+  width: 100%;
+  height: 100%;
+  background: rgba(179, 147, 118, 0.95);
   border-radius: 5px;
   border: 2px solid var(--main-color);
   box-shadow: 4px 4px var(--main-color);
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Front (login) visible por defecto */
+.flip-wrapper .flip-card__front {
+  transform: rotateY(0deg);
+  z-index: 30;
+}
+
+/* Back (registro) girada 180deg */
+.flip-wrapper .flip-card__back {
+  transform: rotateY(180deg);
+  z-index: 10;
+}
+
+/* checkbox checked -> gira el wrapper */
+#flip-toggle:checked ~ .flip-wrapper {
+  transform: rotateY(180deg);
 }
 
 /* FORM */
@@ -74,115 +139,186 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  margin-top: 6px;
 }
 
 /* TITULO */
 .title {
   margin: 0;
-  font-size: 25px;
+  font-size: 24px;
   font-weight: 900;
   color: var(--main-color);
+  font-family: var(--font-tittle, 'Medieval');
 }
 
-/* INPUT */
+/* INPUTS */
 .flip-card__input {
   width: 250px;
   height: 40px;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border-radius: 5px;
   border: 2px solid var(--main-color);
-  background-color: var(--bg-color);
+  background-color: var(--bg-color, rgba(255,255,255,0.05));
   box-shadow: 4px 4px var(--main-color);
   font-size: 15px;
   font-weight: 600;
-  color: var(--font-color);
+  color: var(--font-color, #fff);
+  outline: none;
+}
+
+/* PLACEHOLDER */
+.flip-card__input::placeholder {
+  color: var(--font-color-sub, rgba(255,255,255,0.7));
+  opacity: 0.9;
+}
+
+.flip-card__input:focus {
+  border: 2px solid var(--input-focus, #fff);
 }
 
 /* BOTÓN */
 .flip-card__btn {
-  width: 120px;
-  height: 40px;
+  width: 140px;
+  height: 44px;
   border-radius: 5px;
   border: 2px solid var(--main-color);
-  background-color: var(--bg-color-alt);
+  background-color: var(--bg-color-alt, rgba(255,255,255,0.06));
   box-shadow: 4px 4px var(--main-color);
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: .2s;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+  color: var(--font-color, #fff);
+}
+
+.flip-card__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px var(--main-color);
+}
+
+/* LINKS para cambiar de form */
+.switch-link {
+  font-size: 14px;
+  color: var(--main-color);
+  text-align: center;
+  margin-top: 6px;
+  z-index: 40;
 }
 
 .switch-link label {
-  color: var(--light-font);
+  color: var(--light-font, #fff);
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
 }
 
-
-/* .forgot-link label {
-  font-size: 13px;
-  color: var(--main-color);
-  text-decoration: underline;
-  cursor: pointer;
-} */
-
-.flip-wrapper {
-  width: 300px;
-  height: 460px;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.7s ease-in-out;
-  margin: 0 auto; 
-  display: block;
-  z-index: 10;
-}
-
-.flip-wrapper .flip-card__front,
-.flip-wrapper .flip-card__back {
-  position: absolute;
-  top: 0;
-  left: 0;
+/* Mensajes */
+.message-box {
   width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform-style: preserve-3d;
+  min-height: 1.1em;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.flip-wrapper .flip-card__front {
-  transform: rotateY(0deg);
-  z-index: 20;
+/* Error y éxito */
+.error-message {
+  color: #b00020;
+  background-color: rgba(255, 0, 0, 0.08);
+  border: 1px solid #b00020;
+  padding: 4px;
+  border-radius: 3px;
+  font-size: 12px;
 }
 
-.flip-wrapper .flip-card__back {
-  transform: rotateY(180deg);
-  z-index: 10;
+.success-message {
+  color: #007000;
+  background-color: rgba(0, 128, 0, 0.08);
+  border: 1px solid #007000;
+  padding: 4px;
+  border-radius: 3px;
+  font-size: 12px;
 }
 
-/* cuando el checkbox está checked → rotar el wrapper 180deg */
-#flip-toggle:checked ~ .flip-wrapper {
-  transform: rotateY(180deg);
+/* INPUT con error */
+.flip-card__input.input-error {
+  border: 2px solid #b00020;
 }
 
-.switch-link,
-.forgot-link {
-  z-index: 30;
+/* OJO (mostrar/ocultar contraseña) - común para ambos formularios */
+.password-wrapper {
   position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
-/* pequeño ajuste responsive: si cambias tamaño de tarjetas en media queries, actualiza .flip-wrapper */
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: block;
+  background-image: url("/images/ojo-abierto.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+
+  /* FIX para que funcione tanto en login como en registro */
+  left: auto;
+  right: 14px;
+}
+
+/* estado "open" (contraseña visible) */
+.toggle-password.open {
+  background-image: url("/images/ojo-cerrado.png");
+  opacity: 0.9;
+}
+
+/* responsive - adapta posición cuando ancho pequeño */
 @media (max-width: 480px) {
   .flip-wrapper {
     width: 90%;
     max-width: 340px;
-    height: auto; 
+    height: auto;
+    min-height: 360px;
   }
+
   .flip-wrapper .flip-card__front,
   .flip-wrapper .flip-card__back {
-    position: relative; 
-    transform: none;    
+    position: relative;
+    transform: none;
+    height: auto;
   }
-  
+
+  .password-wrapper {
+    width: 100%;
+  }
+
+  .toggle-password {
+    right: 14px;
+  }
+
+  .flip-card__input {
+    width: calc(100% - 40px);
+  }
+}
+
+/* pequeñas mejoras visuales */
+.flip-card__back::before {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 3px;
+  background: var(--main-color);
+  opacity: 0.5;
+  transform: rotate(15deg);
+  top: 8px;
+  right: -6px;
+  pointer-events: none;
 }

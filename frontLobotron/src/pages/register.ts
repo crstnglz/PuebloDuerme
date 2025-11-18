@@ -39,24 +39,24 @@ export function initRegisterForm() {
   clearErrors();
   spawnEyes(NUM_EYES);
 
-// Activar los botones de mostrar/ocultar contraseña
-const toggleButtons = document.querySelectorAll(".toggle-password");
+  // Activar los botones de mostrar/ocultar contraseña
+  const toggleButtons = document.querySelectorAll(".toggle-password");
 
-toggleButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
+  toggleButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
 
-    const targetId = btn.getAttribute("data-target");
-    const input = document.getElementById(targetId!) as HTMLInputElement;
+      const targetId = btn.getAttribute("data-target");
+      const input = document.getElementById(targetId!) as HTMLInputElement;
 
-    if (!input) return;
+      if (!input) return;
 
-    const isHidden = input.type === "password";
+      const isHidden = input.type === "password";
 
-    input.type = isHidden ? "text" : "password";
+      input.type = isHidden ? "text" : "password";
 
-    btn.classList.toggle("open", isHidden);
+      btn.classList.toggle("open", isHidden);
+    });
   });
-});
 }
 
 // Maneja todo el proceso cuando se envía el formulario
@@ -112,7 +112,7 @@ async function handleRegisterSubmit(event: Event) {
 
   // Contraseña fuerte
   const strongPasswordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*.,:;?(){}\[\]\-_+]).{8,}$/;
+    /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[!@#$%^&*.,:;?(){}\[\]\-_+]).{8,}$/;
 
   if (!strongPasswordRegex.test(password)) {
     passwordInput.classList.add("input-error");
@@ -210,7 +210,7 @@ const handleApiErrors = function (errorData: any) {
 }
 
 // Limpia los errores visuales del formulario
-const clearErrors =  function () {
+const clearErrors = function () {
   generalMessage.textContent = '';
   generalMessage.classList.remove('success-message', 'error-message');
 
@@ -218,4 +218,21 @@ const clearErrors =  function () {
   emailInput.classList.remove('input-error');
   passwordInput.classList.remove('input-error');
   confirmPasswordInput.classList.remove('input-error');
+}
+
+/* ➕ NUEVO → Limpieza completa para el flip */
+export const clearRegisterForm = function(): void {
+  clearErrors();
+  registerForm?.reset();
+
+  const passwordInputs = document.querySelectorAll<HTMLInputElement>(
+    '#password, #passwordConfirm'
+  );
+
+  passwordInputs.forEach(input => {
+    if (input.type === 'text') input.type = 'password';
+  });
+
+  document.querySelectorAll<HTMLElement>('.toggle-password')
+    .forEach(btn => btn.classList.remove('open'));
 }

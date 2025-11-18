@@ -1,17 +1,20 @@
-
 import { loginUser } from '../providers/auth.provider';
 
-let loginForm: HTMLFormElement;
-let loginIdentifier: HTMLInputElement;
-let loginPassword: HTMLInputElement;
-let loginGeneralMessage: HTMLDivElement;
+let loginForm: HTMLFormElement | null = null;
+let loginIdentifier: HTMLInputElement | null = null;
+let loginPassword: HTMLInputElement | null = null;
+let loginGeneralMessage: HTMLDivElement | null = null;
 
 const NUM_EYES = 7;
 
-// Crea los ojos decorativos del fondo (compartido)
+/* ============================================================
+   CREA OJOS EN EL FONDO (evita duplicados)
+============================================================ */
 function spawnEyes(num: number) {
-  const forestEyes = document.querySelector(".forest-eyes");
+  const forestEyes = document.querySelector(".forest-eyes") as HTMLElement | null;
   if (!forestEyes) return;
+
+  if (forestEyes.childElementCount >= num) return;
 
   for (let i = 1; i <= num; i++) {
     const eye = document.createElement("div");
@@ -20,125 +23,111 @@ function spawnEyes(num: number) {
   }
 }
 
-// Preparo el formulario de login
-export function initLoginForm() {
-  loginForm = document.getElementById('login-form') as HTMLFormElement;
-  loginIdentifier = document.getElementById('login-identifier') as HTMLInputElement;
-  loginPassword = document.getElementById('login-password') as HTMLInputElement;
-  loginGeneralMessage = document.getElementById('login-general-message') as HTMLDivElement;
+/* ============================================================
+   INICIALIZACIÓN DEL FORMULARIO LOGIN
+============================================================ */
+export function initLoginForm(): void {
 
+  loginForm = document.getElementById('login-form') as HTMLFormElement | null;
+  loginIdentifier = document.getElementById('login-identifier') as HTMLInputElement | null;
+  loginPassword = document.getElementById('login-password') as HTMLInputElement | null;
+  loginGeneralMessage = document.getElementById('login-general-message') as HTMLDivElement | null;
+
+  // Evita registrar múltiples listeners
   if (loginForm) {
-    loginForm.addEventListener('submit', handleLoginSubmit);
+    loginForm.addEventListener('submit', handleLoginSubmit, { once: true });
   }
 
-  clearLoginErrors();
   spawnEyes(NUM_EYES);
 
-  // Activar los botones de mostrar/ocultar contraseña (compartido)
-  const toggleButtons = document.querySelectorAll(".toggle-password");
+  // REACTIVA EL OJO SIEMPRE QUE SE CARGA EL LOGIN
+  setupPasswordToggles();
+}
+
+/* ============================================================
+   TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
+============================================================ */
+function setupPasswordToggles(): void {
+
+  const toggleButtons = document.querySelectorAll<HTMLElement>(".toggle-password");
 
   toggleButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const targetId = btn.getAttribute("data-target");
-      const input = document.getElementById(targetId!) as HTMLInputElement;
 
+    // Limpia listeners previos para evitar duplicados
+    const newBtn = btn.cloneNode(true) as HTMLElement;
+    btn.replaceWith(newBtn);
+
+    newBtn.addEventListener("click", () => {
+      const targetId = newBtn.getAttribute("data-target");
+      if (!targetId) return;
+
+      const input = document.getElementById(targetId) as HTMLInputElement | null;
       if (!input) return;
 
       const isHidden = input.type === "password";
-
       input.type = isHidden ? "text" : "password";
 
-      btn.classList.toggle("open", isHidden);
+      newBtn.classList.toggle("open", isHidden);
     });
   });
 }
 
-// Maneja todo el proceso cuando se envía el formulario de login
+/* ============================================================
+   SUBMIT DEL LOGIN
+============================================================ */
 async function handleLoginSubmit(event: Event) {
   event.preventDefault();
   clearLoginErrors();
 
-  const identifier = loginIdentifier.value.trim();
-  const password = loginPassword.value;
+  const identifier = loginIdentifier?.value.trim() ?? "";
+  const password = loginPassword?.value ?? "";
 
-  // Validaciones básicas
   if (!identifier) {
-    loginIdentifier.classList.add("input-error");
+    loginIdentifier?.classList.add("input-error");
     showLoginErrorMessage('El email o usuario es requerido');
-    return;
+    return resetSubmitListener();
   }
 
   if (!password) {
-    loginPassword.classList.add("input-error");
+    loginPassword?.classList.add("input-error");
     showLoginErrorMessage('La contraseña es requerida');
-    return;
+    return resetSubmitListener();
   }
 
   if (identifier.length < 3) {
-    loginIdentifier.classList.add("input-error");
+    loginIdentifier?.classList.add("input-error");
     showLoginErrorMessage('El identificador debe tener al menos 3 caracteres');
-    return;
+    return resetSubmitListener();
   }
 
   if (password.length < 8) {
-    loginPassword.classList.add("input-error");
+    loginPassword?.classList.add("input-error");
     showLoginErrorMessage('La contraseña debe tener al menos 8 caracteres');
-    return;
+    return resetSubmitListener();
   }
 
-  // Validación de espacios (siguiendo el patrón del registro)
   if (/\s/.test(identifier)) {
-    loginIdentifier.classList.add("input-error");
+    loginIdentifier?.classList.add("input-error");
     showLoginErrorMessage('El identificador no puede contener espacios');
-    return;
+    return resetSubmitListener();
   }
 
   if (/\s/.test(password)) {
-    loginPassword.classList.add("input-error");
+    loginPassword?.classList.add("input-error");
     showLoginErrorMessage('La contraseña no puede contener espacios');
-    return;
+    return resetSubmitListener();
   }
 
-  // Si parece ser un email, validar formato básico
-  if (identifier.includes('@')) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(identifier)) {
-      loginIdentifier.classList.add("input-error");
-      showLoginErrorMessage('Formato de email inválido');
-      return;
-    }
-  }
-
-  // Datos que envío al backend
-  const formData = {
-    identifier: identifier,
-    password: password
-  };
+  const formData = { identifier, password };
 
   try {
-    type LoginResponse = {
-      message?: string;
-      data: {
-        token: string;
-        id: number | string;
-        nickname?: string;
-        rol?: string;
-        abilities?: any;
-        profile_photo?: string | null;
-      };
-    };
+    const result = await loginUser(formData);
 
-    const result = (await loginUser(formData)) as unknown as LoginResponse;
+    if (!result || !result.data) {
+      throw new Error('Respuesta inválida del servidor.');
+    }
 
-    console.log('¡Login exitoso!', result);
-
-    showLoginSuccessMessage(result.message || '¡Inicio de sesión exitoso! Redirigiendo...');
-
-    loginForm.reset();
-
-    // Guardar token y usuario completo (mismo formato que el registro)
     localStorage.setItem('access_token', result.data.token);
-
     localStorage.setItem('user', JSON.stringify({
       id: result.data.id,
       nickname: result.data.nickname,
@@ -147,99 +136,68 @@ async function handleLoginSubmit(event: Event) {
       profile_photo: result.data.profile_photo
     }));
 
-    setTimeout(() => {
-      window.location.href = '/index.html';
-    }, 1500);
+    showLoginSuccessMessage(result.message || '¡Inicio de sesión correcto!');
 
-  } catch (errorData: any) {
-    console.error('Error en el login:', errorData);
-    const validationErrors = errorData.response?.data || errorData;
-    handleLoginApiErrors(validationErrors);
+    setTimeout(() => {
+      window.location.href = '/indexUI.html';
+    }, 900);
+
+  } catch (err: any) {
+    console.error('Error en login:', err);
+    const message = err?.message || err?.errors?.[0] || 'Error en el inicio de sesión';
+    showLoginErrorMessage(message);
+  }
+
+  resetSubmitListener();
+}
+
+/* ============================================================
+   Reinicia listener del form para evitar bloqueo
+============================================================ */
+function resetSubmitListener() {
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleLoginSubmit, { once: true });
   }
 }
 
-// Muestra un mensaje de éxito en pantalla
-function showLoginSuccessMessage(message: string) {
+/* ============================================================
+   MENSAJES
+============================================================ */
+function showLoginSuccessMessage(text: string) {
+  if (!loginGeneralMessage) return;
   loginGeneralMessage.classList.remove('error-message');
   loginGeneralMessage.classList.add('success-message');
-  loginGeneralMessage.textContent = message;
+  loginGeneralMessage.textContent = text;
 }
 
-// Muestra un mensaje de error en pantalla
-function showLoginErrorMessage(message: string) {
+function showLoginErrorMessage(text: string) {
+  if (!loginGeneralMessage) return;
   loginGeneralMessage.classList.remove('success-message');
   loginGeneralMessage.classList.add('error-message');
-  loginGeneralMessage.textContent = message;
+  loginGeneralMessage.textContent = text;
 }
 
-// Se encarga de mostrar los errores que devuelve la API
-function handleLoginApiErrors(errorData: any) {
-  loginGeneralMessage.classList.remove('success-message');
-  loginGeneralMessage.classList.add('error-message');
-
-  const errors = errorData.errors || errorData;
-  let firstErrorMessage = '';
-
-  if (errors.identifier) {
-    loginIdentifier.classList.add('input-error');
-    firstErrorMessage ||= errors.identifier[0];
-  }
-
-  if (errors.email) {
-    loginIdentifier.classList.add('input-error');
-    firstErrorMessage ||= errors.email[0];
-  }
-
-  if (errors.password) {
-    loginPassword.classList.add('input-error');
-    firstErrorMessage ||= errors.password[0];
-  }
-
-  // Manejar errores de credenciales
-  if (errorData.message) {
-    firstErrorMessage ||= errorData.message;
-  }
-
-  loginGeneralMessage.textContent = firstErrorMessage || 'Error en el inicio de sesión.';
-}
-
-// Limpia los errores visuales del formulario de login
+/* ============================================================
+   LIMPIEZA (usado por el FLIP)
+============================================================ */
 export function clearLoginErrors(): void {
   if (loginGeneralMessage) {
     loginGeneralMessage.textContent = '';
     loginGeneralMessage.classList.remove('success-message', 'error-message');
   }
-
-  if (loginIdentifier) {
-    loginIdentifier.classList.remove('input-error');
-  }
-
-  if (loginPassword) {
-    loginPassword.classList.remove('input-error');
-  }
+  loginIdentifier?.classList.remove('input-error');
+  loginPassword?.classList.remove('input-error');
 }
 
-// Limpia completamente el formulario de login (valores y errores)
 export function clearLoginForm(): void {
   clearLoginErrors();
-  
-  if (loginForm) {
-    loginForm.reset();
-  }
-  
-  // Resetear visibilidad de contraseñas
-  resetPasswordVisibility();
-}
+  loginForm?.reset();
 
-// Función auxiliar para resetear visibilidad de contraseñas
-function resetPasswordVisibility(): void {
-  const passwordInputs = document.querySelectorAll('input[type="text"][id*="password"]');
-  passwordInputs.forEach(input => {
-    (input as HTMLInputElement).type = 'password';
+  const passwordInputs = document.querySelectorAll<HTMLInputElement>('input[id*="password"]');
+  passwordInputs.forEach(i => {
+    if (i.type === 'text') i.type = 'password';
   });
-  
-  const toggleButtons = document.querySelectorAll('.toggle-password');
-  toggleButtons.forEach(btn => {
-    btn.classList.remove('open');
-  });
+
+  document.querySelectorAll<HTMLElement>('.toggle-password')
+    .forEach(btn => btn.classList.remove('open'));
 }

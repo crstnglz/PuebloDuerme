@@ -51,4 +51,6 @@ export async function loginUser(formData: any) {
     if (!response.ok) {
         throw data;
     }
+
+    return data; 
 }
