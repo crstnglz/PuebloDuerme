@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
         initRegisterForm();
     }
 
-    if (path.includes("indexUI.html")) {
+    if (path.includes("indexUI")) {
         indexUI();
     }
 
-    if(path.includes("profile.html"))
+    if(path.includes("profile"))
     {
         showImage();
     }
