@@ -1,25 +1,24 @@
-@import "./variables.css";
-
+@import url("variables.css");
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&display=swap');
 
-/* Ajusto el modelo de caja para evitar problemas */
+/* MODELO DE CAJA */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* Fondo general y tipografía principal */
+/* BODY */
 body {
   margin: 0;
   font-family: "Merriweather", serif;
-  background-image: url("/images/fondo-inicio.jpg");
+  background-image: url("../public/images/fondo-inicio.jpg");
   background-size: cover;
   background-attachment: fixed;
   background-position: center center;
 }
 
-/* Contenedor principal centrado */
+/* WRAPPER */
 .wrapper {
   min-height: 100vh;
   display: grid;
@@ -28,8 +27,7 @@ body {
   position: relative;
 }
 
-/*OJOS ANIMADOS DEL FONDO*/
-/* Contenedor invisible */
+/* OJOS DEL BOSQUE */
 .forest-eyes {
   position: fixed;
   top: 0;
@@ -40,71 +38,38 @@ body {
   z-index: 5;
 }
 
-/* Ojos */
 .eye {
   position: absolute;
   width: 90px;
   height: 55px;
-  background-image: url("/images/ojos.png");
+  background-image: url("../public/images/ojos.png");
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.9;
   animation: blink 4.5s infinite ease-in-out;
 }
 
-/* Posiciones basadas en la pantalla */
-.eye1 { left: 5vw;  top: 9vh;}
-.eye2 { left: 1vw;  top: 87vh; animation-delay: 1.2s; }
-.eye3 { left: 22vw; top: 8vh; animation-delay: 0.6s; }
-.eye4 { left: 69vw; top: 5vh; animation-delay: 2s; }
-.eye5 { left: 89vw; top: 7vh; animation-delay: 1.7s; }
-.eye6 { left: 45vw; top: 9vh; animation-delay: 0.3s; }
-.eye7 { left: 94vw; top: 88vh; animation-delay: 2.5s; }
-
-/* Animación del parpadeo */
 @keyframes blink {
   0%, 90%, 100% { transform: scaleY(1); }
   95% { transform: scaleY(0.1); }
 }
 
-/*TARJETA DEL FORMULARIO*/
-
-/* Parte trasera del flip (la de registro) */
+/* CARD (LOGIN & REGISTRO) */
+.flip-card__front,
 .flip-card__back {
   padding: 20px;
-  position: relative;
   width: 300px;
-  height: 460px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   background: rgba(179, 147, 118, 0.85);
-  gap: 20px;
   border-radius: 5px;
   border: 2px solid var(--main-color);
   box-shadow: 4px 4px var(--main-color);
-  overflow: hidden;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Líneas decorativas */
-.flip-card__back::before {
-  content: "";
-  position: absolute;
-  width: 140px;
-  height: 3px;
-  background: var(--main-color);
-  opacity: 0.5;
-  transform: rotate(15deg);
-  top: 10px;
-  right: -10px;
-  box-shadow:
-    5px 10px 0 1px var(--main-color),
-    10px 20px 0 0px var(--main-color);
-  pointer-events: none;
-}
-
-/* Organización del formulario */
+/* FORM */
 .flip-card__form {
   display: flex;
   flex-direction: column;
@@ -112,7 +77,7 @@ body {
   gap: 20px;
 }
 
-/* Título del formulario */
+/* TITULO */
 .title {
   margin: 0;
   font-size: 25px;
@@ -120,10 +85,11 @@ body {
   color: var(--main-color);
 }
 
-/* Campos de entrada */
+/* INPUT */
 .flip-card__input {
   width: 250px;
   height: 40px;
+  padding: 5px 10px;
   border-radius: 5px;
   border: 2px solid var(--main-color);
   background-color: var(--bg-color);
@@ -131,23 +97,9 @@ body {
   font-size: 15px;
   font-weight: 600;
   color: var(--font-color);
-  padding: 5px 10px;
-  outline: none;
-  font-family: "Merriweather", serif;
 }
 
-/* Color del placeholder */
-.flip-card__input::placeholder {
-  color: var(--font-color-sub);
-  opacity: 0.8;
-}
-
-/* Cuando el input está seleccionado */
-.flip-card__input:focus {
-  border: 2px solid var(--input-focus);
-}
-
-/* Botón del formulario */
+/* BOTÓN */
 .flip-card__btn {
   width: 120px;
   height: 40px;
@@ -157,67 +109,8 @@ body {
   box-shadow: 4px 4px var(--main-color);
   font-size: 17px;
   font-weight: 600;
-  color: var(--font-color);
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: "Merriweather", serif;
-}
-
-/* Hover del botón */
-.flip-card__btn:hover {
-  background-color: var(--main-color);
-  color: var(--light-font);
-  box-shadow: 2px 2px var(--main-color);
-  transform: translate(2px, 2px);
-}
-
-/* Click del botón */
-.flip-card__btn:active {
-  box-shadow: 0px 0px var(--main-color);
-  transform: translate(3px, 3px);
-}
-
-/*MENSAJES DE ERROR Y ÉXITO*/
-
-/* Contenedor de mensajes */
-.message-box {
-  width: 100%;
-  padding: 0;
-  min-height: 0.6em;
-  font-size: 11px;
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.1;
-}
-
-/* Error */
-.error-message {
-  color: #b00020;
-  background-color: rgba(255, 0, 0, 0.12);
-  border: 1px solid #b00020;
-  padding: 3px 4px;
-  border-radius: 3px;
-  margin-top: 3px;
-  font-size: 11px;
-}
-
-/* Éxito */
-.success-message {
-  color: #007000;
-  background-color: rgba(0, 128, 0, 0.12);
-  border: 1px solid #007000;
-  padding: 3px 4px;
-  border-radius: 3px;
-  margin-top: 3px;
-  font-size: 11px;
-}
-
-/*ENLACE DE CAMBIO (ir a login o registro)*/
-
-.switch-link {
-  font-size: 14px;
-  color: var(--main-color);
-  text-align: center;
+  transition: .2s;
 }
 
 .switch-link label {
@@ -225,125 +118,71 @@ body {
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
-  transition: color 0.2s;
 }
 
-.switch-link label:hover {
-  color: var(--color-ojos);
-}
 
-/* INPUT CON ERROR*/
-
-.flip-card__input.input-error {
-  border: 2px solid #b00020;
-}
-
-/* OJO DE LA CONTRASEÑA */
-.password-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.toggle-password {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+/* .forgot-link label {
+  font-size: 13px;
+  color: var(--main-color);
+  text-decoration: underline;
   cursor: pointer;
+} */
 
-  background-image: url("/images/ojo-abierto.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-
-  transition: opacity 0.2s ease-in-out;
+.flip-wrapper {
+  width: 300px;
+  height: 460px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s ease-in-out;
+  margin: 0 auto; 
+  display: block;
+  z-index: 10;
 }
 
-.toggle-password.open {
-  background-image: url("/images/ojo-cerrado.png");
-  opacity: 0.8;
+.flip-wrapper .flip-card__front,
+.flip-wrapper .flip-card__back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
-/* Para tablets */
-@media (max-width: 768px) {
-
-  .wrapper {
-    padding: 40px 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .flip-card__back {
-    width: 85%;
-    height: auto;
-  }
-
-  .forest-eyes {
-    height: 120px;
-  }
-
-  .eye {
-    width: 70px;
-    height: 45px;
-  }
+.flip-wrapper .flip-card__front {
+  transform: rotateY(0deg);
+  z-index: 20;
 }
 
-/* Para móviles*/
+.flip-wrapper .flip-card__back {
+  transform: rotateY(180deg);
+  z-index: 10;
+}
+
+/* cuando el checkbox está checked → rotar el wrapper 180deg */
+#flip-toggle:checked ~ .flip-wrapper {
+  transform: rotateY(180deg);
+}
+
+.switch-link,
+.forgot-link {
+  z-index: 30;
+  position: relative;
+}
+
+/* pequeño ajuste responsive: si cambias tamaño de tarjetas en media queries, actualiza .flip-wrapper */
 @media (max-width: 480px) {
-
-  body {
-    background-attachment: scroll;
-  }
-
-  .wrapper {
-    padding: 30px 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    overflow: hidden;
-  }
-
-  .flip-card__back {
+  .flip-wrapper {
     width: 90%;
-    max-width: 330px;
-    height: auto;
-    padding: 18px 15px;
-    gap: 15px;
+    max-width: 340px;
+    height: auto; 
   }
-
-  .title {
-    font-size: 20px;
+  .flip-wrapper .flip-card__front,
+  .flip-wrapper .flip-card__back {
+    position: relative; 
+    transform: none;    
   }
-
-  .flip-card__input {
-    width: 100%;
-    height: 36px;
-    font-size: 14px;
-    padding: 5px 8px;
-  }
-
-  .flip-card__btn {
-    width: 120px;
-    height: 38px;
-    font-size: 15px;
-  }
-
-  .error-message, .success-message {
-    font-size: 10px;
-    padding: 3px;
-    line-height: 1.1;
-    word-break: break-word;
-  }
-
-  .forest-eyes {
-    height: 80px;
-  }
-
-  .eye {
-    width: 50px;
-    height: 32px;
-    opacity: 0.7;
-  }
+  
 }
