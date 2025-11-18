@@ -112,7 +112,8 @@ async function handleRegisterSubmit(event: Event) {
 
   // Contraseña fuerte
   const strongPasswordRegex =
-    /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[!@#$%^&*.,:;?(){}\[\]\-_+]).{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*.,:;?(){}\[\]\-_+]).{8,}$/;
+    
 
   if (!strongPasswordRegex.test(password)) {
     passwordInput.classList.add("input-error");
