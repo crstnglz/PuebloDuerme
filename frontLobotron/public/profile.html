@@ -8,16 +8,17 @@
     <link rel="icon" href="images/logo.jpg">
 </head>
 <body>
+  <form action="http://127.0.0.1:8000/api/profile/uploadImage" method="POST" enctype="multipart/form-data">
     <div class="wrapper">
   <h1 class="profile-title">Mi Perfil</h1>
 
   <div class="profile-container">
 
     <div class="profile-left">
-      <img id="avatarPreview" class="avatar" src="" alt="avatar">
+      <img id="avatarPreview" class="avatar" src="../public/imagesUI/predprofile.png" alt="avatar">
 
       <label for="avatarInput" class="btn">Cambiar foto</label>
-      <input id="avatarInput" type="file" accept="image/*" hidden>
+      <input id="avatarInput" name="image" type="file" accept="image/*" hidden>
     </div>
 
     <div class="profile-right">
@@ -43,6 +44,8 @@
     </div>
   </div>
 </div>
+    </form>
+
 
 </body>
 </html>
