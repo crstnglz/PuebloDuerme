@@ -13,6 +13,24 @@
     <div class="wrapper">
       <div class="forest-eyes"></div>
 
+      <div class="flip-card__front" id="login">
+        <div class="title">Iniciar Sesión</div>
+        <form id="login-form" class="flip-card__form" action="">
+          <input id="login-identifier" class="flip-card__input" name="identifier" placeholder="Email o Usuario"
+            type="text" required>
+          <div class="password-wrapper">
+            <input id="login-password" class="flip-card__input" name="password" placeholder="Contraseña" type="password"
+              required>
+            <span class="toggle-password" data-target="login-password"></span>
+          </div>
+          <div id="login-general-message" class="message-box"></div>
+          <button class="flip-card__btn" type="submit">¡Aullar!</button>
+        </form>
+        <div class="switch-link">
+          ¿No tienes cuenta? <label for="flip-toggle">Registrarse</label>
+        </div>
+      </div>
+
       <div class="flip-card__back">
         <h1 class="title">Registrarse</h1>
 
@@ -75,5 +93,6 @@
 
     <!-- Este SÍ es válido en Vite -->
     <script type="module" src="/src/main.ts"></script>
+    <script src="./src/pages/login.ts"></script>
   </body>
 </html>

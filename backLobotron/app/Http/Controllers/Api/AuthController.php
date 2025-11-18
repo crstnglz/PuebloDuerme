@@ -11,6 +11,58 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+
+    public function login(Request $request)
+    {
+        $rules = [
+            'identifier' => 'required|string',
+            'password' => 'required|string|min:8',
+        ];
+
+        $messages = [
+            'identifier.required' => 'El email o usuario es obligatorio.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos :min caracteres.'
+        ];
+
+        // Validación
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $identifier = $request->identifier;
+
+        // Determinar si es email o nickname
+        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'nickname';
+
+        // Buscar usuario
+        $user = User::where($field, $identifier)->first();
+
+        // Verificar usuario y contraseña
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Credenciales incorrectas'
+            ], 401);
+        }
+
+        // Crear token (usando Sanctum como en el registro)
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Respuesta exitosa 
+        return response()->json([
+            'message' => 'Login exitoso',
+            'data' => [
+                'token' => $token,
+                'id' => $user->id,
+                'nickname' => $user->nickname,
+                'rol' => $user->rol,
+                'abilities' => [],
+                'profile_photo' => $user->profile_photo,
+            ]
+        ], 200);
+    }
+
     public function register(Request $request)
     {
         $rules = [
@@ -59,5 +111,4 @@ class AuthController extends Controller
 
         return $this->login($loginRequest);
     }
-    
 }

@@ -25,9 +25,30 @@ export async function registerUser(formData: any) {
     if (!response.ok) {
         // Pasamos los 'data' (que contendrán los errores de validación)
         // al 'catch'
-        throw data; 
+        throw data;
     }
 
     // Si todo fue bien, devuelve los datos
     return data;
+}
+
+/**
+*  Envía los datos de login a la API.
+* @param formData Los datos del formulario (identifier, password)
+*/
+export async function loginUser(formData: any) {
+    const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
 }
