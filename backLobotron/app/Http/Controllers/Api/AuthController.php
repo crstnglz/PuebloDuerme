@@ -15,12 +15,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $rules = [
-            'identifier' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string|min:8',
         ];
 
         $messages = [
-            'identifier.required' => 'El email o usuario es obligatorio.',
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'Debe ser un email válido.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos :min caracteres.'
         ];
@@ -31,13 +32,8 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $identifier = $request->identifier;
-
-        // Determinar si es email o nickname
-        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'nickname';
-
-        // Buscar usuario
-        $user = User::where($field, $identifier)->first();
+        // Buscar usuario por email
+        $user = User::where('email', $request->email)->first();
 
         // Verificar usuario y contraseña
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -46,10 +42,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Crear token (usando Sanctum como en el registro)
+        // Crear token
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // Respuesta exitosa 
         return response()->json([
             'message' => 'Login exitoso',
             'data' => [
@@ -62,6 +57,7 @@ class AuthController extends Controller
             ]
         ], 200);
     }
+
 
     public function register(Request $request)
     {
