@@ -1,14 +1,14 @@
-import { indexUI } from './indexUI';
-import { initRegisterForm } from './register';
+import { initRegisterForm } from './pages/index';
+import { indexUI } from './pages/indexUI';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const path = window.location.pathname;
+    const path = window.location.pathname;
 
-  if (path.includes("indexUI")) {
-    indexUI();
-  }
+    if (path.endsWith("/") || path.endsWith("/index.html")) {
+        initRegisterForm();
+    }
 
-  if (path.includes("register")) {
-    initRegisterForm();
-  }
+    if (path.includes("indexUI.html")) {
+        indexUI();
+    }
 });
