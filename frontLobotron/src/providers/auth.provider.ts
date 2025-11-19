@@ -54,3 +54,24 @@ export async function loginUser(formData: any) {
 
     return data; 
 }
+
+export async function logoutUser(): Promise<void> {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+        // No hay token → ya está fuera
+        return;
+    }
+
+    await fetch(`${API_URL}/logout`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    // Limpieza local
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+}
