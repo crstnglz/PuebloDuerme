@@ -1,14 +1,34 @@
-// URL de la api en Laravel
+// URL de la API en Laravel
 const API_URL = "http://127.0.0.1:8000/api";
 
-/**
- * Envía los datos de registro a la API.
- * @param formData Los datos del formulario (nickname, email, etc.)
- */
+// LOGIN INDEPENDIENTE
+export async function loginUser(formData: any) {
+    const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            identifier: formData.identifier,
+            password: formData.password
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
+
+    return data;
+}
+
+// REGISTER + LOGIN AUTOMÁTICO
 export async function registerUser(formData: any) {
 
-    // Realiza la petición POST con fetch
-    const response = await fetch(`${API_URL}/register`, {
+    // REGISTER
+    const registerResponse = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -19,38 +39,29 @@ export async function registerUser(formData: any) {
     });
 
     // Obtenemos la respuesta de la API como JSON
-    const data = await response.json();
+    const registerData = await registerResponse.json();
 
     // Si la respuesta no es existosa, lanza un error
-    if (!response.ok) {
-        // Pasamos los 'data' (que contendrán los errores de validación)
-        // al 'catch'
-        throw data;
+    if (!registerResponse.ok) {
+        throw registerData;
     }
 
-    // Si todo fue bien, devuelve los datos
-    return data;
-}
-
-/**
-*  Envía los datos de login a la API.
-* @param formData Los datos del formulario (identifier, password)
-*/
-export async function loginUser(formData: any) {
-    const response = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(formData)
+    // LOGIN AUTOMÁTICO
+    const loginData = await loginUser({
+        identifier: formData.email,
+        password: formData.password
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw data;
-    }
-
-    return data; 
+    // Si todo fue bien, devuelve los datos
+    return {
+        message: "Registro y login exitosos",
+        data: {
+            token: loginData.data.token,
+            id: loginData.data.id,
+            nickname: loginData.data.nickname,
+            rol: loginData.data.rol,
+            abilities: loginData.data.abilities,
+            profile_photo: loginData.data.profile_photo
+        }
+    };
 }
