@@ -114,11 +114,7 @@ class AuthController extends Controller
     ]);
 
     // Llamar login automáticamente usando identifier
-    $loginRequest = new Request([
-        'identifier' => $request->email, 
-        'password' => $request->password
-    ]);
+    return $this->login(new Request($request->only('email', 'password')));
 
-    return $this->login($loginRequest);
 }
 }
