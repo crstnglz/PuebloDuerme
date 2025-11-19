@@ -1,0 +1,191 @@
+@import url("variables.css");
+:root{
+    --font-title: 'Medieval';
+    --font-accent: 'Barber';
+}
+
+@font-face {
+  font-family: 'Medieval';
+  src: url(../../public/font/MedievalSharp-Regular.ttf);
+}
+
+@font-face{
+  font-family: 'Barber';
+  src: url(../../public/font/Barber.otf);
+}
+
+/* Estilo General */
+body{
+    margin: 0;
+    font-family: "Georgia", serif;
+    background-image: url("../../public/imagesUI/background.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center center;
+
+    overflow: hidden;
+}
+
+.wrapper{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(29, 26, 24, 0.50);
+    
+    padding: 2rem;
+    position: relative;
+}
+
+/* Título */
+.profile-title{
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: white;
+    font-family: var(--font-title);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+
+/* Contenido Principal */
+.profile-container{
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+
+    background-color: rgba(85, 63, 44, 0.85);
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+
+    padding: 2rem;
+    max-width: 1000px;
+    width: 90vw;
+    color: var(--color-crema);
+}
+
+/* Foto */
+.profile-left{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar{
+    width: clamp(120px, 30vw, 200px);
+    height: clamp(120px, 30vw, 200px);
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-acento-3);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.profile-right{
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+label{
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: var(--font-title);
+    color: var(--color-neutro);
+}
+
+input,
+textarea{
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    font-family: "Georgia", serif;
+}
+
+/* Estadísticas */
+.stats h2{
+    font-family: var(--font-title);
+    color: var(--color-neutro);
+    margin-bottom: 0.5rem;
+}
+
+.stats ul{
+    list-style: none;
+    padding: 0;
+    font-size: 1rem;
+    font-family: "Georgia", serif;
+}
+
+.stats li strong{
+    color: var(--color-ojos);
+}
+
+/* Botones */
+.btn{
+    background-color: var(--color-acento-3);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: var(--font-accent);
+    transition: background 0.3s ease;
+    border: 2px solid white;
+}
+
+.btn:hover{
+    background-color: var(--color-acento-2);
+    transform: translateY(-2px);
+}
+
+.accept{
+    align-self: center;
+    margin-top: 2rem;
+}
+
+@media (max-width: 850px)
+{
+    .profile-container{
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-right{
+        width: 100%;
+    }
+}
+
+.back-btn
+{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    text-decoration: none;
+
+    background-color: var(--color-contraste);
+    color: white;
+
+    padding: 10px 18px;
+    font-size: 1rem;
+    border-radius: 10px;
+
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    transition: 0.3s ease;
+    font-family: var(--font-accent);
+}
+
+.back-btn:hover{
+    background-color: var(--color-acento-1);
+    box-shadow: 0 0 13px rgba(0,0,0,0.6);
+    transform: translateY(-2px);
+}

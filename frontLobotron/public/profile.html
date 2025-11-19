@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Perfil - Lobotron</title>
+    <link rel="stylesheet" href="../src/styles/profile.css">
+    <link rel="icon" href="images/logo.jpg">
+</head>
+<body>
+  <form action="http://127.0.0.1:8000/api/profile/uploadImage" method="POST" enctype="multipart/form-data">
+    <div class="wrapper">
+  <h1 class="profile-title">Mi Perfil</h1>
+
+  <a href="../public/indexUI.html" class="back-btn">Inicio</a>
+  <div class="profile-container">
+
+    <div class="profile-left">
+      <img id="avatarPreview" class="avatar" src="../public/imagesUI/predprofile.png" alt="avatar">
+
+      <label for="avatarInput" class="btn">Cambiar foto</label>
+      <input id="avatarInput" name="image" type="file" accept="image/*" hidden>
+    </div>
+
+    <div class="profile-right">
+
+      <label for="username">Nombre de usuario</label>
+      <input type="text" id="username" placeholder="Escribe tu nombre">
+
+      <label for="description">Descripción</label>
+      <textarea id="description" rows="4" placeholder="Cuéntanos algo sobre ti"></textarea>
+
+      <div class="stats">
+        <h2>Estadísticas</h2>
+        <ul>
+          <li><strong>Partidas jugadas:</strong> 0</li>
+          <li><strong>Victorias:</strong> 0</li>
+          <li><strong>Derrotas:</strong> 0</li>
+          <li><strong>Winrate:</strong> 0%</li>
+        </ul>
+      </div>
+
+      <button class="btn accept">Guardar cambios</button>
+
+    </div>
+  </div>
+</div>
+    </form>
+    <script type="module" src="../src/main.ts"></script>
+</body>
+</html>
