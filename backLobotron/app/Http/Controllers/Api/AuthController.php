@@ -46,8 +46,18 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Crear token (usando Sanctum como en el registro)
-        $token = $user->createToken('auth_token')->plainTextToken;
+
+
+        $abilities = ['read']; // Habilidad base para cualquier usuario
+
+        if ($user->rol === 'admin') {
+
+            $abilities[] = 'admin';
+        }
+
+        // Crear token usando Sanctum
+        $tokenResult = $user->createToken('auth_token', $abilities);
+        $token = $tokenResult->plainTextToken;
 
         // Respuesta exitosa 
         return response()->json([
@@ -57,7 +67,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'nickname' => $user->nickname,
                 'rol' => $user->rol,
-                'abilities' => [],
+                'abilities' => $abilities, // Devuelve las abilities asignadas
                 'profile_photo' => $user->profile_photo,
             ]
         ], 200);
@@ -104,12 +114,7 @@ class AuthController extends Controller
         ]);
 
         // Llamar login automáticamente usando identifier
-        $loginRequest = new Request([
-            'identifier' => $request->email,
-            'password' => $request->password
-        ]);
-
-        return $this->login($loginRequest);
+        return $this->login(new Request($request->only('email', 'password')));
     }
 
     public function logout(Request $request)
