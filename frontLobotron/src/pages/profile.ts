@@ -7,10 +7,13 @@ export function modalProfile()
     openBtn.addEventListener("click", (e) => {
         e.preventDefault();
         modal.classList.add("show");
+
+        loadProfile();
+        showImage();
     });
 
     closeBtn.addEventListener("click", () => {
-        modal.classList.remove("show");
+        modal.classList.remove("hidden");
     });
 }
 
@@ -37,4 +40,31 @@ export function showImage() {
 
         preview.onload = () => URL.revokeObjectURL(imageURL);
     });
+}
+
+export async function loadProfile(){
+    const token = localStorage.getItem("access_token");
+
+    const res = await fetch("http://127.0.0.1:8000/api/me", {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    if(!res.ok){
+        console.error("No se pudo cargar el perfil");
+        return;
+    }
+
+    const user = await res.json();
+
+    const nicknameLabel = document.getElementById("profileNicknameLabel");
+    if(nicknameLabel){
+        nicknameLabel.textContent = user.nickname;
+    }
+
+    const avatarImg = document.getElementById("avatarPreview") as HTMLImageElement;
+    if(avatarImg){
+        avatarImg.src = user.profile_photo ?? "/imagesUI/predprofile.png";
+    }
 }

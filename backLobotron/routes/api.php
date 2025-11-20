@@ -14,9 +14,13 @@ Route::post('/profile/uploadImage', [ProfileController::class, 'uploadImage']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+     // Datos de usuario autenticado
+        Route::get('/me', function(Request $request){
+            return $request->user();
+        });
 
     Route::middleware('abilities:admin')->group(function () {
-        
+
         // CRUD de usuarios
         Route::get('/users', [UserController::class, 'index']);
         Route::get('/users/{id}', [UserController::class, 'show']);

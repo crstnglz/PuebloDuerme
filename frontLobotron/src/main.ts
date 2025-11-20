@@ -1,7 +1,7 @@
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
-import { modalProfile, showImage } from './pages/profile';
+import { modalProfile, showImage, loadProfile } from './pages/profile';
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
