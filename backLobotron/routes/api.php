@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::post('/profile/uploadImage', [ProfileController::class, 'uploadImage']);
 
 
