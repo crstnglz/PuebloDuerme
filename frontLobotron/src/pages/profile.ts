@@ -1,3 +1,19 @@
+export function modalProfile()
+{
+    const modal = document.getElementById("profileModal")!;
+    const openBtn = document.getElementById("openProfileModal")!;
+    const closeBtn = document.getElementById("closeProfileModal")!;
+
+    openBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        modal.classList.add("show");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        modal.classList.remove("show");
+    });
+}
+
 export function showImage() {
     const input = document.getElementById("avatarInput") as HTMLInputElement | null;
     const preview = document.getElementById("avatarPreview") as HTMLImageElement | null;

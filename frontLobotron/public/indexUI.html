@@ -19,11 +19,53 @@
         />
 
         <ul class="profile-menu">
-          <li><a href="profile.html">Ver mi perfil</a></li>
+          <li><a href="#" id="openProfileModal" class="btn-profile">Ver mi perfil</a></li>
           <li><a href="#">Cerrar sesion</a></li>
         </ul>
       </div>
     </header>
+
+   <!-- Modal de Perfil -->
+<div id="profileModal" class="modal-profile hidden">
+  <div class="modal-profile-content">
+
+    <h2 class="profile-title">Mi Perfil</h2>
+    <span id="closeProfileModal" class="close-profile">&times;</span>
+
+    <div class="profile-header">
+      <div class="profile-avatar-wrapper">
+        <img src="/imagesUI/predprofile.png" id="avatarPreview" class="profile-avatar" />
+
+        <label for="avatarInput" class="btn-avatar-change">Cambiar foto</label>
+        <input type="file" id="avatarInput" accept="image/*" hidden>
+      </div>
+
+      <div class="profile-info">
+        <label class="profile-label">Nickname</label>
+        <input type="text" id="profileNickname" class="profile-input">
+
+        <label class="profile-label">Descripción</label>
+        <textarea id="profileDescription" rows="4" class="profile-textarea"></textarea>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <h3>Estadísticas</h3>
+      <ul>
+        <li><strong>Partidas jugadas:</strong> <span id="statPlayed">0</span></li>
+        <li><strong>Victorias:</strong> <span id="statWins">0</span></li>
+        <li><strong>Derrotas:</strong> <span id="statLosses">0</span></li>
+        <li><strong>Winrate:</strong> <span id="statWinrate">0%</span></li>
+      </ul>
+    </div>
+
+    <button id="saveProfileBtn" class="btn-save disabled" disabled>
+      Guardar cambios
+    </button>
+
+  </div>
+</div>
+
 
     <main class="stage">
       <div class="wolf"></div>
