@@ -46,13 +46,13 @@ class AuthController extends Controller
             ], 401);
         }
 
-
-
+        
+    
         $abilities = ['read']; // Habilidad base para cualquier usuario
-
+        
         if ($user->rol === 'admin') {
-
-            $abilities[] = 'admin';
+            
+            $abilities[] = 'admin'; 
         }
 
         // Crear token usando Sanctum
