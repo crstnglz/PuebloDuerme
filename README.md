@@ -3,8 +3,9 @@
 Si queréis un usuario para hacer _log in_ directamente podéis usar:
 
 ```bash
-Nickname: Cristin
-Password: AhriVampirilla123!
+'nickname' => 'Admin',
+                'email' => 'admin@lobotron.com',
+                'password' => 'admin1234' 
 ```
 
 Os podéis registrar con vuestro propio usuario.
