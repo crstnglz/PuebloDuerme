@@ -13,7 +13,7 @@ export function modalProfile()
     });
 
     closeBtn.addEventListener("click", () => {
-        modal.classList.remove("hidden");
+        modal.classList.remove("show");
     });
 }
 
@@ -65,6 +65,6 @@ export async function loadProfile(){
 
     const avatarImg = document.getElementById("avatarPreview") as HTMLImageElement;
     if(avatarImg){
-        avatarImg.src = user.profile_photo ?? "/imagesUI/predprofile.png";
+        avatarImg.src = user.profile_photo ?? "/imagesUI/predprofile.png"
     }
 }
