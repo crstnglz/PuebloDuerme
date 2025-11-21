@@ -25,46 +25,64 @@
       </div>
     </header>
 
-   <!-- Modal de Perfil -->
+    <!-- Modal Perfil -->
 <div id="profileModal" class="modal-profile hidden">
-  <div class="modal-profile-content">
+    <div class="modal-profile-content">
 
-    <h2 class="profile-title">Mi Perfil</h2>
-    <span id="closeProfileModal" class="close-profile">&times;</span>
+        <span id="closeProfileModal" class="close-profile">&times;</span>
 
-    <div class="profile-header">
-      <div class="profile-avatar-wrapper">
-        <img src="/imagesUI/predprofile.png" id="avatarPreview" class="profile-avatar" />
-        <label for="avatarInput" class="btn-avatar-change">Cambiar foto</label>
-        <input type="file" id="avatarInput" accept="image/*" hidden>
-      </div>
+        <h2 class="profile-title">Mi Perfil</h2>
 
-      <div class="profile-info">
-        <label id="profileNicknameLabel" class="profile-label">Nickname</label>
-        <input type="text" id="profileNickname" class="profile-input" placeholder="Modifica tu nombre de usuario">
+        <div class="profile-columns">
 
-        <label class="profile-label">Descripción</label>
-        <textarea id="profileDescription" rows="4" class="profile-textarea" placeholder="Añade tu descripción"></textarea>
-      </div>
+          <!-- Columna Izquierda -->
+            <div class="profile-left">
+
+                <div class="profile-avatar-wrapper">
+                    <img id="avatarPreview" class="profile-avatar" src="/imagesUI/predprofile.png" />
+                </div>
+
+                <h3 id="profileUsername" class="profile-username">NombreUsuario</h3>
+
+                <p id="profileDescriptionText" class="profile-description-text">
+                    Añade tu descripción
+                </p>
+
+                <div class="profile-stats-box">
+                    <h3>Estadísticas</h3>
+                    <ul>
+                        <li><strong>Partidas jugadas:</strong> <span id="statPlayed">0</span></li>
+                        <li><strong>Victorias:</strong> <span id="statWins">0</span></li>
+                        <li><strong>Derrotas:</strong> <span id="statLosses">0</span></li>
+                        <li><strong>Winrate:</strong> <span id="statWinrate">0%</span></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Columan Derecha -->
+            <div class="profile-right">
+
+                <label for="profileNickname">Nickname</label>
+                <input type="text" id="profileNickname" class="profile-input" placeholder="Cambia tu nombre de usuario">
+
+                <label for="profileDescription">Descripción</label>
+                <textarea id="profileDescription" rows="4" class="profile-textarea" placeholder="Añade una descripción"></textarea>
+
+                <div class="profile-buttons">
+                    <button for="avatarInput" class="profile-btn">Cambiar foto</label>
+                    <input type="file" id="avatarInput" accept="image/*" hidden>
+
+                    <button class="profile-btn">Cambiar Password</button>
+                </div>
+
+                <button id="saveProfileBtn" class="btn-save disabled" disabled>
+                    GUARDAR CAMBIOS
+                </button>
+            </div>
+        </div>
     </div>
-
-    <div class="profile-stats">
-      <h3>Estadísticas</h3>
-      <ul>
-        <li><strong>Partidas jugadas:</strong> <span id="statPlayed">0</span></li>
-        <li><strong>Victorias:</strong> <span id="statWins">0</span></li>
-        <li><strong>Derrotas:</strong> <span id="statLosses">0</span></li>
-        <li><strong>Winrate:</strong> <span id="statWinrate">0%</span></li>
-      </ul>
-    </div>
-
-    <button id="saveProfileBtn" class="btn-save disabled" disabled>
-      Guardar cambios
-    </button>
-
-  </div>
 </div>
-
 
     <main class="stage">
       <div class="wolf"></div>
@@ -261,11 +279,11 @@
         </div>
       </div>
     </main>
-
+<!-- 
     <audio autoplay loop>
       <source src="/imagesUI/music.mp3" />
       Tu navegador no soporta el audio.
-    </audio>
+    </audio> -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
