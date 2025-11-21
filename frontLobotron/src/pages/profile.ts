@@ -49,33 +49,32 @@ export async function loadProfile() {
     const token = localStorage.getItem("access_token");
 
     const res = await fetch("http://127.0.0.1:8000/api/me", {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        headers: { "Authorization": `Bearer ${token}` }
     });
 
-    if(!res.ok){
+    if (!res.ok) {
         console.error("No se pudo cargar el perfil");
         return;
     }
 
     const user = await res.json();
 
-    const usernameText = document.getElementById("profileUsername")!;
-    usernameText.textContent = user.nickname
+    // Mostrar datos en columna izquierda
+    const usernameBox = document.getElementById("profileUsername");
+    if (usernameBox) usernameBox.textContent = user.nickname;
 
-    const descriptionText = document.getElementById("profileDescriptionText")!;
-    descriptionText.textContent = user.description || "Añade tu descripción";
+    const descBox = document.getElementById("profileDescriptionText");
+    if (descBox) descBox.textContent = user.description || "Añade tu descripción";
 
+    // Imagen
     const avatarImg = document.getElementById("avatarPreview") as HTMLImageElement;
-    avatarImg.src = user.profile_photo || "/imagesUI/predprofile.png"
+    if (avatarImg) avatarImg.src = user.profile_photo || "/imagesUI/predprofile.png";
 
-    const nicknameInput = document.getElementById("profileNickname") as HTMLInputElement;
-    nicknameInput.value = user.nickname || "";
-
-    const descriptionInput = document.getElementById("profileDescription") as HTMLTextAreaElement;
-    descriptionInput.value = user.descripction || "";
+    // Vaciar inputs de edición
+    (document.getElementById("profileNickname") as HTMLInputElement).value = "";
+    (document.getElementById("profileDescription") as HTMLTextAreaElement).value = "";
 }
+
 
 //Habilitar botón de "Guardar cambios"
 export function enableSaveOnChanges()
@@ -98,22 +97,24 @@ export function enableSaveOnChanges()
 }
 
 //Subir Perfil (Nickname + Desc + Cloudinary -si hay imagen-)
-export function saveProfile() {
+export function saveProfile()
+{
     const nickname = document.getElementById("profileNickname") as HTMLInputElement;
     const description = document.getElementById("profileDescription") as HTMLTextAreaElement;
     const avatar = document.getElementById("avatarInput") as HTMLInputElement;
     const saveBtn = document.getElementById("saveProfileBtn") as HTMLButtonElement;
 
-    saveBtn.addEventListener("click", async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) return;
+    saveBtn.addEventListener("click", async() => {
+        const token = localStorage.getItem("access_token")
+        if(!token) return
 
         let profilePhotoUrl = null;
 
-        // Subir foto si se ha cambiado
-        if (avatar.files && avatar.files[0]) {
+        //Si cambia la foto -> subir a cloudinary
+        if(avatar.files && avatar.files[0])
+        {
             const formImage = new FormData();
-            formImage.append("image", avatar.files[0]);
+            formImage.append("image", avatar.files[0])
 
             const uploadRes = await fetch("http://127.0.0.1:8000/api/profile/uploadImage", {
                 method: "POST",
@@ -123,7 +124,8 @@ export function saveProfile() {
 
             const uploadData = await uploadRes.json();
 
-            if (!uploadRes.ok) {
+            if(!uploadRes.ok)
+            {
                 alert("Error subiendo imagen");
                 return;
             }
@@ -131,39 +133,44 @@ export function saveProfile() {
             profilePhotoUrl = uploadData.url;
         }
 
-        // Construir datos a enviar
+        //Enviar datos 
         const formData = new FormData();
-        formData.append("nickname", nickname.value);
-        formData.append("description", description.value);
+        formData.append("nickname", nickname.value)
+        formData.append("description", description.value)
 
-        if (profilePhotoUrl) {
-            formData.append("profile_photo", profilePhotoUrl);
+        if(profilePhotoUrl)
+        {
+            formData.append("profile_photo", profilePhotoUrl)
         }
 
         const res = await fetch("http://127.0.0.1:8000/api/profile/update", {
             method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
             body: formData
-        });
+        })
 
-        if (!res.ok) {
-            alert("Error al guardar cambios");
-            return;
+        if(res.ok)
+        {
+            alert("Perfil actualizado")
+            saveBtn.disabled = true
+            saveBtn.classList.add("disabled")
+        }
+        else
+        {
+            alert("Error al guardar cambios")
         }
 
-        alert("Perfil actualizado");
+        //Refrescar Modal
+        await loadProfile()
 
-        // Recargar perfil visual
-        await loadProfile();
+        nickname.value = ""
+        description.value = ""
+        avatar.value = ""
 
-        // Limpiar inputs
-        nickname.value = "";
-        description.value = "";
-        avatar.value = "";
-
-        // Desactivar botón
-        saveBtn.disabled = true;
-        saveBtn.classList.remove("enabled");
-        saveBtn.classList.add("disabled");
-    });
+        saveBtn.disabled = true
+        saveBtn.classList.remove("enabled")
+        saveBtn.classList.add("disabled")
+    })
 }

@@ -319,12 +319,12 @@ body{
 
 /* Botones Modal Perfil */
 .profile-btn{
-    font-family: var(--accent-font);
+    font-family: var(--accent-font) !important;
     font-size: 18px;
-    background: var(--second-color);
+    background: var(--second-color) !important;
     border: 2px solid white;
     padding: 10px 20px;
-    color: white;
+    color: white !important;
     border-radius: 6px;
     cursor: pointer;
     transition: 0.2s ease;
