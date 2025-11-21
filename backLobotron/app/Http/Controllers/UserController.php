@@ -164,4 +164,48 @@ class UserController extends Controller
         return response()->json(['message' => 'Contraseña del usuario actualizada por el administrador'], 200);
     }
 
+    // Para buscar usuario por id, nickname o email
+    public function find(Request $request)
+    {
+        $type = $request->input('type');   // id | email | nickname
+        $query = $request->input('query');
+        $perPage = $request->input('per_page', 5);
+
+        if (!$type || !$query) {
+            return response()->json([
+                'message' => 'Error en la búsqueda',
+                'errors' => [
+                    'query' => ['Parámetros incompletos o inválidos']
+                ]
+            ], 422);
+        }
+
+        $usersQuery = User::query();
+
+        switch ($type) {
+            case 'id':
+                $usersQuery->where('id', '=', intval($query));
+                break;
+
+            case 'email':
+                $usersQuery->where('email', 'LIKE', "%$query%");
+                break;
+
+            case 'nickname':
+                $usersQuery->where('nickname', 'LIKE', "%$query%");
+                break;
+
+            default:
+                return response()->json([
+                    'message' => 'Tipo de búsqueda inválido',
+                    'errors' => [
+                        'type' => ['El tipo debe ser id, email o nickname']
+                    ]
+                ], 400);
+        }
+
+        return response()->json($usersQuery->paginate($perPage), 200);
+    }
+
+
 }

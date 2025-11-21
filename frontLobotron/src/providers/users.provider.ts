@@ -28,7 +28,7 @@ const connectionError = function(): BackendResponse<any> {
 };
 
  /* ============================================================
-   LIST USERS (PAGINADOS)
+   LISTAR USUARIOS (PAGINADOS)
    ============================================================ */
 export async function getAllUsers(
   page: number = 1
@@ -39,6 +39,30 @@ export async function getAllUsers(
     const res = await fetch(`${API_URL}/users?page=${page}&per_page=5`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (!res.ok) return null;
+
+    return (await res.json()) as PaginatedResponse<User>;
+  } catch {
+    return null;
+  }
+}
+
+/* ============================================================
+   BUSCAR USUARIO POR ID, NICKNAME O EMAIL
+   ============================================================ */
+export async function findUser(
+  type: "id" | "email" | "nickname",
+  query: string,
+  page: number = 1
+): Promise<PaginatedResponse<User> | null> {
+  try {
+    const token = getToken();
+
+    const res = await fetch(
+      `${API_URL}/users/find?type=${type}&query=${query}&page=${page}&per_page=5`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
     if (!res.ok) return null;
 
