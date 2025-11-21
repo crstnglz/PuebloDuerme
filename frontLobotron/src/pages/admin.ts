@@ -11,11 +11,9 @@ import type { PaginatedResponse } from "../types/paginatedResponse";
 import type { NewUser } from "../types/newUser";
 import type { UpdateUserBody } from "../types/updateUserBody";
 
-
 export function initAdmin() {
 
     /* --- Elementos del DOM --- */
-
     const searchType = document.getElementById("search-type") as HTMLSelectElement;
     const searchInput = document.getElementById("search-user") as HTMLInputElement;
     const searchBtn = document.getElementById("search-btn") as HTMLButtonElement;
@@ -27,33 +25,27 @@ export function initAdmin() {
 
     const modal = document.getElementById("admin-modal") as HTMLDivElement;
     const closeModalBtn = document.querySelector(".close") as HTMLElement;
-
     const modalTitle = document.querySelector(".modal-title") as HTMLElement;
 
     const modalUsername = document.getElementById("modal-username") as HTMLInputElement;
     const modalEmail = document.getElementById("modal-email") as HTMLInputElement;
     const modalRole = document.getElementById("modal-role") as HTMLSelectElement;
-
     const modalPassword = document.getElementById("modal-password") as HTMLInputElement;
     const modalPasswordConfirm = document.getElementById("modal-password-confirm") as HTMLInputElement;
-
     const saveUserBtn = document.getElementById("save-user-btn") as HTMLButtonElement;
-
     const modalMessage = document.getElementById("modal-message") as HTMLParagraphElement;
 
     let editingId: number | null = null;
     let currentPage = 1;
-
     let currentSearchType: "id" | "email" | "nickname" | null = null;
     let currentSearchValue: string | null = null;
 
     /* --- Modal de eliminar usuario --- */
-
     let deleteModal: HTMLDivElement | null = null;
     let deleteConfirmBtn: HTMLButtonElement | null = null;
     let deleteCancelBtn: HTMLButtonElement | null = null;
 
-    function createDeleteModal(): void {
+    const createDeleteModal = function(): void {
         deleteModal = document.createElement("div");
         deleteModal.id = "delete-modal";
         deleteModal.className = "delete-modal-overlay";
@@ -62,7 +54,6 @@ export function initAdmin() {
             <div class="delete-modal">
                 <h2>¿Eliminar Usuario?</h2>
                 <p>Esta acción no se puede deshacer.</p>
-
                 <div class="delete-modal-buttons">
                     <button id="confirm-delete" class="btn-delete">Eliminar</button>
                     <button id="cancel-delete" class="btn-cancel">Cancelar</button>
@@ -76,9 +67,9 @@ export function initAdmin() {
         deleteCancelBtn = document.getElementById("cancel-delete") as HTMLButtonElement;
 
         deleteCancelBtn.addEventListener("click", () => closeDeleteModal());
-    }
+    };
 
-    function openDeleteModal(callback: () => void): void {
+    const openDeleteModal = function(callback: () => void): void {
         if (!deleteModal) createDeleteModal();
 
         deleteModal!.style.display = "flex";
@@ -91,65 +82,50 @@ export function initAdmin() {
             callback();
             closeDeleteModal();
         });
-    }
+    };
 
-    function closeDeleteModal(): void {
+    const closeDeleteModal = function(): void {
         if (deleteModal) deleteModal.style.display = "none";
-    }
+    };
 
     /* --- Normalizar paginación --- */
-
-    function normalizeResponse(
-        raw: PaginatedResponse<User> | null
-    ): PaginatedResponse<User> {
-
+    const normalizeResponse = function(raw: PaginatedResponse<User> | null): PaginatedResponse<User> {
         if (!raw) {
-            return {
-                data: [],
-                current_page: 1,
-                last_page: 1,
-                total: 0
-            };
+            return { data: [], current_page: 1, last_page: 1, total: 0 };
         }
-
         return raw;
-    }
+    };
 
     /* --- Render usuarios --- */
-
-    function renderUsers(users: User[]): void {
+    const renderUsers = function(users: User[]): void {
         usersBody.innerHTML = "";
 
         users.forEach((user: User) => {
             const tr = document.createElement("tr");
-
             tr.innerHTML = `
                 <td>${user.id}</td>
                 <td>${user.nickname}</td>
                 <td>${user.email}</td>
                 <td>${user.rol}</td>
                 <td>
-                    <button class="edit-btn" data-id="${user.id}">Editar</button>
-                    <button class="delete-btn" data-id="${user.id}">Eliminar</button>
+                    <button class="edit-btn">Editar</button>
+                    <button class="delete-btn">Eliminar</button>
                 </td>
             `;
-
             usersBody.appendChild(tr);
         });
 
-        attachRowEvents();
-    }
+        attachRowEvents(users);
+    };
 
     /* --- Paginación --- */
-
-    function renderPagination(page: number, lastPage: number): void {
+    const renderPagination = function(page: number, lastPage: number): void {
         paginationContainer.innerHTML = "";
 
         const btnPrev = document.createElement("button");
         btnPrev.classList.add("page-btn");
         btnPrev.textContent = "Anterior";
         btnPrev.disabled = page === 1;
-
         btnPrev.addEventListener("click", () => {
             currentPage--;
             loadUsers();
@@ -159,7 +135,6 @@ export function initAdmin() {
         btnNext.classList.add("page-btn");
         btnNext.textContent = "Siguiente";
         btnNext.disabled = page === lastPage;
-
         btnNext.addEventListener("click", () => {
             currentPage++;
             loadUsers();
@@ -170,14 +145,11 @@ export function initAdmin() {
         info.textContent = `Página ${page} de ${lastPage}`;
 
         paginationContainer.append(btnPrev, info, btnNext);
-    }
+    };
 
     /* --- Cargar usuarios --- */
-
-    async function loadUsers(): Promise<void> {
-
+    const loadUsers = async function(): Promise<void> {
         let raw: PaginatedResponse<User> | null;
-
         if (currentSearchType && currentSearchValue) {
             raw = await findUser(currentSearchType, currentSearchValue, currentPage);
         } else {
@@ -194,91 +166,74 @@ export function initAdmin() {
 
         renderUsers(data.data);
         renderPagination(data.current_page, data.last_page);
-    }
+    };
 
     /* --- Eventos editar y eliminar --- */
+    const attachRowEvents = function(users: User[]): void {
+        const editBtns = document.querySelectorAll(".edit-btn");
+        const deleteBtns = document.querySelectorAll(".delete-btn");
 
-    function attachRowEvents(): void {
-
-        document.querySelectorAll(".edit-btn").forEach(btn => {
-            btn.addEventListener("click", async () => {
-
-                const id = Number((btn as HTMLElement).dataset.id);
-
-                const result = await findUser("id", String(id), 1);
-                const normalized = normalizeResponse(result);
-
-                const user = normalized.data[0];
+        editBtns.forEach((btn, index) => {
+            btn.addEventListener("click", () => {
+                const user = users[index];
                 if (!user) return alert("Usuario no encontrado.");
-
                 openModal(user);
             });
         });
 
-        document.querySelectorAll(".delete-btn").forEach(btn => {
+        deleteBtns.forEach((btn, index) => {
             btn.addEventListener("click", () => {
-                const id = Number((btn as HTMLElement).dataset.id);
-
+                const user = users[index];
+                if (!user) return;
                 openDeleteModal(async () => {
-                    await deleteUser(id);
+                    await deleteUser(user.id);
                     loadUsers();
                 });
             });
         });
-    }
+    };
 
     /* --- Modal --- */
-
-    function limpiarModal(): void {
+    const limpiarModal = function(): void {
         modalMessage.textContent = "";
         modalMessage.className = "";
-
         modalUsername.value = "";
         modalEmail.value = "";
         modalRole.value = "user";
         modalPassword.value = "";
         modalPasswordConfirm.value = "";
-    }
+    };
 
-    function openModal(user: User | null = null): void {
-
+    const openModal = function(user: User | null = null): void {
         limpiarModal();
-
         if (user) {
             editingId = user.id;
             modalTitle.textContent = "Editar Usuario";
             saveUserBtn.textContent = "Guardar";
-
             modalUsername.value = user.nickname;
             modalEmail.value = user.email;
             modalRole.value = user.rol;
-
         } else {
             editingId = null;
             modalTitle.textContent = "Crear Usuario";
             saveUserBtn.textContent = "Añadir";
         }
-
         modal.style.display = "flex";
-    }
+    };
 
-    function closeModal(): void {
+    const closeModal = function(): void {
         modal.style.display = "none";
-    }
+    };
 
     closeModalBtn.addEventListener("click", closeModal);
-
     window.addEventListener("click", (e: MouseEvent) => {
         if (e.target === modal) closeModal();
     });
 
     /* --- Guardar usuario --- */
-
     saveUserBtn.addEventListener("click", async () => {
-
         modalMessage.textContent = "";
         modalMessage.className = "";
-
         modalUsername.classList.remove("input-error");
         modalEmail.classList.remove("input-error");
         modalPassword.classList.remove("input-error");
@@ -298,9 +253,7 @@ export function initAdmin() {
             return;
         }
 
-        /* --- CREAR USUARIO --- */
-        if (!editingId) {
-
+        if (!editingId) { // Crear
             if (!password || !passwordConfirm) {
                 modalPassword.classList.add("input-error");
                 modalPasswordConfirm.classList.add("input-error");
@@ -309,14 +262,7 @@ export function initAdmin() {
                 return;
             }
 
-            const body: NewUser = {
-                nickname,
-                email,
-                rol: role,
-                password,
-                password_confirmation: passwordConfirm
-            };
-
+            const body: NewUser = { nickname, email, rol: role, password, password_confirmation: passwordConfirm };
             const res = await createUser(body);
 
             if ("error" in res && res.error) {
@@ -329,17 +275,8 @@ export function initAdmin() {
 
             modalMessage.textContent = "Usuario creado con éxito.";
             modalMessage.classList.add("success-message");
-        }
-
-        /* --- EDITAR USUARIO --- */
-        else {
-
-            const body: UpdateUserBody = {
-                nickname,
-                email,
-                rol: role
-            };
-
+        } else { // Editar
+            const body: UpdateUserBody = { nickname, email, rol: role };
             if (password && passwordConfirm) {
                 body.password = password;
                 body.password_confirmation = passwordConfirm;
@@ -362,32 +299,23 @@ export function initAdmin() {
         setTimeout(() => {
             loadUsers();
             limpiarModal();
-        }, 3000);
+        }, 1500);
     });
 
     /* --- Botón crear --- */
-
     addUserBtn.addEventListener("click", () => openModal());
 
     /* --- Buscar usuarios --- */
-
     searchBtn.addEventListener("click", () => {
+    const txt = searchInput.value.trim();
+    currentPage = 1;
 
-        const txt = searchInput.value.trim();
+    if (txt === "") return loadUsers(); //para que no cargue todos los usuarios primero al hacer click
 
-        if (txt === "") {
-            currentSearchType = null;
-            currentSearchValue = null;
-        } else {
-            currentSearchType = searchType.value as "id" | "email" | "nickname";
-            currentSearchValue = txt;
-        }
-
-        currentPage = 1;
-        loadUsers();
-    });
-
-    /* --- Carga inicial --- */
+    currentSearchType = searchType.value as "id" | "email" | "nickname";
+    currentSearchValue = txt;
 
     loadUsers();
+});
+
 }
