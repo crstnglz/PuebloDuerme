@@ -61,17 +61,20 @@ export async function loadProfile() {
 
     const user = await res.json();
 
-    // Cambiar el texto del label
-    const nicknameLabel = document.getElementById("profileNicknameLabel");
-    if (nicknameLabel) {
-        nicknameLabel.textContent = user.nickname;
-    }
+    const usernameText = document.getElementById("profileUsername")!;
+    usernameText.textContent = user.nickname
 
-    // Imagen
+    const descriptionText = document.getElementById("profileDescriptionText")!;
+    descriptionText.textContent = user.description || "Añade tu descripción";
+
     const avatarImg = document.getElementById("avatarPreview") as HTMLImageElement;
-    if (avatarImg) {
-        avatarImg.src = user.profile_photo || "/imagesUI/predprofile.png";
-    }
+    avatarImg.src = user.profile_photo || "/imagesUI/predprofile.png"
+
+    const nicknameInput = document.getElementById("profileNickname") as HTMLInputElement;
+    nicknameInput.value = user.nickname || "";
+
+    const descriptionInput = document.getElementById("profileDescription") as HTMLTextAreaElement;
+    descriptionInput.value = user.descripction || "";
 }
 
 //Habilitar botón de "Guardar cambios"
@@ -95,24 +98,22 @@ export function enableSaveOnChanges()
 }
 
 //Subir Perfil (Nickname + Desc + Cloudinary -si hay imagen-)
-export function saveProfile()
-{
+export function saveProfile() {
     const nickname = document.getElementById("profileNickname") as HTMLInputElement;
     const description = document.getElementById("profileDescription") as HTMLTextAreaElement;
     const avatar = document.getElementById("avatarInput") as HTMLInputElement;
     const saveBtn = document.getElementById("saveProfileBtn") as HTMLButtonElement;
 
-    saveBtn.addEventListener("click", async() => {
-        const token = localStorage.getItem("access_token")
-        if(!token) return
+    saveBtn.addEventListener("click", async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
 
         let profilePhotoUrl = null;
 
-        //Si cambia la foto -> subir a cloudinary
-        if(avatar.files && avatar.files[0])
-        {
+        // Subir foto si se ha cambiado
+        if (avatar.files && avatar.files[0]) {
             const formImage = new FormData();
-            formImage.append("image", avatar.files[0])
+            formImage.append("image", avatar.files[0]);
 
             const uploadRes = await fetch("http://127.0.0.1:8000/api/profile/uploadImage", {
                 method: "POST",
@@ -122,8 +123,7 @@ export function saveProfile()
 
             const uploadData = await uploadRes.json();
 
-            if(!uploadRes.ok)
-            {
+            if (!uploadRes.ok) {
                 alert("Error subiendo imagen");
                 return;
             }
@@ -131,44 +131,39 @@ export function saveProfile()
             profilePhotoUrl = uploadData.url;
         }
 
-        //Enviar datos 
+        // Construir datos a enviar
         const formData = new FormData();
-        formData.append("nickname", nickname.value)
-        formData.append("description", description.value)
+        formData.append("nickname", nickname.value);
+        formData.append("description", description.value);
 
-        if(profilePhotoUrl)
-        {
-            formData.append("profile_photo", profilePhotoUrl)
+        if (profilePhotoUrl) {
+            formData.append("profile_photo", profilePhotoUrl);
         }
 
         const res = await fetch("http://127.0.0.1:8000/api/profile/update", {
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            },
+            headers: { "Authorization": `Bearer ${token}` },
             body: formData
-        })
+        });
 
-        if(res.ok)
-        {
-            alert("Perfil actualizado")
-            saveBtn.disabled = true
-            saveBtn.classList.add("disabled")
-        }
-        else
-        {
-            alert("Error al guardar cambios")
+        if (!res.ok) {
+            alert("Error al guardar cambios");
+            return;
         }
 
-        //Refrescar Modal
-        await loadProfile()
+        alert("Perfil actualizado");
 
-        nickname.value = ""
-        description.value = ""
-        avatar.value = ""
+        // Recargar perfil visual
+        await loadProfile();
 
-        saveBtn.disabled = true
-        saveBtn.classList.remove("enabled")
-        saveBtn.classList.add("disabled")
-    })
+        // Limpiar inputs
+        nickname.value = "";
+        description.value = "";
+        avatar.value = "";
+
+        // Desactivar botón
+        saveBtn.disabled = true;
+        saveBtn.classList.remove("enabled");
+        saveBtn.classList.add("disabled");
+    });
 }
