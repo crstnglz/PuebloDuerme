@@ -1,5 +1,9 @@
 @import "./variables.css";
 
+/* Tipologia Rajdhani de letra*/
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+
 /* ===================== VARIABLES ===================== */    
 :root { 
   --dark-color: #553f2c;
@@ -7,6 +11,7 @@
   --third-color: #9b746b;
   --font-title: 'Medieval';
   --font-accent: 'Barber';
+  --font-body: 'Rajdhani';
 }
 
 
@@ -17,10 +22,7 @@
   src: url(/font/MedievalSharp-Regular.ttf);
 }
 
-@font-face {
-  font-family: 'Barber';
-  src: url(/font/Barber.otf);
-}
+
 
 /* ===================== RESET ===================== */
 * {
@@ -42,7 +44,7 @@ body {
   background-repeat: no-repeat;
 
   color: white;
-  font-family: var(--font-accent);
+  font-family: var(--font-body);
   overflow: hidden;
 }
 
@@ -84,7 +86,9 @@ body {
 
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
     transition: 0.3s ease;
-    font-family: var(--font-accent);
+    font-family: sans-serif;
+    font-weight: bold;
+
 }
 .back-btn:hover{
     background-color: var(--color-acento-1);
@@ -98,47 +102,6 @@ body {
   50% { transform: translate(2px, 2px) rotate(-0.5deg); }
   75% { transform: translate(-2px, -2px) rotate(0.5deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-/* ===================== PERFIL ===================== */
-.profile {
-  position: absolute;
-  top: 25px;
-  right: 20px;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-}
-
-.profile-img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  filter: invert(1);
-}
-
-.profile-menu {
-  list-style: none;
-  width: 170px;
-  background: var(--second-color);
-  border-radius: 6px;
-  position: absolute;
-  top: 60px;
-  right: 0;
-  display: none;
-}
-
-.profile-menu li a {
-  display: block;
-  padding: 14px 18px;
-  font-size: 16px;
-  color: white;
-  text-decoration: none;
-  font-family: var(--font-accent);
-}
-
-.profile-menu li a:hover {
-  background: var(--dark-color);
 }
 
 /* ===================== CONTENEDOR ADMIN ===================== */
@@ -185,14 +148,31 @@ body {
 }
 
 .search-select {
-  padding: 10px 12px;
-  border: 2px solid var(--second-color);
-  border-radius: 8px;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  font-family: var(--font-accent);
+  border: 2px solid #6b472e;
+  border-radius: 10px;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
+  appearance: auto;
+  transition: 0.2s;
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 36px;
+  background-color: #8d5f3a;
+  color: white;
+  padding: 10px 14px; 
+}
+
+.search-select:hover {
+  background-color: #a47246;
+}
+
+.search-select option {
+  background-color: #8d5f3a;
+  font-family: sans-serif;
+  color: white;
+  font-weight: bold;
 }
 
 #search-user {
@@ -207,6 +187,7 @@ body {
 
 #search-btn {
   height: 46px;
+  font-weight: bold;
 }
 
 /* ===================== BOTONES GENERALES ===================== */
@@ -221,8 +202,8 @@ body {
   border: 2px solid white;
   border-radius: 10px;
 
-  font-family: var(--font-accent);
-  font-size: 15px;
+  font-family: sans-serif;
+  font-weight: 400; 
   font-weight: bold;
   color: white;
 
@@ -240,6 +221,8 @@ body {
 .add-btn {
   background: #4CAF50;
   margin-left: 14px;
+  font-family: sans-serif;
+  font-weight: bold;
 }
 
 .add-btn:hover {
@@ -280,14 +263,21 @@ tbody tr:hover {
 th {
   font-family: var(--font-title);
   font-size: 18px;
+
+}
+
+td {
+  font-family: var(--font-body);
+
 }
 
 /* ===================== BOTONES EDITAR/ELIMINAR ===================== */
 .edit-btn, .delete-btn {
+
   padding: 6px 12px;
   border: none;
   border-radius: 6px;
-  font-family: var(--font-accent);
+  font-family: sans-serif;
   cursor: pointer;
   font-size: 14px;
   margin-left: 6px;
@@ -330,7 +320,8 @@ th {
   background: #8b5a2b;
   border: none;
   border-radius: 10px;
-  font-family: var(--font-accent);
+  font-family: sans-serif;
+  font-weight: bold;
   color: white;
   cursor: pointer;
 }
@@ -405,7 +396,8 @@ th {
   border: 2px solid #b98a56;
   background: rgba(255, 248, 235, 0.95);
   color: #222;
-  font-family: var(--font-accent);
+  font-family: sans-serif;
+
 }
 
 /* ===================== SELECT + BOTÓN INLINE ===================== */
@@ -431,9 +423,8 @@ th {
   font-weight: bold;
   cursor: pointer;
   transition: 0.25s;
-  font-family: var(--font-accent);
+  font-family: sans-serif;
 }
-
 .btn-inline:hover {
   background: #a06b3d;
   transform: scale(1.05);
@@ -444,7 +435,6 @@ th {
   text-align: center;
   font-size: 16px;
   font-weight: bold;
-  color: red;
 }
 /* ===================== MENSAJE DE ÉXITO ===================== */
 .success-message {
@@ -452,7 +442,7 @@ th {
     background: #3fa34d; /* Verde suave */
     border-left: 6px solid #2d7a39;
     color: #ffffff;
-    font-family: var(--font-accent);
+    font-family: sans-serif;
     font-size: 16px;
     border-radius: 8px;
     text-align: center;
@@ -464,10 +454,10 @@ th {
 /* ===================== MENSAJE DE ERROR ===================== */
 .error-message {
     padding: 12px 16px;
-    background: #d13838; /* Rojo intenso */
+    background: #d13838; 
     border-left: 6px solid #8e1f1f;
     color: #ffffff;
-    font-family: var(--font-accent);
+    font-family: sans-serif;
     font-size: 16px;
     border-radius: 8px;
     text-align: center;
@@ -499,37 +489,6 @@ th {
   transform: scale(1.15);
 }
 
-/* --- SELECT PRINCIPAL --- */
-.search-select {
-  background-color: #8d5f3a;
-  color: white;
-  border: 2px solid #6b472e;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  appearance: auto;
-  transition: 0.2s;
-}
-
-.search-select:hover {
-  background-color: #a47246;
-}
-
-.search-select option {
-  background-color: #8d5f3a;
-  color: white;
-  font-weight: bold;
-}
-
-.search-select {
-
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px;
-  padding-right: 36px;
-}
 
 
 /* MODAL DE ELIMINAR USUARIO*/
