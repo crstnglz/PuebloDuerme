@@ -32,7 +32,7 @@ class UserController extends Controller
         $rules = [
             'nickname' => 'required|string|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|string|min:8|same:password_confirmation',
+            'password' => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required|string|min:8',
             'rol' => 'sometimes|in:admin,user',
         ];
@@ -45,15 +45,17 @@ class UserController extends Controller
             'email.unique' => 'El email ya está registrado en la base de datos.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos :min caracteres.',
-            'password.same' => 'La contraseña y su confirmación deben coincidir.',
             'password_confirmation.required' => 'La confirmación de contraseña es obligatoria.',
-            'rol.required' => 'El rol es obligatorio.',
-            'rol.in' => 'El rol seleccionado no es válido. Los roles permitidos son: admin o user.',
+            'rol.in' => 'El rol seleccionado no es válido.',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'message' => 'Errores de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $profile_photo = 'images/usuario_predeterminado.png';
@@ -63,7 +65,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_bot' => false,
-            'rol' => $request->rol,
+            'rol' => $request->rol ?? "user",
             'profile_photo' => $profile_photo,
         ]);
 

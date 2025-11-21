@@ -1,10 +1,12 @@
 import {
     getAllUsers,
-    findUser
+    findUser,
+    createUser
 } from "../providers/users.provider";
 
 import type { User } from "../types/user";
 import type { PaginatedResponse } from "../types/paginatedResponse";
+import type { NewUser } from "../types/newUser";
 
 export function initAdmin() {
     /* --- Elementos del DOM --- */
@@ -14,6 +16,21 @@ export function initAdmin() {
 
     const usersBody = document.getElementById("users-body") as HTMLTableSectionElement;
     const paginationContainer = document.getElementById("pagination") as HTMLDivElement;
+    const addUserBtn = document.getElementById("add-user-btn") as HTMLButtonElement;
+
+    const modal = document.getElementById("admin-modal") as HTMLDivElement;
+    const closeModalBtn = document.querySelector(".close") as HTMLElement;
+
+    const modalTitle = document.querySelector(".modal-title") as HTMLElement;
+    const modalUsername = document.getElementById("modal-username") as HTMLInputElement;
+    const modalEmail = document.getElementById("modal-email") as HTMLInputElement;
+    const modalRole = document.getElementById("modal-role") as HTMLSelectElement;
+
+    const modalPassword = document.getElementById("modal-password") as HTMLInputElement;
+    const modalPasswordConfirm = document.getElementById("modal-password-confirm") as HTMLInputElement;
+
+    const saveUserBtn = document.getElementById("save-user-btn") as HTMLButtonElement;
+    const modalMessage = document.getElementById("modal-message") as HTMLParagraphElement;
 
     let currentPage = 1;
 
@@ -37,11 +54,95 @@ export function initAdmin() {
         loadUsers();
     });
 
+    /* --- Modal de creación de usuario --- */
+    const limpiarModal = function(): void {
+        modalMessage.textContent = "";
+        modalMessage.className = "";
+
+        modalUsername.value = "";
+        modalEmail.value = "";
+        modalRole.value = "user";
+        modalPassword.value = "";
+        modalPasswordConfirm.value = "";
+    }
+
+    const openModal = function(): void {
+        limpiarModal();
+        modalTitle.textContent = "Crear Usuario";
+        saveUserBtn.textContent = "Añadir";
+        modal.style.display = "flex";
+    }
+
+    const closeModal = function(): void {
+        modal.style.display = "none";
+    }
+
+    closeModalBtn.addEventListener("click", closeModal);
+    window.addEventListener("click", (e: MouseEvent) => {
+        if (e.target === modal) closeModal();
+    });
+
+    /* --- Guardar usuario --- */
+    saveUserBtn.addEventListener("click", async () => {
+        modalMessage.textContent = "";
+        modalMessage.className = "";
+
+        const nickname = modalUsername.value.trim();
+        const email = modalEmail.value.trim();
+        const role = modalRole.value as "admin" | "user";
+        const password = modalPassword.value;
+        const passwordConfirm = modalPasswordConfirm.value;
+
+        // Validación del formato del nickname
+        const nicknameRegex = /^[a-zA-Z0-9._-]+$/;
+        if (!nicknameRegex.test(nickname)) {
+            modalUsername.classList.add("input-error");
+            modalMessage.textContent = "Formato de nickname incorrecto.";
+            modalMessage.classList.add("error-message");
+            return;
+        }
+
+        // Verificación de contraseñas
+        if (!password || !passwordConfirm) {
+            modalPassword.classList.add("input-error");
+            modalPasswordConfirm.classList.add("input-error");
+            modalMessage.textContent = "Contraseña obligatoria.";
+            modalMessage.classList.add("error-message");
+            return;
+        }
+
+        const body: NewUser = {
+            nickname,
+            email,
+            rol: role,
+            password,
+            password_confirmation: passwordConfirm
+        };
+
+        // Llamada para crear el usuario
+        const res = await createUser(body);
+
+        if ("error" in res && res.error) {
+            const err = res.data.errors!;
+            const firstKey = Object.keys(err)[0];
+            modalMessage.textContent = err[firstKey][0];
+            modalMessage.classList.add("error-message");
+            return;
+        }
+
+        modalMessage.textContent = "Usuario creado con éxito.";
+        modalMessage.classList.add("success-message");
+
+        setTimeout(() => {
+            loadUsers(); // Recargar la lista de usuarios
+            limpiarModal();
+        }, 3000);
+    });
+
     /* --- Cargar usuarios --- */
     async function loadUsers(): Promise<void> {
         let raw: PaginatedResponse<User> | null;
 
-        // Si hay valores en el buscador, usamos `findUser()`, si no, `getAllUsers()`
         if (currentSearchType && currentSearchValue) {
             raw = await findUser(currentSearchType, currentSearchValue, currentPage);
         } else {
@@ -61,7 +162,7 @@ export function initAdmin() {
     }
 
     /* --- Normalizar respuesta --- */
-    function normalizeResponse(raw: PaginatedResponse<User> | null): PaginatedResponse<User> {
+    const  normalizeResponse = function(raw: PaginatedResponse<User> | null): PaginatedResponse<User> {
         if (!raw) {
             return {
                 data: [],
@@ -74,7 +175,7 @@ export function initAdmin() {
     }
 
     /* --- Renderizar usuarios --- */
-    function renderUsers(users: User[]): void {
+    const renderUsers = function(users: User[]): void {
         usersBody.innerHTML = "";
 
         users.forEach((user: User) => {
@@ -91,12 +192,10 @@ export function initAdmin() {
             `;
             usersBody.appendChild(tr);
         });
-
-        
     }
 
     /* --- Paginación --- */
-    function renderPagination(page: number, lastPage: number): void {
+    const renderPagination = function(page: number, lastPage: number): void {
         paginationContainer.innerHTML = "";
 
         const btnPrev = document.createElement("button");
@@ -126,7 +225,9 @@ export function initAdmin() {
         paginationContainer.append(btnPrev, info, btnNext);
     }
 
-    
     /* --- Carga inicial --- */
     loadUsers();
+
+    /* --- Botón crear usuario --- */
+    addUserBtn.addEventListener("click", () => openModal());
 }

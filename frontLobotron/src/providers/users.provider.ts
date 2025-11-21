@@ -71,3 +71,37 @@ export async function findUser(
     return null;
   }
 }
+
+/* ============================================================
+   CREAR USUARIO
+   ============================================================ */
+export async function createUser(
+  data: NewUser
+): Promise<BackendResponse<User>> {
+  try {
+    const token = getToken();
+
+    const res = await fetch(`${API_URL}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      return {
+        error: true,
+        status: res.status,
+        data: json as BackendError,
+      };
+    }
+
+    return json as User;
+  } catch {
+    return connectionError();
+  }
+}
