@@ -1,7 +1,7 @@
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
-import { modalProfile, showImage, loadProfile } from './pages/profile';
+import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
@@ -30,12 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (path.includes("indexUI")) {
         indexUI();
-        showImage();
         modalProfile();
+        showImage();
+        enableSaveOnChanges();
+        saveProfile();
     }
-
-    // if(path.includes("profile"))
-    // {
-    //     showImage();
-    // }
 });

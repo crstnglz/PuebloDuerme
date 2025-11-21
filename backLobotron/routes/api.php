@@ -19,6 +19,8 @@ Route::middleware('auth:sanctum')->group(function () {
             return $request->user();
         });
 
+        Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
+
     Route::middleware('abilities:admin')->group(function () {
 
         // CRUD de usuarios
