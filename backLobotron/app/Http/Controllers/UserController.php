@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     // Listar usuarios
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(User::all(), 200);
+        //para que salgan 5 usuarios por página en el panel
+        $perPage = $request->input('per_page', 5); 
+        return response()->json(User::paginate($perPage), 200);
     }
 
     // Mostrar usuario por id
