@@ -159,5 +159,16 @@ export function saveProfile()
         {
             alert("Error al guardar cambios")
         }
+
+        //Refrescar Modal
+        await loadProfile()
+
+        nickname.value = ""
+        description.value = ""
+        avatar.value = ""
+
+        saveBtn.disabled = true
+        saveBtn.classList.remove("enabled")
+        saveBtn.classList.add("disabled")
     })
 }
