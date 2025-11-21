@@ -2,7 +2,7 @@
 
 export function indexUI()
 {
-     /* Menú del Perfil */
+  /* Menú del Perfil */
   const profile = document.querySelector('.profile') as HTMLElement | null;
   const menu = document.querySelector('.profile-menu') as HTMLElement | null;
 
@@ -21,6 +21,32 @@ export function indexUI()
       menu.style.display = "none";
     }
   })
+
+  // Botón para mostrar la opción de administrar en el desplegable, solamente si eres admin
+  const adminBtn = document.getElementById("admin-panel-btn");
+  const userRaw = localStorage.getItem("user");
+
+  if (adminBtn && userRaw) {
+    try {
+      const user = JSON.parse(userRaw);
+      if (user.rol === "admin") {
+        adminBtn.style.display = "block";
+      }
+    } catch (err) {
+      console.error("Error leyendo user:", err);
+    }
+  }
+
+  // === NUEVO: CERRAR SESIÓN ===
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+
+      window.location.href = "/index.html";
+    });
+  }
 
   /* Modal de los Roles */
   const openRol = document.getElementById("open-rol") as HTMLElement
@@ -86,48 +112,48 @@ export function indexUI()
     });
   }
 
-    if(closeBtn && modal)
-    {
-      closeBtn.addEventListener("click", () => {
-        modal.style.display="none";
-      });
-    }
+  if(closeBtn && modal)
+  {
+    closeBtn.addEventListener("click", () => {
+      modal.style.display="none";
+    });
+  }
 
-    if(modal)
-    {
-      modal.addEventListener("click", (e) => {
-        if(e.target === modal)
-        {
-          modal.style.display = "none"
-        }
-      })
-    }
-
-    if(next)
+  if(modal)
+  {
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal)
       {
-        next.addEventListener("click", () => {
-          if(pageIndex < pages.length - 1)
-          {
-            pages[pageIndex].classList.remove("active");
-            pages[pageIndex].classList.add("exit");
-
-            pageIndex++
-            pages[pageIndex].classList.add("active");
-          }
-        });
+        modal.style.display = "none"
       }
+    })
+  }
 
-      if(prev)
+  if(next)
+  {
+    next.addEventListener("click", () => {
+      if(pageIndex < pages.length - 1)
       {
-        prev.addEventListener("click", () => {
-          if(pageIndex > 0)
-          {
-            pages[pageIndex].classList.remove("active");
-            pageIndex--
+        pages[pageIndex].classList.remove("active");
+        pages[pageIndex].classList.add("exit");
 
-            pages[pageIndex].classList.remove("exit");
-            pages[pageIndex].classList.add("active");
-          } 
-        });
+        pageIndex++
+        pages[pageIndex].classList.add("active");
       }
+    });
+  }
+
+  if(prev)
+  {
+    prev.addEventListener("click", () => {
+      if(pageIndex > 0)
+      {
+        pages[pageIndex].classList.remove("active");
+        pageIndex--
+
+        pages[pageIndex].classList.remove("exit");
+        pages[pageIndex].classList.add("active");
+      } 
+    });
+  }
 }

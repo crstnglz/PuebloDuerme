@@ -282,7 +282,7 @@ th {
   font-size: 18px;
 }
 
-/* ===================== BOTONES ACCIÓN ===================== */
+/* ===================== BOTONES EDITAR/ELIMINAR ===================== */
 .edit-btn, .delete-btn {
   padding: 6px 12px;
   border: none;
@@ -301,6 +301,18 @@ th {
 .delete-btn {
   background: #d13838;
   color: white;
+}
+
+.edit-btn:hover {
+  background: #3a8f3a;   
+  transform: scale(1.08);
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+
+.delete-btn:hover {
+  background: #b02e2e;   
+  transform: scale(1.08);
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
 }
 
 /* ===================== PAGINACIÓN ===================== */
@@ -497,7 +509,7 @@ th {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  appearance: none;
+  appearance: auto;
   transition: 0.2s;
 }
 
@@ -512,6 +524,7 @@ th {
 }
 
 .search-select {
+
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 12px;
