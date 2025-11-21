@@ -7,14 +7,14 @@ import type { UpdateUserBody } from "../types/updateUserBody";
 import type { NewUser } from "../types/newUser";
 
 /* ============================================================
-   TOKEN
+  TOKEN
    ============================================================ */
 const getToken = function(): string | null {
   return localStorage.getItem("access_token");
 };
 
 /* ============================================================
-   ERROR DE CONEXIÓN
+  ERROR DE CONEXIÓN
    ============================================================ */
 const connectionError = function(): BackendResponse<any> {
   return {
@@ -28,7 +28,7 @@ const connectionError = function(): BackendResponse<any> {
 };
 
  /* ============================================================
-   LISTAR USUARIOS (PAGINADOS)
+  LISTAR USUARIOS (PAGINADOS)
    ============================================================ */
 export async function getAllUsers(
   page: number = 1
@@ -49,7 +49,7 @@ export async function getAllUsers(
 }
 
 /* ============================================================
-   BUSCAR USUARIO POR ID, NICKNAME O EMAIL
+  BUSCAR USUARIO POR ID, NICKNAME O EMAIL
    ============================================================ */
 export async function findUser(
   type: "id" | "email" | "nickname",
@@ -73,7 +73,7 @@ export async function findUser(
 }
 
 /* ============================================================
-   CREAR USUARIO
+  CREAR USUARIO
    ============================================================ */
 export async function createUser(
   data: NewUser
@@ -101,6 +101,72 @@ export async function createUser(
     }
 
     return json as User;
+  } catch {
+    return connectionError();
+  }
+}
+
+/* ============================================================
+  ACTUALIZAR USUARIO
+   ============================================================ */
+export async function updateUser(
+  id: number | string,
+  body: UpdateUserBody
+): Promise<BackendResponse<User>> {
+  try {
+    const token = getToken();
+
+    const res = await fetch(`${API_URL}/users/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      return {
+        error: true,
+        status: res.status,
+        data: json as BackendError,
+      };
+    }
+
+    return json as User;
+  } catch {
+    return connectionError();
+  }
+}
+
+
+/* ============================================================
+  BORRAR USUARIO
+   ============================================================ */
+export async function deleteUser(
+  id: number | string
+): Promise<BackendResponse<{ message: string }>> {
+  try {
+    const token = getToken();
+
+    const res = await fetch(`${API_URL}/users/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.status === 204) {
+      return { message: "Usuario eliminado con éxito" };
+    }
+
+    const json = await res.json();
+
+    return {
+      error: true,
+      status: res.status,
+      data: json as BackendError,
+    };
   } catch {
     return connectionError();
   }

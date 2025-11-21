@@ -9,24 +9,31 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Listar usuarios
+    // LISTAR usuarios (paginado
     public function index(Request $request)
     {
-        //para que salgan 5 usuarios por página en el panel
-        $perPage = $request->input('per_page', 5); 
+        $perPage = $request->input('per_page', 5);
         return response()->json(User::paginate($perPage), 200);
     }
 
-    // Mostrar usuario por id
+    // Mostrar usuario por ID
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuario no encontrado',
+                'errors' => [
+                    'id' => ['No existe un usuario con ese ID']
+                ]
+            ], 404);
+        }
 
         return response()->json($user, 200);
     }
 
-
-    // Crear un usuario
+    // Crear usuario
     public function store(Request $request)
     {
         $rules = [
@@ -45,9 +52,11 @@ class UserController extends Controller
             'email.unique' => 'El email ya está registrado en la base de datos.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos :min caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
             'password_confirmation.required' => 'La confirmación de contraseña es obligatoria.',
             'rol.in' => 'El rol seleccionado no es válido.',
         ];
+
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
@@ -75,98 +84,109 @@ class UserController extends Controller
     // Actualizar usuario
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuario no encontrado',
+                'errors' => [
+                    'id' => ['No existe un usuario con ese ID']
+                ]
+            ], 404);
+        }
 
         $rules = [
             'nickname' => 'sometimes|string|max:255|unique:users,nickname,' . $id,
             'email' => 'sometimes|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8', 
+            'password' => 'sometimes|string|min:8',
             'rol' => 'sometimes|in:admin,user',
         ];
 
         $messages = [
-            'nickname.string' => 'El nombre de usuario debe ser una cadena de texto.',
-            'nickname.max' => 'El nombre de usuario no puede exceder los :max caracteres.',
-            'nickname.unique' => 'Ese nombre de usuario ya está en uso por otro usuario.',
-            'email.email' => 'El email debe ser una dirección de correo electrónico válida.',
-            'email.max' => 'El email no puede exceder los :max caracteres.',
-            'email.unique' => 'El email ya está registrado por otro usuario.',
-            'password.string' => 'La contraseña debe ser una cadena de texto.',
+            'nickname.unique' => 'Ese nombre de usuario ya está en uso.',
+            'email.email' => 'El email debe ser válido.',
+            'email.unique' => 'El email ya está registrado.',
             'password.min' => 'La contraseña debe tener al menos :min caracteres.',
-            'rol.in' => 'El rol seleccionado no es válido. Los roles permitidos son: admin o user.',
+            'rol.in' => 'El rol seleccionado no es válido.',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'message' => 'Errores de validación',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        if ($request->has('nickname')) {
+        if ($request->has('nickname'))
             $user->nickname = $request->nickname;
-        }
-
-        if ($request->has('email')) {
+        if ($request->has('email'))
             $user->email = $request->email;
-        }
-
-        if ($request->has('password')) {
+        if ($request->has('password'))
             $user->password = Hash::make($request->password);
-        }
-
-        if ($request->has('rol')) {
+        if ($request->has('rol'))
             $user->rol = $request->rol;
-        }
 
         $user->save();
 
         return response()->json($user, 200);
     }
 
-
     // Eliminar usuario
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $user = User::find($id);
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuario no encontrado',
+                'errors' => [
+                    'id' => ['No existe un usuario con ese ID']
+                ]
+            ], 404);
+        }
+
+        $user->delete();
         return response()->json(null, 204);
     }
 
-    // Actualizar contraseña usuario
+    // Actualizar contraseña
     public function updatePassword(Request $request, $id)
     {
-
-        $rules = [
-
+        $validator = Validator::make($request->all(), [
             'new_password' => 'required|string|min:8|confirmed',
-        ];
-
-        $messages = [
+        ], [
             'new_password.required' => 'La nueva contraseña es obligatoria.',
-            'new_password.string' => 'La nueva contraseña debe ser una cadena de texto.',
-            'new_password.min' => 'La nueva contraseña debe tener al menos :min caracteres.',
-            'new_password.confirmed' => 'La nueva contraseña y su confirmación deben coincidir.',
-        ];
-
-
-        $validator = Validator::make($request->all(), $rules, $messages);
+            'new_password.min' => 'La nueva contraseña debe tener mínimo :min caracteres.',
+            'new_password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
 
         if ($validator->fails()) {
-
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'message' => 'Errores de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $user = User::findOrFail($id);
+        $user = User::find($id);
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuario no encontrado',
+                'errors' => [
+                    'id' => ['No existe un usuario con ese ID']
+                ]
+            ], 404);
+        }
 
         $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return response()->json(['message' => 'Contraseña del usuario actualizada por el administrador'], 200);
+        return response()->json(['message' => 'Contraseña actualizada'], 200);
     }
 
-    // Para buscar usuario por id, nickname o email
+    // FIND con paginación
     public function find(Request $request)
     {
         $type = $request->input('type');   // id | email | nickname
@@ -208,6 +228,4 @@ class UserController extends Controller
 
         return response()->json($usersQuery->paginate($perPage), 200);
     }
-
-
 }
