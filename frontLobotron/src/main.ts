@@ -3,10 +3,15 @@ import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { showImage } from './pages/profile';
 
+// IMPORT PARA EL PANEL ADMIN
+import { initAdmin } from './pages/admin';
+
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
 
+    // ============ PÁGINA PRINCIPAL (login + registro) ============
     if (path.endsWith("/") || path.endsWith("/index.html")) {
+
         initRegisterForm();
         initLoginForm();
 
@@ -17,23 +22,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (flipToggle.checked) {
                     // Mostrar LOGIN
-                    clearLoginForm();     
-                    initLoginForm();      
+                    clearLoginForm();
+                    initLoginForm();
                 } else {
                     // Mostrar REGISTER
                     clearRegisterForm?.();
-                    initRegisterForm();   
+                    initRegisterForm();
                 }
             });
         }
     }
 
+    // ============ PÁGINA DE INICIO ============
     if (path.includes("indexUI")) {
         indexUI();
     }
 
-    if(path.includes("profile"))
-    {
+    // ============ PERFIL ============
+    if (path.includes("profile")) {
         showImage();
+    }
+
+    // ============ PANEL ADMIN ============
+    if (path.includes("admin")) {
+        initAdmin();   
     }
 });
