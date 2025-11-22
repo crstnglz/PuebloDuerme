@@ -127,7 +127,7 @@ async function handleLoginSubmit(event: Event) {
       throw new Error('Respuesta inválida del servidor.');
     }
 
-    localStorage.setItem('access_token', result.data.token);
+    localStorage.setItem('access_token', result.data.access_token);
     localStorage.setItem('user', JSON.stringify({
       id: result.data.id,
       nickname: result.data.nickname,

@@ -24,6 +24,7 @@ class User extends Authenticatable
         'is_bot',
         'rol',
         'profile_photo',
+        'description',
     ];
 
     /**

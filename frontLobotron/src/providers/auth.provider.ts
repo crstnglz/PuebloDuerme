@@ -21,7 +21,18 @@ export async function loginUser(formData: any) {
         throw data;
     }
 
-    return data;
+    // Normalizamos la salida para que siempre tenga el mismo formato
+    return {
+        message: data.message,
+        data: {
+            access_token: data.data.access_token,
+            id: data.data.id,
+            nickname: data.data.nickname,
+            rol: data.data.rol,
+            abilities: data.data.abilities,
+            profile_photo: data.data.profile_photo
+        }
+    };
 }
 
 // REGISTER + LOGIN AUTOMÁTICO
@@ -32,36 +43,44 @@ export async function registerUser(formData: any) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json' // Le decimos a Laravel que queremos JSON
+            'Accept': 'application/json'
         },
-        // Convertimos el objeto JS a un string JSON para el body
         body: JSON.stringify(formData)
     });
 
-    // Obtenemos la respuesta de la API como JSON
     const registerData = await registerResponse.json();
 
-    // Si la respuesta no es existosa, lanza un error
     if (!registerResponse.ok) {
         throw registerData;
     }
 
-    // LOGIN AUTOMÁTICO
+    // LOGIN AUTOMÁTICO — reaprovechamos loginUser()
     const loginData = await loginUser({
-        identifier: formData.email,
+        identifier: formData.identifier,
         password: formData.password
     });
 
-    // Si todo fue bien, devuelve los datos
-    return {
-        message: "Registro y login exitosos",
-        data: {
-            token: loginData.data.token,
-            id: loginData.data.id,
-            nickname: loginData.data.nickname,
-            rol: loginData.data.rol,
-            abilities: loginData.data.abilities,
-            profile_photo: loginData.data.profile_photo
+
+    return loginData;
+}
+
+// LOGOUT
+export async function logoutUser(): Promise<void> {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+        return; // Ya está desconectado
+    }
+
+    await fetch(`${API_URL}/logout`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
         }
-    };
+    });
+
+    // Limpieza local
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
 }
