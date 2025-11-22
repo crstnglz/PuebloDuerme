@@ -1,5 +1,8 @@
 //import "../styles/indexUI.css";
 
+import { logoutUser } from "../providers/auth.provider"; 
+
+
 export function indexUI()
 {
   /* Menú del Perfil */
@@ -47,6 +50,15 @@ export function indexUI()
       window.location.href = "/index.html";
     });
   }
+  /* Logout desde el menú */
+const logoutLink = document.getElementById("logoutLink") as HTMLElement | null;
+
+if (logoutLink) {
+  logoutLink.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await logoutUser();
+  });
+}
 
   /* Modal de los Roles */
   const openRol = document.getElementById("open-rol") as HTMLElement

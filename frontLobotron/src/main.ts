@@ -1,7 +1,7 @@
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
-import { showImage } from './pages/profile';
+import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 
 // IMPORT PARA EL PANEL ADMIN
 import { initAdmin } from './pages/admin';
@@ -36,11 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============ PÁGINA DE INICIO ============
     if (path.includes("indexUI")) {
         indexUI();
-    }
-
-    // ============ PERFIL ============
-    if (path.includes("profile")) {
+        modalProfile();
         showImage();
+        enableSaveOnChanges();
+        saveProfile();
     }
 
     // ============ PANEL ADMIN ============

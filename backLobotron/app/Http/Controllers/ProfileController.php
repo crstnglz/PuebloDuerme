@@ -55,4 +55,38 @@ class ProfileController extends Controller
         }
         return response()->json(['error' => 'No se recibió ningún archivo.'], 400);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'nickname' => 'nullable|string|max:255|unique:users,nickname,' . $user->id,
+            'description' => 'nullable|string|max:500',
+            'profile_photo' => 'nullable|url', // permite null
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        if ($request->filled('nickname')) {
+            $user->nickname = $request->nickname;
+        }
+
+        if ($request->has('description')) {
+            $user->description = $request->description; // puede ser null o string vacía
+        }
+
+        if ($request->filled('profile_photo')) {
+            $user->profile_photo = $request->profile_photo;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Perfil actualizado correctamente',
+            'user' => $user
+        ], 200);
+    }
 }
