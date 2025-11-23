@@ -45,16 +45,15 @@ export async function registerUser(formData: any) {
         throw registerData;
     }
 
-
-    return registerData;
+    return data; 
 }
 
-// LOGOUT
 export async function logoutUser(): Promise<void> {
     const token = localStorage.getItem('access_token');
 
     if (!token) {
-        return; // Ya está desconectado
+        // No hay token → ya está fuera
+        return;
     }
 
     await fetch(`${API_URL}/logout`, {

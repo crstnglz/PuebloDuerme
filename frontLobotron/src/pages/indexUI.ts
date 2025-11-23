@@ -25,38 +25,8 @@ export function indexUI()
     }
   })
 
-  // Botón para mostrar la opción de administrar en el desplegable, solamente si eres admin
-const adminBtn = document.getElementById("admin-panel-btn");
-const userRaw = localStorage.getItem("user");
-
-if (adminBtn) {
-  adminBtn.style.display = "none"; // Oculto por defecto
-
-  if (userRaw) {
-    try {
-      const user = JSON.parse(userRaw);
-
-      if (user.rol === "admin") {
-        adminBtn.style.display = "block"; // Mostrar si eres admin
-      }
-    } catch (err) {
-      console.error("Error leyendo user:", err);
-    }
-  }
-}
-
-  // === NUEVO: CERRAR SESIÓN ===
-  const logoutBtn = document.getElementById("logout-btn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-
-      window.location.href = "/index.html";
-    });
-  }
   /* Logout desde el menú */
-const logoutLink = document.getElementById("logout-btn") as HTMLElement | null;
+const logoutLink = document.getElementById("logoutLink") as HTMLElement | null;
 
 if (logoutLink) {
   logoutLink.addEventListener("click", async (e) => {
