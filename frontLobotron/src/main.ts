@@ -6,7 +6,9 @@ import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pag
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
 
+    // ============ PÁGINA PRINCIPAL (login + registro) ============
     if (path.endsWith("/") || path.endsWith("/index.html")) {
+
         initRegisterForm();
         initLoginForm();
 
@@ -17,17 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (flipToggle.checked) {
                     // Mostrar LOGIN
-                    clearLoginForm();     
-                    initLoginForm();      
+                    clearLoginForm();
+                    initLoginForm();
                 } else {
                     // Mostrar REGISTER
                     clearRegisterForm?.();
-                    initRegisterForm();   
+                    initRegisterForm();
                 }
             });
         }
     }
 
+    // ============ PÁGINA DE INICIO ============
     if (path.includes("indexUI")) {
         indexUI();
         modalProfile();

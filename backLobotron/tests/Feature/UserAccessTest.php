@@ -35,7 +35,7 @@ class UserAccessTest extends TestCase
         $this->normalToken = $this->normalUser->createToken('normal_token', ['read'])->plainTextToken;
     }
 
-    public function an_guest_cannot_access_any_crud_route() //test para los no autenticados
+    public function test_guest_cannot_access_any_crud_route()
     {
         $this->getJson('/api/users')->assertStatus(401);
         $this->postJson('/api/users', [])->assertStatus(401); 
@@ -43,7 +43,7 @@ class UserAccessTest extends TestCase
         $this->deleteJson('/api/users/1')->assertStatus(401);
     }
 
-    public function a_normal_user_without_admin_ability_cannot_access_crud()
+    public function test_normal_user_without_admin_ability_cannot_access_crud()
     {
         $headers = ['Authorization' => 'Bearer ' . $this->normalToken];
         
@@ -55,14 +55,15 @@ class UserAccessTest extends TestCase
         $this->withHeaders($headers)->deleteJson('/api/users/' . $this->normalUser->id)->assertStatus(403);
     }
 
-    public function an_administrator_can_list_and_view_users()
+    public function test_admin_can_list_and_view_users()
     {
         $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
 
         $this->withHeaders($headers)
              ->getJson('/api/users')
              ->assertStatus(200)
-             ->assertJsonCount(2);
+             ->assertJsonCount(2, 'data');
+
 
         $this->withHeaders($headers)
              ->getJson('/api/users/' . $this->normalUser->id)
@@ -70,7 +71,7 @@ class UserAccessTest extends TestCase
              ->assertJsonFragment(['nickname' => $this->normalUser->nickname]);
     }
 
-    public function an_administrator_can_create_a_user_store()
+    public function test_admin_can_create_user()
     {
         $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
         $userData = [
@@ -88,7 +89,7 @@ class UserAccessTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'admin@created.com']);
     }
     
-    public function an_administrator_can_update_a_user_update()
+    public function test_admin_can_update_user()
     {
         $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
         $newNickname = 'UpdatedNickname';
@@ -106,7 +107,7 @@ class UserAccessTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $this->normalUser->id, 'nickname' => $newNickname]);
     }
     
-    public function an_administrator_can_update_password_updatePassword()
+    public function test_admin_can_update_password()
     {
         $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
         $newPassword = 'NewSecurePassword123';
@@ -122,8 +123,7 @@ class UserAccessTest extends TestCase
         $this->assertTrue(Hash::check($newPassword, $this->normalUser->fresh()->password));
     }
 
-    
-    public function an_administrator_can_delete_a_user_destroy()
+    public function test_admin_can_delete_user()
     {
         $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
 
@@ -133,5 +133,60 @@ class UserAccessTest extends TestCase
         $response->assertStatus(204);
 
         $this->assertDatabaseMissing('users', ['id' => $this->normalUser->id]);
+    }
+
+    public function test_admin_can_search_users_by_id()
+    {
+        $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
+
+        $response = $this->withHeaders($headers)
+            ->getJson('/api/users/find?type=id&query=' . $this->normalUser->id);
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['id' => $this->normalUser->id]);
+    }
+
+    public function test_admin_can_search_users_by_email()
+    {
+        $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
+
+        $response = $this->withHeaders($headers)
+            ->getJson('/api/users/find?type=email&query=' . substr($this->normalUser->email, 0, 3));
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['email' => $this->normalUser->email]);
+    }
+
+    public function test_admin_can_search_users_by_nickname()
+    {
+        $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
+
+        $response = $this->withHeaders($headers)
+            ->getJson('/api/users/find?type=nickname&query=' . substr($this->normalUser->nickname, 0, 2));
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['nickname' => $this->normalUser->nickname]);
+    }
+
+    public function test_find_fails_without_required_parameters()
+    {
+        $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
+
+        $response = $this->withHeaders($headers)
+            ->getJson('/api/users/find');
+
+        $response->assertStatus(422)
+                 ->assertJsonFragment(['Parámetros incompletos o inválidos']);
+    }
+
+    public function test_find_fails_with_invalid_type()
+    {
+        $headers = ['Authorization' => 'Bearer ' . $this->adminToken];
+
+        $response = $this->withHeaders($headers)
+            ->getJson('/api/users/find?type=wrong&query=test');
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment(['El tipo debe ser id, email o nickname']);
     }
 }

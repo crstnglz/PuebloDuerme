@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es" spellcheck="false">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/logo.jpg" />
+    <title>Panel de Administración</title>
+    
+    <link rel="stylesheet" href="../src/styles/admin.css">
+</head>
+
+<body>
+
+<header class="header">
+
+    <h1 class="name">LOBOTRON</h1>
+    <!-- Botón para regresar al inicio -->
+    <a href="../indexUI.html" class="back-btn">Inicio</a>
+</header>
+
+<main class="admin-container">
+
+    <h2 class="admin-title">Panel de Administración</h2>
+
+    <div class="admin-top-bar">
+
+        <div class="search-container">
+            <!-- Selector para elegir tipo de búsqueda -->
+            <select id="search-type" class="search-select">
+                <option value="id">ID</option>
+                <option value="nickname">Nickname</option>
+                <option value="email">Correo</option>
+            </select>
+
+            <!-- Input donde se escribe el texto a buscar -->
+            <input id="search-user" type="text" placeholder="Buscar...">
+            <button id="search-btn" class="action-btn">Buscar</button>
+        </div>
+
+        <!-- Botón para abrir el modal y añadir usuario -->
+        <button id="add-user-btn" class="action-btn add-btn">
+            Añadir Usuario
+        </button>
+
+    </div>
+    <!-- Tabla donde aparecen los usuarios buscados -->
+    <div class="table-wrapper">
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <!-- Aquí se cargarán los usuarios desde TS -->
+            <tbody id="users-body"></tbody>
+        </table>
+    </div>
+
+    <!-- Controles de paginación -->
+    <div id="pagination" class="pagination">
+        <button id="prev-page" class="page-btn">Anterior</button>
+        <span id="page-info">Página 1</span>
+        <button id="next-page" class="page-btn">Siguiente</button>
+    </div>
+
+</main>
+
+<!-- Modal para crear/editar usuarios -->
+<div id="admin-modal" class="modal">
+    <div class="modal-content">
+
+        <!-- Fondo estilo pergamino -->
+        <img src="imagesUI/parchment.png" class="parchment-img">
+
+        <div class="modal-inner">
+
+            <!-- Botón para cerrar el modal -->
+            <span class="close">×</span>
+
+            <h2 class="modal-title">Crear Usuario</h2>
+
+            <div class="form-group">
+                <input type="text" id="modal-username" placeholder="Nombre de usuario">
+            </div>
+
+            <div class="form-group">
+                <input type="email" id="modal-email" placeholder="Correo electrónico">
+            </div>
+
+            <div class="form-group">
+                <input type="password" id="modal-password" placeholder="Contraseña">
+            </div>
+
+            <div class="form-group">
+                <input type="password" id="modal-password-confirm" placeholder="Confirmar contraseña">
+            </div>
+
+            <div class="form-group row-group">
+                <!-- Rol del usuario -->
+                <select id="modal-role">
+                    <option value="user">Usuario</option>
+                    <option value="admin">Administrador</option>
+                </select>
+
+                <!-- Botón para guardar los datos -->
+                <button id="save-user-btn" class="btn-inline">Añadir</button>
+            </div>
+
+            <!-- Mensajes de error o éxito -->
+            <p id="modal-message" class="modal-message"></p>
+
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../src/main.ts"></script>
+
+</body>
+</html>

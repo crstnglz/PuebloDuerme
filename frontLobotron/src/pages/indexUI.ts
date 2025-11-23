@@ -5,7 +5,7 @@ import { logoutUser } from "../providers/auth.provider";
 
 export function indexUI()
 {
-     /* Menú del Perfil */
+  /* Menú del Perfil */
   const profile = document.querySelector('.profile') as HTMLElement | null;
   const menu = document.querySelector('.profile-menu') as HTMLElement | null;
 
@@ -99,48 +99,48 @@ if (logoutLink) {
     });
   }
 
-    if(closeBtn && modal)
-    {
-      closeBtn.addEventListener("click", () => {
-        modal.style.display="none";
-      });
-    }
+  if(closeBtn && modal)
+  {
+    closeBtn.addEventListener("click", () => {
+      modal.style.display="none";
+    });
+  }
 
-    if(modal)
-    {
-      modal.addEventListener("click", (e) => {
-        if(e.target === modal)
-        {
-          modal.style.display = "none"
-        }
-      })
-    }
-
-    if(next)
+  if(modal)
+  {
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal)
       {
-        next.addEventListener("click", () => {
-          if(pageIndex < pages.length - 1)
-          {
-            pages[pageIndex].classList.remove("active");
-            pages[pageIndex].classList.add("exit");
-
-            pageIndex++
-            pages[pageIndex].classList.add("active");
-          }
-        });
+        modal.style.display = "none"
       }
+    })
+  }
 
-      if(prev)
+  if(next)
+  {
+    next.addEventListener("click", () => {
+      if(pageIndex < pages.length - 1)
       {
-        prev.addEventListener("click", () => {
-          if(pageIndex > 0)
-          {
-            pages[pageIndex].classList.remove("active");
-            pageIndex--
+        pages[pageIndex].classList.remove("active");
+        pages[pageIndex].classList.add("exit");
 
-            pages[pageIndex].classList.remove("exit");
-            pages[pageIndex].classList.add("active");
-          } 
-        });
+        pageIndex++
+        pages[pageIndex].classList.add("active");
       }
+    });
+  }
+
+  if(prev)
+  {
+    prev.addEventListener("click", () => {
+      if(pageIndex > 0)
+      {
+        pages[pageIndex].classList.remove("active");
+        pageIndex--
+
+        pages[pageIndex].classList.remove("exit");
+        pages[pageIndex].classList.add("active");
+      } 
+    });
+  }
 }

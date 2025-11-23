@@ -2,10 +2,9 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
-
+use Illuminate\Http\Request;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -26,13 +25,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // CRUD de usuarios
         Route::get('/users', [UserController::class, 'index']);
-        Route::get('/users/{id}', [UserController::class, 'show']);
         Route::post('/users', [UserController::class, 'store']);
-        Route::put('/users/{id}', [UserController::class, 'update']);
-        Route::delete('/users/{id}', [UserController::class, 'destroy']);
-        Route::patch('/users/{id}/password', [UserController::class, 'updatePassword']);
+
+        Route::get('/users/{id}', [UserController::class, 'show'])
+            ->where('id', '[0-9]+');
+
+        Route::put('/users/{id}', [UserController::class, 'update'])
+            ->where('id', '[0-9]+');
+
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])
+            ->where('id', '[0-9]+');
+
+        Route::patch('/users/{id}/password', [UserController::class, 'updatePassword'])
+            ->where('id', '[0-9]+');
+
+        Route::patch('/users/{id}/role', [UserController::class, 'updateRole'])
+            ->where('id', '[0-9]+');
     });
-
-
 });
-
