@@ -45,7 +45,7 @@ export async function registerUser(formData: any) {
         throw registerData;
     }
 
-    return data; 
+    return registerData; 
 }
 
 export async function logoutUser(): Promise<void> {
