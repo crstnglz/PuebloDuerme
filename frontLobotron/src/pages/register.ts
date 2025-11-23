@@ -150,7 +150,7 @@ async function handleRegisterSubmit(event: Event) {
     registerForm.reset();
 
     // Guardar token y usuario completo
-    localStorage.setItem('access_token', result.data.token);
+    localStorage.setItem('access_token', result.data.access_token);
 
     localStorage.setItem('user', JSON.stringify({
       id: result.data.id,

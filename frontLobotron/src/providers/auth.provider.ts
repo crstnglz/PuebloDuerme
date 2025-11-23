@@ -22,23 +22,14 @@ export async function loginUser(formData: any) {
     }
 
     // Normalizamos la salida para que siempre tenga el mismo formato
-    return {
-        message: data.message,
-        data: {
-            access_token: data.data.access_token,
-            id: data.data.id,
-            nickname: data.data.nickname,
-            rol: data.data.rol,
-            abilities: data.data.abilities,
-            profile_photo: data.data.profile_photo
-        }
+    return data; 
     };
-}
+
 
 // REGISTER + LOGIN AUTOMÁTICO
 export async function registerUser(formData: any) {
 
-    // REGISTER
+    // REGISTER (Incluye login automático)
     const registerResponse = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {
@@ -54,14 +45,8 @@ export async function registerUser(formData: any) {
         throw registerData;
     }
 
-    // LOGIN AUTOMÁTICO — reaprovechamos loginUser()
-    const loginData = await loginUser({
-        identifier: formData.identifier,
-        password: formData.password
-    });
 
-
-    return loginData;
+    return registerData;
 }
 
 // LOGOUT
