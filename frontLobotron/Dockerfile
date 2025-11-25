@@ -1,20 +1,17 @@
-# Dockerfile para el Frontend (frontLobotron)
-
-# 1. Imagen base de Node.js
+# Imagen base de Node
 FROM node:20-alpine
 
-# 2. Directorio de trabajo
+# Directorio dentro del contenedor
 WORKDIR /app
 
-# 3. Copiar y instalar dependencias (optimiza el proceso)
+# Copiamos solo los package.json para cachear la instalación
 COPY package*.json ./
+
+# Instalamos dependencias (solo si no montas volumen)
 RUN npm install
 
-# 4. Copiar el resto del código
-COPY . .
-
-# 5. Exponer el puerto de Vite
+# Exponer el puerto donde corre Vite
 EXPOSE 5173
 
-# 6. Comando para arrancar Vite en modo desarrollo (el --host es crucial para Docker)
+# Comando por defecto
 CMD ["npm", "run", "dev", "--", "--host"]
