@@ -1,17 +1,38 @@
-# Dockerfile para el Backend (backLobotron)
+# Imagen base con PHP 8.2 + FPM
+FROM php:8.2-fpm
 
-# Usamos la imagen CLI (interfaz de línea de comandos)
-FROM php:8.3-cli-alpine 
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
 
-# Instalación de extensiones
-RUN apk add --no-cache git curl zip unzip libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql opcache \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiamos el código
+# Copiar solo composer.json para cachear mejor
+COPY composer.json composer.lock ./
+
+# Instalación inicial (evita reinstalar todo)
+RUN composer install --no-interaction --prefer-dist --no-scripts
+
+# Copiar el código del backend
 COPY . .
 
-# NOTA: No necesitamos EXPOSE 8000 ni CMD, porque el 'command' en docker-compose lo maneja.
+# Dar permisos correctos
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+EXPOSE 8000
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
