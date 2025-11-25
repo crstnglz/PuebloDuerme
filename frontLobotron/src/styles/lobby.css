@@ -1,166 +1,311 @@
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #050709;
-  color: #f5f5f5;
+@import "./variables.css";
+
+/* Tipología Rajdhani */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+/* ===================== VARIABLES ===================== */    
+:root { 
+  --dark-color: #553f2c;
+  --second-color: #909a7d;
+  --third-color: #9b746b;
+  --font-title: 'Medieval';
+  --font-accent: 'Barber';
+  --font-body: 'Rajdhani';
+  --color-white: white;
+  --color-black:black;
 }
 
-.header {
+/* ===================== FUENTES ===================== */
+@font-face {
+  font-family: 'Medieval';
+  src: url(/font/MedievalSharp-Regular.ttf);
+}
+
+@font-face{
+  font-family: 'Barber';
+  src: url(/font/Barber.otf);
+}
+
+/* ===================== RESET ===================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===================== FONDO ===================== */
+body {
+  width: 100%;
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+
+  background-image: url('/imagesUI/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  color: var(--color-white);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+/* ===================== HEADER ===================== */
+.header {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 1rem 2rem;
-  background: #11131a;
-  border-bottom: 1px solid #2b2f3b;
+  padding-top: 30px;
 }
 
 .name {
-  margin: 0;
-  letter-spacing: 0.2em;
+  font-size: clamp(4rem, 7vw, 6rem);
+  margin-top: 20px;
+
+  color: var(--color-white);
+  font-family: var(--font-title);
+  animation: temblor 0.4s infinite;
+  text-shadow: 3px 3px 6px var(--color-black);
 }
 
-.profile {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+
+  background-color: var(--color-contraste);
+  color: var(--color-white);
+
+  padding: 10px 18px;
+  font-size: 1rem;
+  border-radius: 10px;
+
+  box-shadow: 0 0 10px var(--color-black);
+  transition: 0.3s ease;
+  font-weight: bold;
+}
+
+.back-btn:hover {
+  background-color: var(--color-acento-1);
+  box-shadow: 0 0 13px var(--color-black);
+  transform: translateY(-2px);
+}
+
+@keyframes temblor {
+  0% { transform: translate(2px, -2px) rotate(-1deg); }
+  25% { transform: translate(-2px, 2px) rotate(1deg); }
+  50% { transform: translate(2px, 2px) rotate(-0.5deg); }
+  75% { transform: translate(-2px, -2px) rotate(0.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* ===================== CONTENEDOR LOBBY ===================== */
+.admin-container {
+  margin-top: 80px;
+  width: 85%;
+  max-width: 1100px;
+  margin-inline: auto;
+
+  background: var(--color-black);
+  padding: 20px;
+
+  border: 3px solid var(--third-color);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+
+  max-height: 570px;
+  overflow: hidden;
   position: relative;
 }
 
-.profile-img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #f5f5f5;
+.admin-title {
+  font-family: var(--font-title);
+  font-size: 2.7rem;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.profile-menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: 0.75rem;
-}
-
-.profile-menu a {
-  color: #f5f5f5;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-/* LAYOUT PRINCIPAL */
-
-.lobby {
+/* Layout interno del lobby */
+.lobby-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 2rem;
-  padding: 2rem;
+  gap: 20px;
+  align-items: flex-start;
 }
 
-/* COLUMNA IZQUIERDA */
-
+/* ===================== COLUMNA IZQUIERDA ===================== */
 .lobby-sidebar {
-  background: #11131a;
-  border-radius: 12px;
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .player-card {
+  background: var(--color-black);
+  border: 2px solid var(--dark-color);
+  border-radius: 12px;
+  padding: 16px;
   text-align: center;
 }
 
 .player-avatar-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 10px;
 }
 
 .player-avatar {
-  width: 96px;
-  height: 96px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #f5f5f5;
+  border: 3px solid var(--color-white);
+  box-shadow: 0 0 10px var(--color-black);
 }
 
 .player-nickname {
   margin: 0;
+  font-size: 1.2rem;
   font-weight: 600;
+  font-family: var(--font-body);
 }
 
-.lobby-actions {
+.lobby-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 10px;
 }
 
 .lobby-btn {
-  padding: 0.75rem 1rem;
-  border-radius: 999px;
-  border: none;
+  width: 100%;
+}
+
+/* ===================== BOTONES GENERALES ===================== */
+.action-btn {
+  padding: 0 18px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--third-color);
+  border: 2px solid var(--color-white);
+  border-radius: 10px;
+
+  font-family: var(--font-accent);
+  font-weight: bold;
+  font-size: 1.4rem ;
+  color: var(--color-white);
+
+  white-space: nowrap;
   cursor: pointer;
-  font-weight: 600;
-  background: #e63946;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: 0.2s;
 }
 
-.lobby-btn:nth-child(2) {
-  background: #457b9d;
+.action-btn:hover {
+  background: var(--dark-color);
+  transform: scale(1.03);
 }
 
-/* COLUMNA DERECHA */
+/* Botón tipo “principal” */
+.add-btn {
+  background: #4CAF50;
+}
 
+.add-btn:hover {
+  background: #3b8d3d;
+}
+
+/* ===================== COLUMNA DERECHA: TABLA ===================== */
 .lobby-main {
-  background: #11131a;
+  background: var(--color-black);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 16px;
+  border: 2px solid var(--dark-color);
   display: flex;
   flex-direction: column;
 }
 
-.lobby-title {
-  margin-top: 0;
-  margin-bottom: 1rem;
+.lobby-subtitle {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  margin-bottom: 10px;
 }
 
+/* Tabla igual estilo admin */
 .table-wrapper {
-  flex: 1;
-  overflow-x: auto;
+  max-height: 330px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-top: 10px;
 }
 
-.lobby-table {
+table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
 }
 
-.lobby-table th,
-.lobby-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #2b2f3b;
+thead {
+  background: var(--dark-color);
 }
 
-.lobby-table th {
-  background: #171924;
-  font-weight: 600;
+th, td {
+  padding: 10px;
+  text-align: center;
+  font-size: 16px;
+  border-bottom: 1px solid #ffffff33;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+tbody tr:hover {
+  background: var(--color-black);
+}
+
+th {
+  font-family: var(--font-title);
+  font-size: 18px;
+}
+
+td {
+  font-family: var(--font-body);
 }
 
 .empty-row td {
-  text-align: center;
   font-style: italic;
-  color: #aaa;
+  opacity: 0.8;
 }
 
-/* RESPONSIVE */
+/* Botón “Unirse” dentro de la tabla */
+.join-game-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #8b5a2b;
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: 14px;
+}
 
-@media (max-width: 768px) {
-  .lobby {
+.join-game-btn:hover {
+  background: #714922;
+  transform: scale(1.05);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 900px) {
+  .admin-container {
+    width: 95%;
+    padding: 16px;
+    max-height: 600px;
+  }
+
+  .lobby-layout {
     grid-template-columns: 1fr;
   }
 
@@ -170,5 +315,19 @@ body {
 
   .lobby-main {
     order: 1;
+  }
+
+  .table-wrapper {
+    max-height: 300px;
+    margin-top: 20px;
+  }
+
+  th, td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .lobby-subtitle {
+    text-align: center;
   }
 }
