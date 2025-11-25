@@ -1,76 +1,116 @@
-version: '3.8'
-
 services:
-  # EL BACKEND (backLobotron)
-  # Usa 'php artisan serve' como servidor web
-  backend: 
+  # 🐘 Backend (Laravel + PHP)
+  backend:
     build:
       context: ./backLobotron
+      dockerfile: Dockerfile
     container_name: back_lobotron_server
-    working_dir: /var/www/html # Define el directorio de trabajo (donde está artisan)
-    
-    # Exponemos el puerto 8000 que usa 'artisan serve'
     ports:
-      - "8000:8000" 
-    
+      - "8000:8000"
     volumes:
       - ./backLobotron:/var/www/html
-      
     depends_on:
-      - db # Necesita que la BBDD esté encendida antes de arrancar
-      
-    # 1. composer install (Instala dependencias)
-    # 2. php artisan migrate (Crea las tablas)
-    # 3. php artisan serve (Inicia el servidor web interno de Laravel)
-    command: sh -c "composer install && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
+      - mariadb
+    environment:
+      APP_ENV: local
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_DATABASE: el_lobotron_db
+      DB_USERNAME: ellobotron
+      DB_PASSWORD: elcubatron
+    command: >
+      sh -c "
+        composer install --no-interaction --prefer-dist &&
+        php artisan key:generate &&
+        php artisan migrate --force &&
+        php artisan serve --host=0.0.0.0 --port=8000
+      "
 
-  # EL CLIENTE (frontLobotron)
-  client:
+  # 🧪 Backend ONLY for tests (NO toca tu BBDD normal)
+  backend_test:
+    build:
+      context: ./backLobotron
+      dockerfile: Dockerfile
+    container_name: back_lobotron_test
+    depends_on:
+      - mariadb_test
+    volumes:
+      - ./backLobotron:/var/www/html
+    environment:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb_test
+      DB_PORT: "3306"
+      DB_DATABASE: el_lobotron_test_db
+      DB_USERNAME: ellobotron
+      DB_PASSWORD: elcubatron
+    command: >
+      sh -c "
+        composer install &&
+        php artisan test
+      "
+
+  # 🛢️ Base de datos MariaDB principal
+  mariadb:
+    image: mariadb:11
+    container_name: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: el_lobotron_db
+      MARIADB_USER: ellobotron
+      MARIADB_PASSWORD: elcubatron
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  # 🧪 Base de datos MariaDB para tests
+  mariadb_test:
+    image: mariadb:11
+    container_name: mariadb_test
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: el_lobotron_test_db
+      MARIADB_USER: ellobotron
+      MARIADB_PASSWORD: elcubatron
+    ports:
+      - "3308:3306"
+    volumes:
+      - mariadb_test_data:/var/lib/mysql
+
+  # ⚡ Frontend (Node + Vite)
+  frontend:
     build:
       context: ./frontLobotron
+      dockerfile: Dockerfile
     container_name: front_lobotron_client
-    working_dir: /app # Directorio de trabajo
-    ports:
-      - "5173:5173" # Acceso al frontend en http://localhost:5173
+    working_dir: /app
     volumes:
       - ./frontLobotron:/app
-      - /app/node_modules # Evita conflictos
-    depends_on:
-      - backend 
-    # Iniciamos el servidor Vite
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
-
-  # BASE DE DATOS PRINCIPAL (DB)
-  db:
-    image: mysql:8.0
-    container_name: el_lobotron_db
-    restart: unless-stopped
     ports:
-      - "3307:3306" # Puerto 3307 en tu PC, 3306 en el contenedor
+      - "5173:5173"
+    depends_on:
+      - backend
     environment:
-      MYSQL_DATABASE: el_lobotron_db 
-      MYSQL_USER: ellobotron
-      MYSQL_PASSWORD: elcubatron
-      MYSQL_ROOT_PASSWORD: ipemolaconana
-    volumes:
-      - db_data:/var/lib/mysql
+      CHOKIDAR_USEPOLLING: "true"
+    command: >
+      sh -c "npm install && npm run dev -- --host"
+
+  # 🛠️ Adminer (Interfaz gráfica para gestionar MariaDB)
   adminer:
     image: adminer:latest
-    container_name: lobotron_adminer
+    container_name: adminer
+    restart: always
     ports:
-      - "8081:8080" 
+      - "8080:8080"
     depends_on:
-      - db 
-
-  # BASE DE DATOS DE TESTS
-  db_test:
-    image: mysql:8.0
-    container_name: el_lobotron_db_test
+      - mariadb
     environment:
-      MYSQL_DATABASE: el_lobotron_test_db
-      MYSQL_USER: ellobotron
-      MYSQL_PASSWORD: elcubatron
-      MYSQL_ROOT_PASSWORD: ipemolaconana
+      ADMINER_DEFAULT_SERVER: mariadb
 
 volumes:
-  db_data:
+  mariadb_data:
+  mariadb_test_data:
