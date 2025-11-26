@@ -58,10 +58,50 @@ export function initLobby() {
       return
     }
 
-    console.log("Crear partida con nombre:", gameName)
+    const newGame = await createGame(gameName);
 
-  //TODO: post backend
-  // createGameBtn(gameName)
+    if(newGame)
+    {
+      console.log("Partida creada:", newGame)
+
+      //TODO: añadirla a la tabla del lobby
+      //addGameToTable(newGame)
+    } else 
+    {
+      alert("No se pudo crear la partida.")
+    }
+    
     createGameModal.classList.add('hidden')
   })
+}
+
+export async function createGame(name:string)
+{
+  try
+  {
+    const response = await fetch('/api/games', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ name })
+    })
+
+    if(!response.ok)
+    {
+      const error = await response.json();
+      console.error('Error al crear partida:', error)
+      return null
+    }
+
+    const game = await response.json();
+    return game;
+
+  } catch(error)
+  {
+    console.error('Error de red:', error);
+    return null;
+  }   
 }
