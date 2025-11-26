@@ -82,6 +82,21 @@
 
 </main>
 
+<!-- Modal Crear Partida -->
+ <div id="createGameModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Crear nueva partida</h2>
+
+    <label for="gameNameinput">Nombre de la partida</label>
+    <input type="text" id="gameNameInput" placeholder="Ej: Aldea 1">
+
+    <div class="modal-actions">
+      <button id="cancelCreateGameBtn" class="btn-cancel">Cancelar</button>
+      <button id="confirmCreateGameBtn" class="btn-confirm">Crear</button>
+    </div>
+  </div>
+ </div>
+
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
