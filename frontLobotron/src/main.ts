@@ -2,6 +2,7 @@ import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
+import { initLobby } from './pages/lobby'
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
@@ -37,5 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showImage();
         enableSaveOnChanges();
         saveProfile();
+    }
+
+    if(path.includes("lobby"))
+    {
+        initLobby()
     }
 });
