@@ -2,6 +2,7 @@ import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
+import { initGameRoom } from './pages/gameRoom';
 
 // IMPORT PARA EL PANEL ADMIN
 import { initAdmin } from './pages/admin';
@@ -46,4 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (path.includes("admin")) {
         initAdmin();   
     }
+
+    // ============ PÁGINA DE SALA DE JUEGO/ESPERA ============
+
+    if (path.includes("gameRoom")) {
+        initGameRoom();
+    }
+
 });
