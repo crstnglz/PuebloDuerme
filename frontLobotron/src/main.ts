@@ -2,6 +2,7 @@ import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
+import './echo'
 
 // IMPORT PARA EL PANEL ADMIN
 import { initAdmin } from './pages/admin';
