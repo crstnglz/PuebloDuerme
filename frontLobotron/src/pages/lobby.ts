@@ -38,12 +38,21 @@ export function initLobby() {
   const createGameBtn = document.getElementById("createGameBtn");
 
 
-  // Unirse a partida #WIP
   joinGameBtn?.addEventListener("click", () => {
-    console.log("Unirse a partida (pendiente de implementar)");
-  });
-  //#WIP
+    const selected = document.querySelector("tr.selected") as HTMLTableRowElement
 
+    if(!selected)
+    {
+      alert("Selecciona una partida primero")
+      return
+    }
+
+    const gameId = selected.dataset.id
+    console.log("Unirse a partida:", gameId)
+
+    //TODO: meter interfaz
+    //window.location.href = "`/salaUI.html?game=${gameId}`"
+  });
 
   createGameBtn?.addEventListener("click", () => {
     if (!createGameModal || !gameNameInput) return;
