@@ -49,9 +49,13 @@ export function initLobby() {
     if (!createGameModal || !gameNameInput) return;
 
     createGameModal.dataset.mode = "create"
-    createGameModal.classList.remove("hidden");
     gameNameInput.value = "";
     gameNameInput.focus();
+
+    const confirmBtn = document.getElementById("confirmCreateGameBtn") as HTMLButtonElement
+    confirmBtn.textContent = "Crear"
+
+    createGameModal.classList.remove("hidden");
   });
 
   // Cerrar Modal
@@ -165,7 +169,7 @@ async function editGame(id: number, name: string)
 {
   const token = localStorage.getItem("access_token")
 
-  const response = await fetch(`http://localhost:8000/api/games/${id}`, {
+  const response = await fetch(`http://localhost:8000/api/games/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -209,6 +213,7 @@ function addGame(game: Game)
   if(emptyRow) emptyRow.remove()
 
   const row = document.createElement("tr")
+  row.dataset.id = game.id.toString()
 
   row.innerHTML = `
     <td>${game.owner.nickname}</td>
@@ -224,10 +229,13 @@ function addGame(game: Game)
   row.querySelector(".edit-btn")?.addEventListener("click", () => {
     const modal = document.getElementById("createGameModal")!
     const input = document.getElementById("gameNameInput") as HTMLInputElement
+    const confirmBtn = document.getElementById("confirmCreateGameBtn") as HTMLButtonElement
 
     modal.dataset.mode = "edit"
     modal.dataset.gameId = game.id.toString()
     input.value = game.name
+
+    confirmBtn.textContent = "Guardar"
 
     modal.classList.remove("hidden")
   })

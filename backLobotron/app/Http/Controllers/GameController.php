@@ -48,7 +48,7 @@ class GameController extends Controller
      */
     public function update(Request $request, Game $game)
     {
-        if($request->user()->rol !== 'admin')
+        if($request->user()->id !== $game->owner_id && $request->user()->rol !== 'admin')
         {
             return response()->json(['error' => 'No autorizado'], 403);
         }
@@ -66,7 +66,9 @@ class GameController extends Controller
 
         $game->update($request->all());
 
-        return response()->json($game, 200);
+        return response()->json(
+            Game::with('owner:id,nickname')->find($game->id), 200
+        );
     }
 
     /**
@@ -74,7 +76,7 @@ class GameController extends Controller
      */
     public function destroy(Request $request, Game $game)
     {
-        if($request->user()->rol !== 'admin')
+        if($request->user()->id !== $game->owner_id && $request->user()->rol !== 'admin')
         {
             return response()->json(['error' => 'No autorizado'], 403);
         }
