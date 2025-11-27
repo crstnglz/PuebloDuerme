@@ -38,12 +38,22 @@ export function initLobby() {
   const createGameBtn = document.getElementById("createGameBtn");
 
 
-  // Unirse a partida #WIP
   joinGameBtn?.addEventListener("click", () => {
-    console.log("Unirse a partida (pendiente de implementar)");
-  });
-  //#WIP
+    const selected = document.querySelector("tr.selected") as HTMLTableRowElement
 
+    if(!selected)
+    {
+      alert("Selecciona una partida primero")
+      return
+    }
+
+    const gameId = selected.dataset.id
+    console.log("Unirse a partida:", gameId)
+
+    //TODO: meter interfaz
+    //window.location.href = "`/salaUI.html?game=${newGame.id}`"
+    //Para unirse debe de existir endpoint -> /api/games/{game}/join
+  });
 
   createGameBtn?.addEventListener("click", () => {
     if (!createGameModal || !gameNameInput) return;
@@ -75,7 +85,12 @@ export function initLobby() {
       if(mode === "create")
       {
     const newGame = await createGame(gameName);
-    if(newGame) addGame(newGame)
+    if(newGame)
+    {
+      //TODO -> cuando creas la sala se te une directamente
+      //window.location.href = `/salaUI.html?game=${newGame.id}`
+      //return
+    }
       }
 
       if(mode === "edit")
@@ -245,6 +260,11 @@ function addGame(game: Game)
 
     await deleteGame(game.id)
     row.remove();
+  })
+
+  row.addEventListener("click", () => {
+    document.querySelectorAll("tr.selected")?.forEach(r => r.classList.remove("selected"))
+    row.classList.add("selected")
   })
 
   tableBody.appendChild(row)

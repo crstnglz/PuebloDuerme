@@ -85,4 +85,22 @@ class GameController extends Controller
 
         return response()->json(['message' => 'Partida eleminada'], 200);
     }
+
+    public function join(Request $request, Game $game)
+    {
+        // 16/16 jugadores -> partida llena
+        if($game->current_players >= $game->max_players)
+        {
+            return response()->json(['error' => 'La partida está llena'], 403);
+        }
+
+            // Una vez dentro
+            $game->current_players++;
+            $game->save();
+
+            return response()->json(
+                Game::with('owner:id,nickname')->find($game->id),
+                200
+            );
+    }
 }
