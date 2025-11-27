@@ -85,7 +85,12 @@ export function initLobby() {
       if(mode === "create")
       {
     const newGame = await createGame(gameName);
-    if(newGame) addGame(newGame)
+    if(newGame)
+    {
+      //TODO -> cuando creas la sala se te une directamente
+      //window.location.href = `/salaUI.html?game=${newGame.id}`
+      //return
+    }
       }
 
       if(mode === "edit")
