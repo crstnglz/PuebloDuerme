@@ -51,7 +51,8 @@ export function initLobby() {
     console.log("Unirse a partida:", gameId)
 
     //TODO: meter interfaz
-    //window.location.href = "`/salaUI.html?game=${gameId}`"
+    //window.location.href = "`/salaUI.html?game=${newGame.id}`"
+    //Para unirse debe de existir endpoint -> /api/games/{game}/join
   });
 
   createGameBtn?.addEventListener("click", () => {

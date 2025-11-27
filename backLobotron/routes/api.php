@@ -30,6 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/games/{game}', [GameController::class, 'update']);
     Route::delete('/games/{game}', [GameController::class, 'destroy']);
 
+    //TODO: unirse a partida seleccionada
+    //Route::post('/games/{game}/join [GameController::class, 'join']);
+
 
     //ADMIN
     Route::middleware('abilities:admin')->group(function () {
@@ -38,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users/find', [UserController::class, 'find']);
 
         // CRUD
-    
+
         // CRUD de usuarios
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
