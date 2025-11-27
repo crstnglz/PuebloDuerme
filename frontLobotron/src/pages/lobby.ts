@@ -47,7 +47,7 @@ export function initLobby() {
   })
 
   //Confirmar creación Partida
-  confirmCreateGameBtn?.addEventListener('click', () => {
+  confirmCreateGameBtn?.addEventListener('click', async () => {
     if(!gameNameInput || !createGameModal) return
 
     const gameName = gameNameInput.value.trim()
