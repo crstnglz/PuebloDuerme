@@ -79,7 +79,7 @@ export async function createGame(name:string)
 {
   try
   {
-    const response = await fetch('/api/games', {
+    const response = await fetch('http://localhost:8000/api/games', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export async function createGame(name:string)
 
     if(!response.ok)
     {
-      const error = await response.json();
+      const error = await response.text();
       console.error('Error al crear partida:', error)
       return null
     }
