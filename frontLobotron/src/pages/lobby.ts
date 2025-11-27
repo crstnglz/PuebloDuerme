@@ -55,7 +55,7 @@ export function initLobby() {
     createGameModal?.classList.add("hidden");
   });
 
-  //Confirmar creación Partida
+  //Crear Partida y Mostrar en la Tabla
   confirmCreateGameBtn?.addEventListener("click", async () => {
     if (!gameNameInput || !createGameModal) return;
 
@@ -71,8 +71,8 @@ export function initLobby() {
     if (newGame) {
       console.log("Partida creada:", newGame);
 
-      //TODO: añadirla a la tabla del lobby
-      //addGameToTable(newGame)
+      addGame(newGame)
+
     } else {
       alert("No se pudo crear la partida.");
     }
@@ -80,7 +80,7 @@ export function initLobby() {
     createGameModal.classList.add("hidden");
   });
 
-  //Mostrar las partidas que hay nada más entrar al lobby
+  //Cargar Partidas
   loadGames()
 }
 
@@ -105,12 +105,20 @@ export async function createGame(name: string) {
     }
 
     const game = await response.json();
-    return game;
+    return new Game (
+      game.id,
+      game.name,
+      game.current_players ?? 1,
+      game.status,
+      game.owner
+    );
+
   } catch (error) {
     console.error("Error de red:", error);
     return null;
   }
 }
+
 async function loadGames() {
   const token = localStorage.getItem("access_token");
   const response = await fetch('http://localhost:8000/api/games', {
@@ -123,8 +131,14 @@ async function loadGames() {
   const dataRaw = await response.json()
 
   const games: Game[] = dataRaw.map((g: any) => 
-    new Game(g.id, g.name, g.players ?? 1, g.status ?? "waiting")
-  );
+    new Game(
+      g.id,
+      g.name,
+      g.current_players,
+      g.status,
+      g.owner
+    )
+  )
 
   const tableBody = document.getElementById('gamesTableBody') as HTMLTableSectionElement;
   tableBody.innerHTML = '';
@@ -137,20 +151,29 @@ async function loadGames() {
     return;
   }
 
-  games.forEach((game: Game) => {
-    const row = document.createElement('tr');
+  games.forEach((game: Game) => addGame(game))
+}
 
-    row.innerHTML = `
-      <td>${game.id}</td>
-      <td>${game.name}</td>
-      <td>${game.players}</td>
-      <td>${game.status}</td>
-      <td>
-        <button class="join-btn" data-game-id="${game.id}">
-          Unirse
-        </button>
-      </td>`;
+function addGame(game: Game)
+{
+  const tableBody = document.getElementById('gamesTableBody') as HTMLTableSectionElement
 
-    tableBody.appendChild(row);
-  });
+  const emptyRow = tableBody.querySelector(".empty-row")
+  if(emptyRow) emptyRow.remove()
+
+  const row = document.createElement("tr")
+
+  row.innerHTML = `
+    <td>${game.owner.nickname}</td>
+    <td>${game.name}</td>
+    <td>${game.players}</td>
+    <td>${game.status}</td>
+    <td>
+      <button class="join-btn" data-game-id="${game.id}">
+        Editar
+      </button>
+    </td>
+  `
+
+  tableBody.appendChild(row)
 }

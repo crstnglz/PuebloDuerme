@@ -38,7 +38,9 @@ class GameController extends Controller
             'status' => 'waiting'
         ]);
 
-        return response()->json($game, 201);
+        return response()->json(
+            Game::with('owner:id,nickname')->find($game->id),
+             201);
     }
 
     /**
