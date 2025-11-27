@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(path.includes("lobby"))
     {
         initLobby()
+    }
     // ============ PANEL ADMIN ============
     if (path.includes("admin")) {
         initAdmin();   

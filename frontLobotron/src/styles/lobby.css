@@ -379,3 +379,8 @@ td {
 .btn-confirm{
   background: #2ecc71;
 }
+
+tr.selected {
+  background-color: #222;
+  outline: 2px solid #00b3ff;
+}

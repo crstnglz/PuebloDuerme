@@ -247,6 +247,11 @@ function addGame(game: Game)
     row.remove();
   })
 
+  row.addEventListener("click", () => {
+    document.querySelectorAll("tr.selected")?.forEach(r => r.classList.remove("selected"))
+    row.classList.add("selected")
+  })
+
   tableBody.appendChild(row)
 }
 
