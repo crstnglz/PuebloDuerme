@@ -1,3 +1,5 @@
+import { Game } from './Game'
+
 export function initLobby() {
   const userRaw = localStorage.getItem("user");
   const lobbyNickname = document.getElementById("lobbyNickname");
@@ -77,6 +79,9 @@ export function initLobby() {
 
     createGameModal.classList.add("hidden");
   });
+
+  //Mostrar las partidas que hay nada más entrar al lobby
+  loadGames()
 }
 
 export async function createGame(name: string) {
@@ -105,4 +110,47 @@ export async function createGame(name: string) {
     console.error("Error de red:", error);
     return null;
   }
+}
+async function loadGames() {
+  const token = localStorage.getItem("access_token");
+  const response = await fetch('http://localhost:8000/api/games', {
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${token}`   // <-- ARREGLADO
+    }
+  })
+
+  const dataRaw = await response.json()
+
+  const games: Game[] = dataRaw.map((g: any) => 
+    new Game(g.id, g.name, g.players ?? 1, g.status ?? "waiting")
+  );
+
+  const tableBody = document.getElementById('gamesTableBody') as HTMLTableSectionElement;
+  tableBody.innerHTML = '';
+
+  if (games.length === 0) {
+    tableBody.innerHTML = `
+      <tr class="empty-row">
+        <td colspan="5">Todavía no hay partidas creadas.</td>
+      </tr>`;
+    return;
+  }
+
+  games.forEach((game: Game) => {
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>${game.id}</td>
+      <td>${game.name}</td>
+      <td>${game.players}</td>
+      <td>${game.status}</td>
+      <td>
+        <button class="join-btn" data-game-id="${game.id}">
+          Unirse
+        </button>
+      </td>`;
+
+    tableBody.appendChild(row);
+  });
 }
