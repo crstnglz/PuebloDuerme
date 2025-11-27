@@ -80,7 +80,7 @@ export function initLobby() {
         if(!gameId) return
 
         const updated = await editGame(parseInt(gameId), gameName)
-        if(updated) updateRowInTable(updated)
+        if(updated) updateRow(updated)
       }
 
     createGameModal.classList.add("hidden");
@@ -160,11 +160,12 @@ async function loadGames() {
   games.forEach((game: Game) => addGame(game))
 }
 
+// Editar el nombre de la partida
 async function editGame(id: number, name: string)
 {
   const token = localStorage.getItem("access_token")
 
-  const response = await fetch("http://localhost:8000/api/games/${id}", {
+  const response = await fetch(`http://localhost:8000/api/games/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -184,6 +185,20 @@ async function editGame(id: number, name: string)
     g.status,
     g.owner
   )
+}
+
+//Borrar la partida
+async function deleteGame(id: number)
+{
+  const token = localStorage.getItem("access_token")
+
+  await fetch(`http://localhost:8000/api/games/${id}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`
+    }
+})
 }
 
 function addGame(game: Game)
@@ -220,8 +235,8 @@ function addGame(game: Game)
   row.querySelector(".delete-btn")?.addEventListener("click", async() => {
     if(!confirm("¿Seguro que deseas eliminar esta partida?")) return
 
-    // await deleteGame(game.id)
-    // row.remove();
+    await deleteGame(game.id)
+    row.remove();
   })
 
   tableBody.appendChild(row)
