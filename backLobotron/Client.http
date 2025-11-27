@@ -1,0 +1,8 @@
+###
+POST http://localhost:8000/api/games
+Authorization: Bearer 19|LJSFBosTmhBVNSHcltq3AgCKyv4UvHpdJ7695HsM107d46f9
+Content-Type: application/json
+
+{
+    "name": "Aldea 1"
+}

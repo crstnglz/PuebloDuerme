@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -23,6 +24,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
 
+         //Rutas Lobby
+    Route::get('/games', [GameController::class, 'index']);
+    Route::post('/games', [GameController::class, 'store']);
+    Route::put('/games/{game}', [GameController::class, 'update']);
+    Route::delete('/games/{game}', [GameController::class, 'destroy']);
+
+
+    //ADMIN
     Route::middleware('abilities:admin')->group(function () {
 
          // Ruta específica para el buscador
