@@ -81,13 +81,14 @@ export function initLobby() {
 
 export async function createGame(name: string) {
   try {
+    const token = localStorage.getItem("access_token");
     const response = await fetch("http://localhost:8000/api/games", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
         Authorization:
-          "Bearer 19|LJSFBosTmhBVNSHcltq3AgCKyv4UvHpdJ7695HsM107d46f9",
+          `Bearer ${token}`,
       },
       body: JSON.stringify({ name }),
     });
