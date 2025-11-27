@@ -37,14 +37,18 @@ export function initLobby() {
   const joinGameBtn = document.getElementById("joinGameBtn");
   const createGameBtn = document.getElementById("createGameBtn");
 
+
   // Unirse a partida #WIP
   joinGameBtn?.addEventListener("click", () => {
     console.log("Unirse a partida (pendiente de implementar)");
   });
+  //#WIP
+
 
   createGameBtn?.addEventListener("click", () => {
     if (!createGameModal || !gameNameInput) return;
 
+    createGameModal.dataset.mode = "create"
     createGameModal.classList.remove("hidden");
     gameNameInput.value = "";
     gameNameInput.focus();
@@ -60,22 +64,24 @@ export function initLobby() {
     if (!gameNameInput || !createGameModal) return;
 
     const gameName = gameNameInput.value.trim();
+    if(!gameName) return alert("Pon un nombre válido")
 
-    if (gameName.length === 0) {
-      alert("Pon un nombre válido");
-      return;
-    }
+      const mode = createGameModal.dataset.mode
 
+      if(mode === "create")
+      {
     const newGame = await createGame(gameName);
+    if(newGame) addGame(newGame)
+      }
 
-    if (newGame) {
-      console.log("Partida creada:", newGame);
+      if(mode === "edit")
+      {
+        const gameId = createGameModal.dataset.gameId
+        if(!gameId) return
 
-      addGame(newGame)
-
-    } else {
-      alert("No se pudo crear la partida.");
-    }
+        const updated = await editGame(parseInt(gameId), gameName)
+        if(updated) updateRowInTable(updated)
+      }
 
     createGameModal.classList.add("hidden");
   });
@@ -154,6 +160,32 @@ async function loadGames() {
   games.forEach((game: Game) => addGame(game))
 }
 
+async function editGame(id: number, name: string)
+{
+  const token = localStorage.getItem("access_token")
+
+  const response = await fetch("http://localhost:8000/api/games/${id}", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`
+    } ,
+    body: JSON.stringify({ name })
+  })
+
+  if(!response.ok) return null
+
+  const g = await response.json()
+  return new Game(
+    g.id,
+    g.name,
+    g.current_players ?? 1,
+    g.status,
+    g.owner
+  )
+}
+
 function addGame(game: Game)
 {
   const tableBody = document.getElementById('gamesTableBody') as HTMLTableSectionElement
@@ -169,11 +201,41 @@ function addGame(game: Game)
     <td>${game.players}</td>
     <td>${game.status}</td>
     <td>
-      <button class="join-btn" data-game-id="${game.id}">
-        Editar
-      </button>
+      <button class="edit-btn">Editar</button>
+      <button class="delete-btn">Borrar</button>
     </td>
   `
 
+  row.querySelector(".edit-btn")?.addEventListener("click", () => {
+    const modal = document.getElementById("createGameModal")!
+    const input = document.getElementById("gameNameInput") as HTMLInputElement
+
+    modal.dataset.mode = "edit"
+    modal.dataset.gameId = game.id.toString()
+    input.value = game.name
+
+    modal.classList.remove("hidden")
+  })
+
+  row.querySelector(".delete-btn")?.addEventListener("click", async() => {
+    if(!confirm("¿Seguro que deseas eliminar esta partida?")) return
+
+    // await deleteGame(game.id)
+    // row.remove();
+  })
+
   tableBody.appendChild(row)
+}
+
+//Actualizar filas tras Editar
+function updateRow(game: Game)
+{
+  const row = document.querySelector(`tr[data-id="${game.id}"]`)
+
+  if(!row) return
+
+  row.children[0].textContent = game.owner.nickname
+  row.children[1].textContent = game.name
+  row.children[2].textContent = game.players.toString()
+  row.children[3].textContent = game.status
 }
