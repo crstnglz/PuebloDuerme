@@ -7,6 +7,7 @@ services:
     container_name: back_lobotron_server
     ports:
       - "8000:8000"
+      - "9090:9090"
     volumes:
       - ./backLobotron:/var/www/html
     depends_on:
