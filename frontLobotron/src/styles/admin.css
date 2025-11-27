@@ -91,7 +91,7 @@ body {
 
 }
 .back-btn:hover{
-    background-color: var(--accent-color-1);
+    background-color: var(--color-acento-1);
     box-shadow: 0 0 13px rgba(0,0,0,0.6);
     transform: translateY(-2px);
 }

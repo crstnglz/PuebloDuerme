@@ -13,12 +13,7 @@
   --accent-color-2: #9b746b;
   --accent-color-3: #909a7d;
 
-  /* Alias simples para compatibilidad (solo los necesarios) */
-  --madera: var(--wood);
-  --madera-oscura: var(--dark-wood);
-  --crema: var(--cream);
-  --acento: var(--accent);
-  --panel: var(--panel-bg);
+  --contrast-color: var(--dark-wood); 
 
   /* Tema general del estilo */
   --main-color: var(--dark-wood);
