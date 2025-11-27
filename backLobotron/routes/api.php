@@ -9,17 +9,20 @@ use Illuminate\Http\Request;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::post('/profile/uploadImage', [ProfileController::class, 'uploadImage']);
-
 
 Route::middleware('auth:sanctum')->group(function () {
-     // Datos de usuario autenticado
-        Route::get('/me', function(Request $request){
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+
+    Route::post('/profile/uploadImage', [ProfileController::class, 'uploadImage']);
+
+    // Datos de usuario autenticado
+    Route::get('/me', function(Request $request){
             return $request->user();
         });
 
-        Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
+    Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
 
          //Rutas Lobby
     Route::get('/games', [GameController::class, 'index']);
@@ -31,6 +34,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //ADMIN
     Route::middleware('abilities:admin')->group(function () {
 
+         // Ruta específica para el buscador
+        Route::get('/users/find', [UserController::class, 'find']);
+
+        // CRUD
+    
         // CRUD de usuarios
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);

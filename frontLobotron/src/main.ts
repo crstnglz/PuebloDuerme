@@ -4,6 +4,9 @@ import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 import { initLobby } from './pages/lobby'
 
+// IMPORT PARA EL PANEL ADMIN
+import { initAdmin } from './pages/admin';
+
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
 
@@ -43,5 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if(path.includes("lobby"))
     {
         initLobby()
+    // ============ PANEL ADMIN ============
+    if (path.includes("admin")) {
+        initAdmin();   
     }
 });
