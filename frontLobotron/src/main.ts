@@ -3,6 +3,7 @@ import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 import { initGameRoom } from './pages/gameRoom';
+import './echo'
 
 // IMPORT PARA EL PANEL ADMIN
 import { initAdmin } from './pages/admin';
