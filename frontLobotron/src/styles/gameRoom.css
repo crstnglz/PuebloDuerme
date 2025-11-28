@@ -182,3 +182,30 @@ html, body {
     cursor: pointer;
     font-size: 2vw;
 }
+
+/* CONTENEDOR LOGO + SALIR */
+#top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1vw;
+}
+
+/* BOTÓN SALIR */
+#exit-button {
+    background: #b15454;
+    color: white;
+    border: none;
+    padding: 0.4vw 0.8vw;
+    font-size: 0.9vw;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    transition: 0.2s;
+}
+
+#exit-button:hover {
+    background: #ff7b7b;
+    transform: scale(1.08);
+}
