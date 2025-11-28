@@ -40,7 +40,24 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'is_bot' => 'boolean', 
+        'is_bot' => 'boolean',
         'password' => 'hashed',
     ];
+
+    public function games()
+    {
+        return $this->belongsToMany(Game::class, 'game_users')
+            ->using(GameUser::class) // 1. Usar el modelo Pivot personalizado
+            ->withPivot([            // 2. Traer las columnas de estadísticas/estado
+                'id',
+                'role_id',
+                'player_status',
+                'is_sheriff',
+                'has_heal_potion',
+                'has_kill_potion',
+                'used_cupid_ability',
+                'used_thief_ability'
+            ])
+            ->withTimestamps();
+    }
 }
