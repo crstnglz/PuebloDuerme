@@ -3,6 +3,7 @@ import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 import { initGameRoom } from './pages/gameRoom';
+import { initLobby } from './pages/lobby'
 import './echo'
 
 // IMPORT PARA EL PANEL ADMIN
@@ -44,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
         saveProfile();
     }
 
+    if(path.includes("lobby"))
+    {
+        initLobby()
+    }
     // ============ PANEL ADMIN ============
     if (path.includes("admin")) {
         initAdmin();   

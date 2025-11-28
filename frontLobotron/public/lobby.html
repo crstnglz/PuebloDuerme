@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es" spellcheck="false">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/imagesUI/logo.jpeg" />
+  <title>Lobby de Partidas</title>
+
+  <link rel="stylesheet" href="/src/styles/lobby.css">
+</head>
+
+<body>
+
+<header class="header">
+  <h1 class="name">LOBOTRON</h1>
+
+  <!-- Botón para regresar al inicio -->
+  <a href="/indexUI.html" class="back-btn">Inicio</a>
+</header>
+
+<main class="admin-container lobby-container">
+
+  <h2 class="admin-title">Lobby de partidas</h2>
+
+  <div class="lobby-layout">
+
+    <!-- COLUMNA IZQUIERDA: PERFIL + BOTONES -->
+    <section class="lobby-sidebar">
+
+      <div class="player-card">
+        <div class="player-avatar-wrapper">
+          <img
+            id="lobbyProfileImg"
+            class="player-avatar"
+            src="/imagesUI/predprofile.png"
+            alt="Avatar del jugador"
+          />
+        </div>
+
+        <p id="lobbyNickname" class="player-nickname">Jugador</p>
+      </div>
+
+      <div class="lobby-buttons">
+        <button id="joinGameBtn" class="action-btn lobby-btn">
+          Unirse a partida
+        </button>
+
+        <button id="createGameBtn" class="action-btn add-btn lobby-btn">
+          Crear partida
+        </button>
+      </div>
+
+    </section>
+
+    <!-- COLUMNA DERECHA: TABLA DE PARTIDAS -->
+    <section class="lobby-main">
+
+      <h3 class="lobby-subtitle">Partidas disponibles</h3>
+
+      <div class="table-wrapper">
+        <table id="games-table">
+          <thead>
+            <tr>
+              <th>Host</th>
+              <th>Nombre</th>
+              <th>Jugadores</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="gamesTableBody">
+            <tr class="empty-row">
+              <td colspan="5">Todavía no hay partidas creadas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </div>
+
+</main>
+
+<!-- Modal Crear Partida -->
+ <div id="createGameModal" class="modal hidden" data-mode="create">
+  <div class="modal-content">
+    <h2>Crear nueva partida</h2>
+
+    <label for="gameNameinput">Nombre de la partida</label>
+    <input type="text" id="gameNameInput" placeholder="Ej: Aldea 1">
+
+    <div class="modal-actions">
+      <button id="cancelCreateGameBtn" class="btn-cancel">Cancelar</button>
+      <button id="confirmCreateGameBtn" class="btn-confirm">Crear</button>
+    </div>
+  </div>
+ </div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
