@@ -3,13 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class GameUser extends Model
+class GameUser extends Pivot
 {
-
     use HasFactory;
+
+    protected $table = 'game_users';
+
+
+    public $incrementing = true; // en las tablas pivote esta inicializado a false
+    
+    public $timestamps = true;
 
     protected $fillable = [
         'game_id',
@@ -38,16 +43,13 @@ class GameUser extends Model
         return $this->belongsTo(Game::class);
     }
 
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-
     public function role()
     {
-    
         return $this->belongsTo(Role::class);
     }
 }

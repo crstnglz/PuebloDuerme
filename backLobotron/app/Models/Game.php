@@ -22,20 +22,22 @@ class Game extends Model
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
-public function players() // <--- NOMBRE CAMBIADO
-{
-    return $this->belongsToMany(User::class, 'game_users')
-        ->using(GameUser::class)
-        ->withPivot([
-            'id',
-            'role_id',
-            'player_status',
-            'is_sheriff',
-            'has_heal_potion',
-            'has_kill_potion',
-            'used_cupid_ability',
-            'used_thief_ability'
-        ])
-        ->withTimestamps();
-}
+
+    public function players()
+    {
+        return $this->belongsToMany(User::class, 'game_users')
+            ->using(GameUser::class)
+            ->whereNotNull('game_users.user_id') 
+            ->withPivot([
+                'id',
+                'role_id',
+                'player_status',
+                'is_sheriff',
+                'has_heal_potion',
+                'has_kill_potion',
+                'used_cupid_ability',
+                'used_thief_ability'
+            ])
+            ->withTimestamps();
+    }
 }
