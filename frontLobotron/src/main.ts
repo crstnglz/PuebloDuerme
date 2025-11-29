@@ -1,16 +1,17 @@
+import { initLobby } from './pages/lobby'; 
+import { initGameRoom } from './pages/gameRoom';
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
-import { initGameRoom } from './pages/gameRoom';
-import { initLobby } from './pages/lobby'
+import { initAdmin } from './pages/admin';
 import './echo'
 
-// IMPORT PARA EL PANEL ADMIN
-import { initAdmin } from './pages/admin';
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
+
+    const searchParams = new URLSearchParams(window.location.search);
 
     // ============ PÁGINA PRINCIPAL (login + registro) ============
     if (path.endsWith("/") || path.endsWith("/index.html")) {
@@ -49,15 +50,33 @@ document.addEventListener('DOMContentLoaded', () => {
     {
         initLobby()
     }
+    
     // ============ PANEL ADMIN ============
     if (path.includes("admin")) {
-        initAdmin();   
+        initAdmin();    
     }
 
     // ============ PÁGINA DE SALA DE JUEGO/ESPERA ============
 
     if (path.includes("gameRoom")) {
-        initGameRoom();
-    }
+        // Obtenemos el ID de la URL
+        const gameIdParam = searchParams.get('id');
 
+        if (gameIdParam) {
+            const gameId = parseInt(gameIdParam, 10);
+            
+        
+            if (isNaN(gameId) || gameId <= 0) {
+        
+        
+                
+                return;
+            }
+            
+            initGameRoom(gameId);
+        } else {
+            console.error("No se ha especificado ID de partida en la URL");
+
+        }
+    }
 });
