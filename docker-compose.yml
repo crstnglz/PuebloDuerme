@@ -1,21 +1,24 @@
 version: '3.8'
 
 services:
-  # 🐘 1. Backend (Laravel + PHP) - Servidor HTTP
+  # 🐘 1. Backend (Laravel + PHP) - Unifica HTTP y WebSockets (Reverb)
   backend:
     build:
       context: ./backLobotron
       dockerfile: Dockerfile
     container_name: back_lobotron_server
-    # Solo mapeamos el puerto 8000 (HTTP)
     ports:
-      - "8000:8000"
+      - "8000:8000" # Servidor HTTP (Laravel)
+      - "9090:9090" # WebSockets (Reverb)
     volumes:
       - ./backLobotron:/var/www/html
     depends_on:
       - mariadb
+  
+    env_file:
+      - ./backLobotron/.env
+
     environment:
-      # Las variables de DB_HOST y otros usan los nombres de servicio internos
       APP_ENV: local
       DB_CONNECTION: mysql
       DB_HOST: mariadb
@@ -28,31 +31,13 @@ services:
         composer install --no-interaction --prefer-dist &&
         php artisan key:generate &&
         php artisan migrate --force &&
-        # Solo inicia el servidor web y lo mantiene vivo
+      
+        php artisan reverb:start &
+    
         php artisan serve --host=0.0.0.0 --port=8000
       "
 
-  # 🚀 2. Reverb (WebSocket) - Servicio Dedicado
-  reverb:
-    build:
-      context: ./backLobotron
-      dockerfile: Dockerfile
-    container_name: back_lobotron_reverb
-    # Mapeamos el puerto 9090 para que el frontend (navegador) pueda conectarse
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./backLobotron:/var/www/html
-    # Depende de la base de datos si Reverb necesita autenticar usuarios
-    depends_on:
-      - mariadb
-    # Reverb necesita las claves de la aplicación
-    env_file:
-      - ./backLobotron/.env
-    # El comando que corre SOLO Reverb y lo mantiene vivo
-    command: php artisan reverb:start
-
-  # 🧪 3. Backend ONLY for tests
+  # 🧪 2. Backend ONLY for tests (NO toca tu BBDD normal)
   backend_test:
     build:
       context: ./backLobotron
@@ -76,7 +61,7 @@ services:
         php artisan test
       "
 
-  # 🛢️ 4. Base de datos MariaDB principal
+  # 🛢️ 3. Base de datos MariaDB principal
   mariadb:
     image: mariadb:11
     container_name: mariadb
@@ -91,7 +76,7 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
 
-  # 🧪 5. Base de datos MariaDB para tests
+  # 🧪 4. Base de datos MariaDB para tests
   mariadb_test:
     image: mariadb:11
     container_name: mariadb_test
@@ -106,7 +91,7 @@ services:
     volumes:
       - mariadb_test_data:/var/lib/mysql
 
-  # ⚡ 6. Frontend (Node + Vite)
+  # ⚡ 5. Frontend (Node + Vite)
   frontend:
     build:
       context: ./frontLobotron
@@ -119,14 +104,25 @@ services:
       - "5173:5173"
     depends_on:
       - backend
-      - reverb # Aseguramos que Reverb esté listo
-    # El frontend necesita acceder a las variables VITE_ del .env
+   
     env_file:
       - ./frontLobotron/.env
     environment:
       CHOKIDAR_USEPOLLING: "true"
     command: >
       sh -c "npm install && npm run dev -- --host"
+
+  # 🛠️ 6. Adminer (Interfaz gráfica para gestionar MariaDB)
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb
 
 volumes:
   mariadb_data:

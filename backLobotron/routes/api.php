@@ -29,9 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
     Route::delete('/games/{game}', [GameController::class, 'destroy']);
+    Route::get('/games/{game}', [GameController::class, 'show']);
+    Route::post('/games/{game}/join', [GameController::class, 'join']);
 
-    //TODO: unirse a partida seleccionada
-    //Route::post('/games/{game}/join [GameController::class, 'join']);
 
 
     //ADMIN

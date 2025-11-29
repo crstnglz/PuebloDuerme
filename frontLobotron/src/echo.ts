@@ -7,21 +7,17 @@ declare global {
     Pusher: typeof Pusher;
   }
 }
-
 window.Pusher = Pusher;
-
 window.Echo = new Echo({
-  broadcaster: 'reverb',
+  broadcaster: 'pusher',
   key: import.meta.env.VITE_REVERB_APP_KEY,
   wsHost: import.meta.env.VITE_REVERB_HOST,
-  wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 9090),
-  wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 9090),
+  wsPort: 9090, 
+  wssPort: 9090,
   forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
+  encrypted: false,
   enabledTransports: ['ws', 'wss'],
+  disableStats: true,
+  cluster: 'mt1',
+  scheme: 'http',
 });
-
-window.Echo
-  .channel('test-channel')
-  .listen('.ReverbTest', (event: any) => {
-    console.log('⚡ Evento ReverbTest recibido en el FRONT:', event);
-  });
