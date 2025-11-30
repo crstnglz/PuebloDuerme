@@ -38,7 +38,7 @@ export function initLobby() {
   const createGameBtn = document.getElementById("createGameBtn");
 
 
-  joinGameBtn?.addEventListener("click", () => {
+  joinGameBtn?.addEventListener("click", async () => {
     const selected = document.querySelector("tr.selected") as HTMLTableRowElement
 
     if(!selected)
@@ -47,13 +47,42 @@ export function initLobby() {
       return
     }
 
-    const gameId = selected.dataset.id
+    const gameId = Number(selected.dataset.id)
     console.log("Unirse a partida:", gameId)
 
-    //TODO: meter interfaz
-    //window.location.href = "`/salaUI.html?game=${newGame.id}`"
-    //Para unirse debe de existir endpoint -> /api/games/{game}/join
+    const result = await joinGame(gameId)
+
+    if(!result || !result.success)
+    {
+      alert("Error al unirse: " + (result?.message ?? "Desconocido"))
+      return
+    }
+
+    window.location.href = `/game.html?game=${gameId}`
   });
+
+  async function joinGame(gameId: number)
+  {
+    const token = localStorage.getItem("access_token")
+
+    const res = await fetch(`http://localhost:8000/api/games/${gameId}/join`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+
+    if(!res.ok)
+    {
+      const err = await res.json().catch(() => ({}))
+      return {
+        success: false,
+        message: err.error ?? "No se pudo unir"
+      }
+    }
+    return await res.json()
+  }
 
   createGameBtn?.addEventListener("click", () => {
     if (!createGameModal || !gameNameInput) return;

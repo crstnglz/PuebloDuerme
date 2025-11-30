@@ -88,19 +88,42 @@ class GameController extends Controller
 
     public function join(Request $request, Game $game)
     {
+        $user = $request->user();
+
         // 16/16 jugadores -> partida llena
         if($game->current_players >= $game->max_players)
         {
             return response()->json(['error' => 'La partida está llena'], 403);
         }
 
-            // Una vez dentro
-            $game->current_players++;
-            $game->save();
+        // Comprobar si ya está unido
+        $alreadyJoined = \App\Models\GameUser::where('game_id', $game->id)
+        ->where('user_id', $user->id)
+        ->exists();
 
-            return response()->json(
-                Game::with('owner:id,nickname')->find($game->id),
-                200
-            );
+        if(!$alreadyJoined)
+        {
+            //Registrar al usuario en la partida
+            \App\Models\GameUser::create([
+                'game_id' => $game->id,
+                'user_id' => $user->id,
+                'player_status' => 'alive',
+                'role_id' => null
+            ]);
+
+            //Incrementar usuarios en la partida
+            $game->increment('current_players');
+        }
+
+        $game->load([
+            'owner:id,nickname',
+            'users:id,nickname,profile_photo'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Unido correctamente',
+            'game' => $game
+        ], 200);
     }
 }
