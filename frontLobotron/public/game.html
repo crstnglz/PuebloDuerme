@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lobotron</title>
+    <link rel="icon" type="image/png" href="/images/logo.jpg" />
+    <link rel="stylesheet" href="../src/styles/game.css" />
+  </head>
+
+  <body>
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div id="main-container">
+      <!-- GRID DE JUGADORES -->
+      <div id="players-grid">
+        <div class="player">1</div>
+        <div class="player">2</div>
+        <div class="player">3</div>
+        <div class="player">4</div>
+        <div class="player">5</div>
+        <div class="player">6</div>
+        <div class="player">7</div>
+        <div class="player">8</div>
+        <div class="player">9</div>
+        <div class="player">10</div>
+        <div class="player">11</div>
+        <div class="player">12</div>
+        <div class="player">13</div>
+        <div class="player">14</div>
+        <div class="player">15</div>
+        <div class="player">16</div>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div id="right-panel">
+        <div id="top-bar">
+    <div id="logo">LOBOTRON</div>
+    <button id="exit-button">Salir</button>
+  </div>
+        <div id="roles-box">
+          <div class="role role-img" data-role="aldeano">Aldeano</div>
+          <div class="role role-img" data-role="lobo">Lobo</div>
+          <div class="role role-img" data-role="bruja">Bruja</div>
+          <div class="role role-img" data-role="cazador">Cazador</div>
+          <div class="role role-img" data-role="cupido">Cupido</div>
+          <div class="role role-img" data-role="vidente">Vidente</div>
+        </div>
+
+        <div id="timer-box">Tiempo: 60s</div>
+
+        <!-- CHAT -->
+        <div id="chat-box">
+          <div id="chat-messages">
+            <p><b>Sistema:</b> Hola, ¿quién se apunta?</p>
+          </div>
+
+          <div id="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Tu mensaje..." />
+            <button id="send-button">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE ROLES -->
+    <div id="role-info-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-role-info">&times;</span>
+
+        <img id="role-modal-img" src="" alt="Rol" />
+        <h2 id="role-info-title"></h2>
+        <p id="role-info-text"></p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
