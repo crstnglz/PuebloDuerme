@@ -9,13 +9,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "laravel-echo": "^2.2.6",
     "pusher-js": "^8.4.0",
     "typescript": "~5.9.3",
     "vite": "^7.1.7"
   },
   "dependencies": {
     "@types/axios": "^0.9.36",
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "laravel-echo": "^2.2.6"
   }
 }

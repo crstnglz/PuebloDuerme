@@ -12,12 +12,12 @@ interface PlayerJoinedEvent {
 export async function initGameRoom(gameId: number) {
 
     /* ========================================================================
-        LÓGICA DE JUEGO Y CONEXIÓN (BACKEND)
-       ======================================================================== */
+         LÓGICA DE JUEGO Y CONEXIÓN (BACKEND)
+        ======================================================================== */
     
     const playersGrid = document.getElementById("players-grid") as HTMLDivElement;
     
-        // Función para renderizar un jugador en la cuadrícula
+     // Función para renderizar un jugador en la cuadrícula
     const renderPlayer = (data: Player | User, index: number) => {
         if (!playersGrid) return;
         const cells = playersGrid.children;
@@ -27,7 +27,7 @@ export async function initGameRoom(gameId: number) {
         
             cell.innerHTML = ''; 
             
-            // Cpntenido avatar
+            // Contenido avatar
             const avatarContainer = document.createElement('div');
             avatarContainer.style.display = 'flex';
             avatarContainer.style.flexDirection = 'column';
@@ -88,31 +88,48 @@ export async function initGameRoom(gameId: number) {
     } catch (error) {
         console.error("Error crítico en initGameRoom:", error);
     }
+console.log("Conectando a Reverb:", {
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    host: import.meta.env.VITE_REVERB_HOST,
+    port: import.meta.env.VITE_REVERB_PORT
+});
 
-    // websockets
-    if (window.Echo) {
-        console.log(`Suscribiéndose al canal games.${gameId}...`);
-        
-        window.Echo.private(`games.${gameId}`)
-            .listen('.player.joined', (e: unknown) => {
-                const eventData = e as PlayerJoinedEvent;
-                console.log("⚡ Nuevo jugador:", eventData.user.nickname);
-                
-                const cells = Array.from(playersGrid.children) as HTMLElement[];
-                const emptyIndex = cells.findIndex(cell => !cell.dataset.userId);
+// websockets
+if (window.Echo) {
 
-                if (emptyIndex !== -1) {
-                    renderPlayer(eventData.user, emptyIndex);
-                }
-            });
-    } else {
-        console.warn("Laravel Echo no está disponible. El tiempo real no funcionará.");
-    }
+    console.log(`Intento de suscripción al canal games.${gameId}...`);
+
+    window.Echo.channel(`games.${gameId}`)
+
+        .subscribed(() => {
+            console.log(`[Reverb] Suscripción Exitosa: games.${gameId}`);
+        })
+
+        .error((error: any) => {
+            console.error(`[Reverb] ERROR DE SUSCRIPCIÓN: games.${gameId}`, error);
+        })
+
+        .listen('.player.joined', (e: unknown) => {
+            const eventData = e as PlayerJoinedEvent;
+
+            console.log("⚡ Nuevo jugador recibido:", eventData.user.nickname);
+
+            const cells = Array.from(playersGrid.children) as HTMLElement[];
+            const emptyIndex = cells.findIndex(cell => !cell.dataset.userId);
+
+            if (emptyIndex !== -1) {
+                renderPlayer(eventData.user, emptyIndex);
+            }
+        });
+
+} else {
+    console.warn("Laravel Echo no está disponible. El tiempo real no funcionará.");
+}
 
 
     /* ========================================================================
-    Interfaz gráfica y descripción de los roles
-       ======================================================================== */
+      Interfaz gráfica y descripción de los roles
+        ======================================================================== */
 
     const roleDescriptions: Record<RoleKey, RoleInfo> = {
         aldeano: {
@@ -130,43 +147,43 @@ evitando levantar sospechas o ser ejecutados.`
         vidente: {
             title: "Vidente",
             text: `Es la líder de los defensores de la aldea. 
-Cada noche puede mirar el rol real de un jugador.  
+Cada noche puede mirar el rol real de un jugador.  
 Deben ayudar a los aldeanos, pero con discreción: si los lobos descubren quién es, será su final.`
         },
         ladron: {
             title: "Ladrón",
-            text: `Una vez durante la partida puede elegir intercambiar su carta con la de otro jugador.  
-El jugador que reciba su carta será ladrón para siempre y no podrá volver a cambiar.  
+            text: `Una vez durante la partida puede elegir intercambiar su carta con la de otro jugador.  
+El jugador que reciba su carta será ladrón para siempre y no podrá volver a cambiar.  
 El ladrón adopta obligatoriamente el rol del personaje que reciba —le guste o no.`
         },
         cupido: {
             title: "Cupido",
-            text: `La primera noche enamora a dos jugadores, incluso puede elegirse a sí mismo.  
-Los enamorados forman un bando propio: si uno muere, el otro muere de pena inmediatamente.  
+            text: `La primera noche enamora a dos jugadores, incluso puede elegirse a sí mismo.  
+Los enamorados forman un bando propio: si uno muere, el otro muere de pena inmediatamente.  
 Su objetivo es sobrevivir juntos hasta el final de la partida.`
         },
         ninia: {
             title: "La niña",
-            text: `Puede espiar a los Hombres Lobo por la noche mientras cazan.  
-Sin embargo, si es descubierta es asesinada inmediatamente.  
+            text: `Puede espiar a los Hombres Lobo por la noche mientras cazan.  
+Sin embargo, si es descubierta es asesinada inmediatamente.  
 Tiene un rol muy arriesgado pero extremadamente útil si juega con cuidado.`
         },
         bruja: {
             title: "Bruja",
-            text: `Tiene dos pociones:  
-• Una poción de curación para salvar a la víctima de los lobos.  
-• Una poción de veneno para matar a un jugador.  
-Solo puede usar cada poción una vez en toda la partida.`
+            text: `Tiene dos pociones:  
+• Una poción de curación para salvar a la víctima de los lobos.  
+• Una poción de veneno para matar a un jugador.  
+• Solo puede usar cada poción una vez en toda la partida.`
         },
         cazador: {
             title: "Cazador",
-            text: `Cuando muere —ya sea de noche o de día— puede llevarse a un jugador con él.  
+            text: `Cuando muere —ya sea de noche o de día— puede llevarse a un jugador con él.  
 Su disparo final puede cambiar completamente el rumbo de una partida.`
         },
         alguacil: {
             title: "Alguacil",
-            text: `Es elegido por votación durante el día.  
-En las votaciones de linchamiento, en caso de empate, su voto vale doble.  
+            text: `Es elegido por votación durante el día.  
+En las votaciones de linchamiento, en caso de empate, su voto vale doble.  
 Si muere, puede elegir a su sucesor antes de revelar su carta.`
         }
     };

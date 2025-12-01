@@ -90,8 +90,8 @@ class GameController extends Controller
 
             // Comprobar si el usuario ya está unido
             $alreadyJoined = GameUser::where('game_id', $game->id)
-                               ->where('user_id', $user->id)
-                               ->exists();
+                                    ->where('user_id', $user->id)
+                                    ->exists();
 
             if (!$alreadyJoined) {
                 $villagerRole = Role::where('name', 'aldeano')->first();
@@ -107,7 +107,14 @@ class GameController extends Controller
                 // Incrementar contador de jugadores
                 $game->increment('current_players');
 
-                PlayerJoined::dispatch($game, $user);
+                
+                try {
+                    // Envía el evento PlayerJoined a todos los clientes suscritos al canal de la partida.
+                    PlayerJoined::dispatch($game, $user);
+
+                } catch (Exception $e) {
+                    
+                }
             }
 
             return response()->json([

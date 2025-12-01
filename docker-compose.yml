@@ -1,23 +1,22 @@
 version: '3.8'
 
 services:
-  # 🐘 1. Backend (Laravel + PHP) - Unifica HTTP y WebSockets (Reverb)
+  
+  # 🐘 Backend (Laravel + PHP)
   backend:
     build:
       context: ./backLobotron
       dockerfile: Dockerfile
     container_name: back_lobotron_server
     ports:
-      - "8000:8000" # Servidor HTTP (Laravel)
-      - "9090:9090" # WebSockets (Reverb)
+      - "8000:8000"
+      - "9090:9090"
     volumes:
       - ./backLobotron:/var/www/html
     depends_on:
       - mariadb
-  
     env_file:
-      - ./backLobotron/.env
-
+      - ./backLobotron/.env 
     environment:
       APP_ENV: local
       DB_CONNECTION: mysql
@@ -26,27 +25,37 @@ services:
       DB_DATABASE: el_lobotron_db
       DB_USERNAME: ellobotron
       DB_PASSWORD: elcubatron
+      
+      # Las variables de Reverb se leen desde env_file
+      REVERB_HOST: 0.0.0.0
+      REVERB_PORT: 9090
+      
     command: >
       sh -c "
+        # 1. Instalación y Migración (asumiendo que se hace una vez)
         composer install --no-interaction --prefer-dist &&
         php artisan key:generate &&
         php artisan migrate --force &&
-      
-        php artisan reverb:start &
-    
+        
+        # 2. Arrancar Reverb en segundo plano
+        php artisan reverb:start --host=0.0.0.0 &
+        
+        # 3. Arrancar Servidor API en primer plano (mantiene el contenedor vivo)
         php artisan serve --host=0.0.0.0 --port=8000
       "
 
-  # 🧪 2. Backend ONLY for tests (NO toca tu BBDD normal)
+  # 🧪 Backend ONLY for tests
   backend_test:
     build:
       context: ./backLobotron
       dockerfile: Dockerfile
     container_name: back_lobotron_test
-    depends_on:
-      - mariadb_test
     volumes:
       - ./backLobotron:/var/www/html
+    depends_on:
+      - mariadb_test
+    env_file:
+      - ./backLobotron/.env
     environment:
       APP_ENV: testing
       DB_CONNECTION: mysql
@@ -61,7 +70,7 @@ services:
         php artisan test
       "
 
-  # 🛢️ 3. Base de datos MariaDB principal
+  # 🛢️ Base de datos MariaDB principal
   mariadb:
     image: mariadb:11
     container_name: mariadb
@@ -76,7 +85,7 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
 
-  # 🧪 4. Base de datos MariaDB para tests
+  # 🧪 Base de datos MariaDB para tests
   mariadb_test:
     image: mariadb:11
     container_name: mariadb_test
@@ -91,7 +100,7 @@ services:
     volumes:
       - mariadb_test_data:/var/lib/mysql
 
-  # ⚡ 5. Frontend (Node + Vite)
+  # ⚡ Frontend (Node + Vite)
   frontend:
     build:
       context: ./frontLobotron
@@ -104,15 +113,14 @@ services:
       - "5173:5173"
     depends_on:
       - backend
-   
     env_file:
-      - ./frontLobotron/.env
+      - ./backLobotron/.env 
     environment:
       CHOKIDAR_USEPOLLING: "true"
     command: >
       sh -c "npm install && npm run dev -- --host"
 
-  # 🛠️ 6. Adminer (Interfaz gráfica para gestionar MariaDB)
+  # 🛠️ Adminer (Interfaz gráfica para gestionar MariaDB)
   adminer:
     image: adminer:latest
     container_name: adminer
