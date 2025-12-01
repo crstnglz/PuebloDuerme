@@ -109,7 +109,7 @@ class GameController extends Controller
                 'game_id' => $game->id,
                 'user_id' => $user->id,
                 'role_id' => null,  //Luego se asigna
-                'player_status' => 'alive'
+                'player_status' => 'vivo'
             ]);
 
             //Incremento jugadores
