@@ -1,10 +1,7 @@
-import "./echo"; // aseguramos que Echo está cargado
+import "./echo"; 
 
 console.log("Game.ts cargado");
 
-// =============================================
-// 1. Obtener ID de la partida desde la URL
-// =============================================
 const params = new URLSearchParams(window.location.search);
 const gameId = params.get("game");
 
@@ -12,9 +9,6 @@ if (!gameId) {
   console.error("Falta el parámetro ?game= en la URL");
 }
 
-// =============================================
-// 2. Obtener nickname del usuario
-// =============================================
 let nickname = "Jugador";
 const userRaw = localStorage.getItem("user");
 
@@ -25,16 +19,11 @@ if (userRaw) {
   } catch {}
 }
 
-// =============================================
-// 3. Referencias del DOM
-// =============================================
 const chatMessages = document.getElementById("chat-messages") as HTMLDivElement;
 const chatInput = document.getElementById("chat-input") as HTMLInputElement;
 const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
-// =============================================
-// 4. Suscribirse al canal WebSocket
-// =============================================
+//Suscripción Canal Websocket
 (window as any).Echo.channel(`game.${gameId}`)
   .listen(".message.sent", (data: any) => {
     console.log("Mensaje recibido:", data);
@@ -53,9 +42,7 @@ const sendButton = document.getElementById("send-button") as HTMLButtonElement;
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
-// =============================================
-// 5. Enviar mensaje por API
-// =============================================
+//Enviar mensaje por API
 sendButton?.addEventListener("click", sendMsg);
 chatInput?.addEventListener("keydown", (e) => {
   if (e.key === "Enter") sendMsg();
@@ -73,7 +60,7 @@ async function sendMsg() {
   }
 
   try {
-    await fetch("http://localhost:8000/api/chat/send-private", {
+    await fetch("http://localhost:8000/api/chat/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Http\Request;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -33,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/games/{game}/join', [GameController::class, 'join']);
     Route::post('/games/{game}', [GameController::class, 'show']);
 
+    //Chat
+    Route::post('/chat/send', [ChatController::class, 'send']);
 
     //ADMIN
     Route::middleware('abilities:admin')->group(function () {
