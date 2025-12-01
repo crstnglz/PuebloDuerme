@@ -17,11 +17,6 @@ window.Echo = new Echo({
   wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 9090),
   wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 9090),
   forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
-  enabledTransports: ['ws', 'wss'],
+  encrypted: false,
+  enabledTransports: ['ws'],
 });
-
-window.Echo
-  .channel('test-channel')
-  .listen('.ReverbTest', (event: any) => {
-    console.log('⚡ Evento ReverbTest recibido en el FRONT:', event);
-  });
