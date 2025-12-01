@@ -35,7 +35,7 @@ class GameController extends Controller
             'owner_id' => $request->user()->id,
             'max_players' => 16,
             'current_players' => 1,
-            'status' => 'waiting'
+            'status' => 'esperando'
         ]);
 
         return response()->json(
@@ -97,33 +97,27 @@ class GameController extends Controller
         }
 
         // Comprobar si ya está unido
-        $alreadyJoined = \App\Models\GameUser::where('game_id', $game->id)
+        $alreadyJoined = GameUser::where('game_id', $game->id)
         ->where('user_id', $user->id)
         ->exists();
 
         if(!$alreadyJoined)
         {
-            //Registrar al usuario en la partida
-            \App\Models\GameUser::create([
+            //Tabla pivote
+            GameUser::create([
                 'game_id' => $game->id,
                 'user_id' => $user->id,
-                'player_status' => 'alive',
-                'role_id' => null
+                'role_id' => null,  //Luego se asigna
+                'player_status' => 'alive'
             ]);
 
-            //Incrementar usuarios en la partida
+            //Incremento jugadores
             $game->increment('current_players');
         }
-
-        $game->load([
-            'owner:id,nickname',
-            'users:id,nickname,profile_photo'
-        ]);
-
         return response()->json([
             'success' => true,
             'message' => 'Unido correctamente',
-            'game' => $game
+            'game' => Game::with('owner:id,nickname')->find($game->id)
         ], 200);
     }
 }
