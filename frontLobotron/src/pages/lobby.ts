@@ -265,8 +265,8 @@ function addGame(game: Game)
     <td>${game.players}</td>
     <td>${game.status}</td>
     <td>
-      <button class="edit-btn">Editar</button>
-      <button class="delete-btn">Borrar</button>
+      <button type="button" class="edit-btn">Editar</button>
+      <button type="button" class="delete-btn">Borrar</button>
     </td>
   `
 
@@ -291,7 +291,9 @@ function addGame(game: Game)
     row.remove();
   })
 
-  row.addEventListener("click", () => {
+  row.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     document.querySelectorAll("tr.selected")?.forEach(r => r.classList.remove("selected"))
     row.classList.add("selected")
   })

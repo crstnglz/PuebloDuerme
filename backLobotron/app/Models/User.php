@@ -40,7 +40,14 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'is_bot' => 'boolean', 
+        'is_bot' => 'boolean',
         'password' => 'hashed',
     ];
+
+    public function games()
+    {
+        return $this->belongToMany(Game::class, 'game_user')
+            ->withPivot('role_id', 'player_status')
+            ->withTimestamps();
+    }
 }
