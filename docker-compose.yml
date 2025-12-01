@@ -25,6 +25,7 @@ services:
         composer install --no-interaction --prefer-dist &&
         php artisan key:generate &&
         php artisan migrate --force &&
+        php artisan reverb:start &
         php artisan serve --host=0.0.0.0 --port=8000
       "
 
