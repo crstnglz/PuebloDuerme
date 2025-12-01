@@ -117,8 +117,8 @@ export function initLobby() {
     if(newGame)
     {
       //TODO -> cuando creas la sala se te une directamente
-      //window.location.href = `/salaUI.html?game=${newGame.id}`
-      //return
+      window.location.href = `/game.html?game=${newGame.id}`
+      return
     }
       }
 
@@ -178,7 +178,7 @@ async function loadGames() {
   const response = await fetch('http://localhost:8000/api/games', {
     headers: {
       'Accept': 'application/json',
-      'Authorization': `Bearer ${token}`   // <-- ARREGLADO
+      'Authorization': `Bearer ${token}`   
     }
   })
 
