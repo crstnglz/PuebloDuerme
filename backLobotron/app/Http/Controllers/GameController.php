@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\GameUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,7 +36,7 @@ class GameController extends Controller
             'owner_id' => $request->user()->id,
             'max_players' => 16,
             'current_players' => 1,
-            'status' => 'waiting'
+            'status' => 'esperando'
         ]);
 
         return response()->json(
@@ -88,19 +89,36 @@ class GameController extends Controller
 
     public function join(Request $request, Game $game)
     {
+        $user = $request->user();
+
         // 16/16 jugadores -> partida llena
         if($game->current_players >= $game->max_players)
         {
             return response()->json(['error' => 'La partida está llena'], 403);
         }
 
-            // Una vez dentro
-            $game->current_players++;
-            $game->save();
+        // Comprobar si ya está unido
+        $alreadyJoined = GameUser::where('game_id', $game->id)
+        ->where('user_id', $user->id)
+        ->exists();
 
-            return response()->json(
-                Game::with('owner:id,nickname')->find($game->id),
-                200
-            );
+        if(!$alreadyJoined)
+        {
+            //Tabla pivote
+            GameUser::create([
+                'game_id' => $game->id,
+                'user_id' => $user->id,
+                'role_id' => null,  //Luego se asigna
+                'player_status' => 'vivo'
+            ]);
+
+            //Incremento jugadores
+            $game->increment('current_players');
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Unido correctamente',
+            'game' => Game::with('owner:id,nickname')->find($game->id)
+        ], 200);
     }
 }

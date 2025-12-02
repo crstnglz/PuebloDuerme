@@ -22,4 +22,10 @@ class Game extends Model
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
+
+    public function players(){
+        return $this->belongsToMany(User::class, 'game_user')
+            ->withPivot('role_id', 'player_status')
+            ->withTimestamps();
+    }
 }
