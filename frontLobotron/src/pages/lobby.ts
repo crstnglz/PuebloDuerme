@@ -58,6 +58,28 @@ export function initLobby() {
         
         window.location.href = `/gameRoom.html?id=${game.id}`
     });
+    // Evento unirse a partida
+    joinGameBtn?.addEventListener("click", async () => {
+        const selected = document.querySelector("tr.selected") as HTMLTableRowElement
+        if (!selected) {
+            alert("Selecciona una partida primero")
+            return
+        }
+
+        const gameId = selected.dataset.id
+        if (!gameId) return;
+
+        const response = await joinGame(gameId);
+
+        if ('error' in response) {
+            alert(`Error al unirse: ${response.data.message}`);
+            return;
+        }
+
+        const { game } = response.data;
+        
+        window.location.href = `/gameRoom.html?id=${game.id}`
+    });
 
     // Evento abrir modal crear partida
     createGameBtn?.addEventListener("click", () => {

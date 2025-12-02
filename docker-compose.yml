@@ -36,12 +36,8 @@ services:
         composer install --no-interaction --prefer-dist &&
         php artisan key:generate &&
         php artisan migrate --force &&
-        
-        # 2. Arrancar Reverb en segundo plano
-        php artisan reverb:start --host=0.0.0.0 &
-        
-        # 3. Arrancar Servidor API en primer plano (mantiene el contenedor vivo)
-        php artisan serve --host=0.0.0.0 --port=8000
+        php artisan serve --host=0.0.0.0 --port=8000 &
+        php artisan reverb:start 
       "
 
   # 🧪 Backend ONLY for tests

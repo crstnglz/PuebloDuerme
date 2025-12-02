@@ -10,21 +10,13 @@ declare global {
 
 window.Pusher = Pusher;
 
-console.log("ECHO.ts cargado correctamente");
-
-const echo = new Echo({
-    broadcaster: 'pusher',      
-    key: import.meta.env.VITE_REVERB_APP_KEY,
-
-    wsHost: import.meta.env.VITE_REVERB_HOST,
-    wsPort: import.meta.env.VITE_REVERB_PORT,
-    wssPort: import.meta.env.VITE_REVERB_PORT,
-    cluster: 'mt1',
-    forceTLS: false,
-    encrypted: false,
-    disableStats: true,
-    enabledTransports: ['ws'], 
+window.Echo = new Echo({
+  broadcaster: 'reverb',
+  key: import.meta.env.VITE_REVERB_APP_KEY,
+  wsHost: import.meta.env.VITE_REVERB_HOST ?? window.location.hostname,
+  wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 9090),
+  wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 9090),
+  forceTLS: false,
+  encrypted: false,
+  enabledTransports: ['ws']
 });
-
-window.Echo = echo;
-export default echo;

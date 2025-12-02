@@ -4,8 +4,9 @@ import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
-import { initAdmin } from './pages/admin';
-import './echo'
+import { initAdmin } from './pages/admin'
+// import './echo'
+import { initGameUI } from './pages/gameUI'
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -58,25 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ============ PÁGINA DE SALA DE JUEGO/ESPERA ============
 
-    if (path.includes("gameRoom")) {
-        // Obtenemos el ID de la URL
-        const gameIdParam = searchParams.get('id');
-
-        if (gameIdParam) {
-            const gameId = parseInt(gameIdParam, 10);
-            
-        
-            if (isNaN(gameId) || gameId <= 0) {
-        
-        
-                
-                return;
-            }
-            
-            initGameRoom(gameId);
-        } else {
-            console.error("No se ha especificado ID de partida en la URL");
-
-        }
+    if (path.includes("gameUI")) {
+        initGameUI();
     }
 });
