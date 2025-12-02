@@ -3,7 +3,8 @@ import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 import { initLobby } from './pages/lobby'
-import './echo'
+// import './echo'
+import { initGameUI } from './pages/gameUI'
 
 // IMPORT PARA EL PANEL ADMIN
 import { initAdmin } from './pages/admin';
@@ -51,5 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============ PANEL ADMIN ============
     if (path.includes("admin")) {
         initAdmin();   
+    }
+
+    if(path.includes("game"))
+    {
+        initGameUI();
     }
 });

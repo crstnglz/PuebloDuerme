@@ -209,3 +209,21 @@ html, body {
     background: #ff7b7b;
     transform: scale(1.08);
 }
+
+/* Mensajes enviados por ti */
+.my-msg {
+    background: rgba(0, 150, 255, 0.25);
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin: 4px 0;
+    text-align: right;
+}
+
+/* Mensajes enviados por otros */
+.other-msg {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin: 4px 0;
+    text-align: left;
+}
