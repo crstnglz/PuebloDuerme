@@ -3,46 +3,43 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GameMessageSent
+class GameMessageSent implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, SerializesModels;
 
-    public $message;
-    public $gameId;
+   public $message;
     public $from;
+    public $gameId;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct($message, $gameId, $from)
+     public function __construct($message, $from, $gameId)
     {
         $this->message = $message;
-        $this->gameId = $gameId;
         $this->from = $from;
+        $this->gameId = $gameId;
     }
 
-    public function broadcastOn()
+    // Canal público "chat"
+    public function broadcastOn(): Channel
     {
-        return new Channel("game.$this->gameId");
+        return new Channel('game.' . $this->gameId);
     }
 
-    public function broadcastAs()
+    // Nombre del evento en el cliente
+    public function broadcastAs(): string
     {
         return 'message.sent';
     }
 
-    public function broadcastWith()
+    // Datos que se envían al cliente
+    public function broadcastWith(): array
     {
         return [
             'message' => $this->message,
-            'from' => $this->from,
+            "from" => $this->from,
         ];
     }
 }

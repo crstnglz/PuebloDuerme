@@ -1,80 +1,105 @@
-import "./echo"; 
+import Pusher from "pusher-js";
+Pusher.logToConsole=true;
 
-console.log("Game.ts cargado");
+export function initGameUI() {
+  const params = new URLSearchParams(window.location.search);
+  const gameId = params.get("game");
 
-const params = new URLSearchParams(window.location.search);
-const gameId = params.get("game");
+  let nickname = "Jugador";
+  const raw = localStorage.getItem("user");
 
-if (!gameId) {
-  console.error("Falta el parámetro ?game= en la URL");
-}
+  if (raw) {
+    try {
+      nickname = JSON.parse(raw).nickname ?? nickname;
+    } catch {}
 
-let nickname = "Jugador";
-const userRaw = localStorage.getItem("user");
+    const chatMessages = document.getElementById("chat-messages") as HTMLDivElement;
+    const chatInput = document.getElementById("chat-input") as HTMLInputElement;
+    const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
-if (userRaw) {
-  try {
-    const user = JSON.parse(userRaw);
-    nickname = user.nickname ?? nickname;
-  } catch {}
-}
+    // === Parámetros conexión ===
+    const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
+    const wsPort = Number(import.meta.env.VITE_REVERB_PORT ?? 9090);
+    const apiHost = "localhost";
+    const apiPort = 8000;
 
-const chatMessages = document.getElementById("chat-messages") as HTMLDivElement;
-const chatInput = document.getElementById("chat-input") as HTMLInputElement;
-const sendButton = document.getElementById("send-button") as HTMLButtonElement;
-
-//Suscripción Canal Websocket
-(window as any).Echo.channel(`game.${gameId}`)
-  .listen(".message.sent", (data: any) => {
-    console.log("Mensaje recibido:", data);
-
-    const msg = document.createElement("p");
-
-    if (data.from === nickname) {
-      msg.classList.add("my-msg");
-      msg.innerHTML = `<b>Tú:</b> ${data.message}`;
-    } else {
-      msg.classList.add("other-msg");
-      msg.innerHTML = `<b>${data.from}:</b> ${data.message}`;
-    }
-
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
-
-//Enviar mensaje por API
-sendButton?.addEventListener("click", sendMsg);
-chatInput?.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMsg();
-});
-
-async function sendMsg() {
-  const text = chatInput.value.trim();
-  if (!text) return;
-
-  const token = localStorage.getItem("access_token");
-
-  if (!token) {
-    alert("Debes iniciar sesión.");
-    return;
-  }
-
-  try {
-    await fetch("http://localhost:8000/api/chat/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    // === Pusher / Reverb ===
+    const pusher = new Pusher("ibpcvopspyyfrmfanm05", {
+      wsHost,
+      wsPort,
+      forceTLS: false,
+      enabledTransports: ["ws"],
+      cluster: "mt1",
+      disableStats: true,
+      authEndpoint: `http://${apiHost}:${apiPort}/broadcasting/auth`,
+      auth: {
+        headers: {
+          Accept: "application/json",
+        },
       },
-      body: JSON.stringify({
-        message: text,
-        game_id: Number(gameId),
-        from: nickname
-      }),
     });
 
-    chatInput.value = "";
-  } catch (err) {
-    console.error("Error al enviar mensaje:", err);
+    // === Canal del game ===
+    const channel = pusher.subscribe(`game.${gameId}`);
+
+    // === Escuchar mensajes recibidos ===
+    channel.bind("message.sent", (data: any) => {
+      console.log("Mensaje recibido:", data);
+
+      const p = document.createElement("p");
+
+      if (data.from === nickname) {
+        p.innerHTML = `<b>Tú:</b> ${data.message}`;
+        p.classList.add("my-msg");
+      } else {
+        p.innerHTML = `<b>${data.from}:</b> ${data.message}`;
+        p.classList.add("other-msg");
+      }
+
+      chatMessages.appendChild(p);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    // === Botones para enviar ===
+    sendButton.addEventListener("click", sendMsg);
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMsg();
+    });
+
+    // === Enviar mensaje ===
+    async function sendMsg() {
+      const content = chatInput.value.trim();
+      if (!content) return;
+
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        alert("Debes iniciar sesión.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://${apiHost}:${apiPort}/api/chat/send`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            message: content,
+            game_id: Number(gameId),
+            from: nickname,
+          }),
+        });
+
+        const json = await res.json();
+        console.log("Respuesta del servidor:", json);
+
+        chatInput.value = "";
+      } catch (err) {
+        console.error("Error al enviar mensaje:", err);
+      }
+    }
   }
 }

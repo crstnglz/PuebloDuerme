@@ -7,18 +7,13 @@ use App\Events\GameMessageSent;
 
 class ChatController extends Controller
 {
-    public function send(Request $request)
+      public function send(Request $request)
     {
-        $request->validate([
-            'game_id' => 'required|integer',
-            'message' => 'required|string',
-        ]);
+        $msg    = $request->input('message');
+        $from   = $request->input('from') ?? 'Anon';
+        $gameId = $request->input('game_id');
 
-        $gameId = $request->game_id;
-        $msg = $request->message;
-        $from = $request->user()->nickname ?? 'Jugador';
-
-        event(new GameMessageSent($msg, $gameId, $from));
+        event(new GameMessageSent($msg, $from, $gameId));
 
         return response()->json(['status' => 'ok']);
     }
