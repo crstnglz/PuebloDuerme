@@ -1,3 +1,22 @@
+reverb:
+  build:
+    context: ./backLobotron
+    dockerfile: Dockerfile
+  container_name: reverb_server
+  depends_on:
+    - backend
+  volumes:
+    - ./backLobotron:/var/www/html
+  ports:
+    - "9090:9090"
+  command: >
+    sh -c "
+      php artisan config:clear &&
+      php artisan optimize:clear &&
+      php artisan reverb:start
+    "
+
+
 services:
   # 🐘 Backend (Laravel + PHP)
   backend:
@@ -25,8 +44,8 @@ services:
         composer install --no-interaction --prefer-dist &&
         php artisan key:generate &&
         php artisan migrate --force &&
-        php artisan reverb:start &
-        php artisan serve --host=0.0.0.0 --port=8000
+        php artisan serve --host=0.0.0.0 --port=8000 &
+        php artisan reverb:start 
       "
 
   # 🧪 Backend ONLY for tests (NO toca tu BBDD normal)
