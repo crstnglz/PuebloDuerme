@@ -24,7 +24,8 @@ export function initGameUI() {
     const apiPort = 8000;
 
     // === Pusher / Reverb ===
-    const pusher = new Pusher("ibpcvopspyyfrmfanm05", {
+    const pusherKey = import.meta.env.VITE_REVERB_APP_KEY as string;
+    const pusher = new Pusher(pusherKey, {
       wsHost,
       wsPort,
       forceTLS: false,
