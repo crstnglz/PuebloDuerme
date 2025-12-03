@@ -121,4 +121,17 @@ class GameController extends Controller
             'game' => Game::with('owner:id,nickname')->find($game->id)
         ], 200);
     }
+
+    public function leave(Request $request, Game $game)
+    {
+        $user = $request->user();
+
+        $game->users()->detach($user->id);
+
+        return response()->json([
+            'status' => 'left',
+            'game_id' => $game->id
+        ]);
+
+    }
 }
