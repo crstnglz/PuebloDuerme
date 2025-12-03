@@ -362,4 +362,39 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
         });
     }
     );
+
+  }
+
+  const exitButton = document.getElementById("exit-button") as HTMLButtonElement
+
+  exitButton?.addEventListener("click", leaveGame);
+
+  async function leaveGame() 
+  {
+    const token = localStorage.getItem("access_token")
+
+    try 
+    {
+      const res = await fetch(`http://localhost:8000/api/games/${gameId}/leave`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      });
+
+      if((window as any).Echo)
+      {
+        (window as any).Echo.leave(`game.${gameId}`)
+        console.log("Abandonado canal", `game.${gameId}`);
+      }
+
+      window.location.href = "/lobby.html"
+
+    } catch (err)
+    {
+      console.error("Error al salir:", err)
+    }
+  }
 }
