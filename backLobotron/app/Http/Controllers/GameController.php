@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\PlayerJoined;
 use App\Models\Game;
 use App\Models\GameUser;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Exception;
@@ -36,13 +37,10 @@ class GameController extends Controller
             return response()->json(['success' => false, 'message' => $validator->errors()], 422);
         }
 
-        $game = Game::create([
-            'name' => $request->name,
-            'owner_id' => $request->user()->id,
-            'max_players' => 16,
-            'current_players' => 1,
-            'status' => 'esperando'
-        ]);
+        // Comprobar si el nombre de la partida ya existe
+        if (Game::where('name', $request->name)->exists()) {
+            return response()->json(['success' => false, 'message' => 'El nombre de la partida ya está en uso'], 409);
+        }
 
         try {
             // Buscar el rol por defecto (aldeano)
@@ -80,7 +78,7 @@ class GameController extends Controller
     }
 
     // Unirse a una partida existente
-    /*public function join(Request $request, Game $game)
+    public function join(Request $request, Game $game)
     {
         $user = $request->user();
 
@@ -111,13 +109,15 @@ class GameController extends Controller
 
                 
                 try {
-                    // Envía el evento PlayerJoined a todos los clientes suscritos al canal de la partida.
-                    PlayerJoined::dispatch($game, $user);
+                    event(new PlayerJoined($game, $user));
 
                 } catch (Exception $e) {
                     
                 }
             }
+
+            $game->load('owner:id,nickname', 'players');
+
 
             return response()->json([
                 'success' => true,
@@ -128,7 +128,7 @@ class GameController extends Controller
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error al unirse a la partida: ' . $e->getMessage()], 500);
         }
-    }*/
+    }
 
     // Mostrar detalles de la partida (Sala)
     public function show($id)
@@ -167,40 +167,5 @@ class GameController extends Controller
         $game->delete();
 
         return response()->json(['success' => true, 'message' => 'Partida eliminada'], 200);
-    }
-
-    public function join(Request $request, Game $game)
-    {
-        $user = $request->user();
-
-        // 16/16 jugadores -> partida llena
-        if($game->current_players >= $game->max_players)
-        {
-            return response()->json(['error' => 'La partida está llena'], 403);
-        }
-
-        // Comprobar si ya está unido
-        $alreadyJoined = GameUser::where('game_id', $game->id)
-        ->where('user_id', $user->id)
-        ->exists();
-
-        if(!$alreadyJoined)
-        {
-            //Tabla pivote
-            GameUser::create([
-                'game_id' => $game->id,
-                'user_id' => $user->id,
-                'role_id' => null,  //Luego se asigna
-                'player_status' => 'vivo'
-            ]);
-
-            //Incremento jugadores
-            $game->increment('current_players');
-        }
-        return response()->json([
-            'success' => true,
-            'message' => 'Unido correctamente',
-            'game' => Game::with('owner:id,nickname')->find($game->id)
-        ], 200);
     }
 }

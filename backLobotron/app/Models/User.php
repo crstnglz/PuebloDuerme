@@ -46,8 +46,18 @@ class User extends Authenticatable
 
     public function games()
     {
-        return $this->belongToMany(Game::class, 'game_user')
-            ->withPivot('role_id', 'player_status')
+        return $this->belongsToMany(Game::class, 'game_users')
+            ->using(GameUser::class) // 1. Usar el modelo Pivot personalizado
+            ->withPivot([            // 2. Traer las columnas de estadísticas/estado
+                'id',
+                'role_id',
+                'player_status',
+                'is_sheriff',
+                'has_heal_potion',
+                'has_kill_potion',
+                'used_cupid_ability',
+                'used_thief_ability'
+            ])
             ->withTimestamps();
     }
 }

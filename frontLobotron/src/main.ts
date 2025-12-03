@@ -1,5 +1,4 @@
 import { initLobby } from './pages/lobby'; 
-import { initGameRoom } from './pages/gameRoom';
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
@@ -11,8 +10,6 @@ import { initGameUI } from './pages/gameUI'
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
-
-    const searchParams = new URLSearchParams(window.location.search);
 
     // ============ PÁGINA PRINCIPAL (login + registro) ============
     if (path.endsWith("/") || path.endsWith("/index.html")) {

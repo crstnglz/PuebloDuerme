@@ -30,7 +30,7 @@ class PlayerJoined implements ShouldBroadcast
     {
     
         return [
-            new Channel('games.' . $this->gameId),
+            new Channel('game.' . $this->gameId),
         ];
     }
     
