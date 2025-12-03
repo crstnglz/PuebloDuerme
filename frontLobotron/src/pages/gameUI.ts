@@ -363,8 +363,7 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
     }
     );
 
-  }
-
+    
   const exitButton = document.getElementById("exit-button") as HTMLButtonElement
 
   exitButton?.addEventListener("click", leaveGame);
