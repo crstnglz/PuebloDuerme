@@ -33,6 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/games/{game}/join', [GameController::class, 'join']);
     Route::post('/games/{game}', [GameController::class, 'show']);
+    Route::post('/games/{game}/leave', [GameController::class, 'leave']);
+
 
     //Chat
     Route::post('/chat/send', [ChatController::class, 'send']);
