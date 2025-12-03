@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/games/{game}', [GameController::class, 'update']);
     Route::delete('/games/{game}', [GameController::class, 'destroy']);
     Route::post('/games/{game}/join', [GameController::class, 'join']);
-    Route::post('/games/{game}', [GameController::class, 'show']);
+    Route::get('/games/{game}', [GameController::class, 'show']);
     Route::post('/games/{game}/leave', [GameController::class, 'leave']);
 
 
