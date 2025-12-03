@@ -1,13 +1,12 @@
+import { initLobby } from './pages/lobby'; 
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
-import { initLobby } from './pages/lobby'
+import { initAdmin } from './pages/admin'
 // import './echo'
 import { initGameUI } from './pages/gameUI'
 
-// IMPORT PARA EL PANEL ADMIN
-import { initAdmin } from './pages/admin';
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
@@ -49,13 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
     {
         initLobby()
     }
+    
     // ============ PANEL ADMIN ============
     if (path.includes("admin")) {
-        initAdmin();   
+        initAdmin();    
     }
 
-    if(path.includes("game"))
-    {
+    // ============ PÁGINA DE SALA DE JUEGO/ESPERA ============
+
+    if (path.includes("gameUI")) {
         initGameUI();
     }
 });

@@ -1,4 +1,7 @@
+version: '3.8'
+
 services:
+  
   # 🐘 Backend (Laravel + PHP)
   backend:
     build:
@@ -12,6 +15,8 @@ services:
       - ./backLobotron:/var/www/html
     depends_on:
       - mariadb
+    env_file:
+      - ./backLobotron/.env 
     environment:
       APP_ENV: local
       DB_CONNECTION: mysql
@@ -20,8 +25,14 @@ services:
       DB_DATABASE: el_lobotron_db
       DB_USERNAME: ellobotron
       DB_PASSWORD: elcubatron
+      
+      # Las variables de Reverb se leen desde env_file
+      REVERB_HOST: 0.0.0.0
+      REVERB_PORT: 9090
+      
     command: >
       sh -c "
+        # 1. Instalación y Migración (asumiendo que se hace una vez)
         composer install --no-interaction --prefer-dist &&
         php artisan key:generate &&
         php artisan migrate --force &&
@@ -29,16 +40,18 @@ services:
         php artisan reverb:start 
       "
 
-  # 🧪 Backend ONLY for tests (NO toca tu BBDD normal)
+  # 🧪 Backend ONLY for tests
   backend_test:
     build:
       context: ./backLobotron
       dockerfile: Dockerfile
     container_name: back_lobotron_test
-    depends_on:
-      - mariadb_test
     volumes:
       - ./backLobotron:/var/www/html
+    depends_on:
+      - mariadb_test
+    env_file:
+      - ./backLobotron/.env
     environment:
       APP_ENV: testing
       DB_CONNECTION: mysql
@@ -96,6 +109,8 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+    env_file:
+      - ./backLobotron/.env 
     environment:
       CHOKIDAR_USEPOLLING: "true"
     command: >

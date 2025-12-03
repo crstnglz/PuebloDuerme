@@ -1,27 +1,38 @@
+/* Variables globales de colores */
 :root {
-    /* Colores base de la guía */
-    --color-principal: #b39376;
-    --color-secundario: #c7ae90;
-    --color-neutro: #dfccb8;
-    --color-acento-1: #87765e;
-    --color-contraste: #553f2c;
-    --color-crema: #fdf8e4;
-    --color-acento-2: #9b746b;     
-    --color-acento-3: #909a7d;      
-    --color-ojos: #fa9716; 
+  /* Colores principales del proyecto */
+  --wood: #b39376;
+  --dark-wood: #553f2c;
+  --cream: #fdf8e4;
+  --accent: #fa9716;
+  --panel-bg: rgba(223,204,184,0.9);
 
-    /* Mapeo temático: usado por los componentes */
-    --main-color: var(--color-contraste);
-    --font-color: var(--color-contraste);
-    --font-color-sub: var(--color-acento-1);
-    --input-focus: var(--color-ojos);
+  /* Colores secundarios */
+  --secondary-color: #c7ae90;
+  --accent-color-1: #87765e;
+  --accent-color-2: #9b746b;
+  --accent-color-3: #909a7d;
 
-    --bg-color: var(--color-neutro);
-    --bg-color-alt: var(--color-secundario);
+  --contrast-color: var(--dark-wood); 
 
-    --card-bg: var(--color-principal);  
+  /* Tema general del estilo */
+  --main-color: var(--dark-wood);
+  --font-color: var(--dark-wood);
+  --font-color-sub: var(--accent-color-1);
+  --input-focus: var(--accent);
 
-    --light-font: var(--color-crema);
+  --bg-color: var(--panel-bg);
+  --bg-color-alt: var(--secondary-color);
 
-    --dark-bg: #2a1f18; 
+  --card-bg: var(--wood);
+  --light-font: var(--cream);
+  --dark-bg: #2a1f18;
+
+  --font-title: "Medieval";
+}
+
+/* Fuente */
+@font-face {
+  font-family: "Medieval";
+  src: url("/font/MedievalSharp-Regular.ttf") format("truetype");
 }
