@@ -1,0 +1,33 @@
+name: Backend Docker CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show project structure
+        run: ls -R .
+
+      - name: Build Backend with Docker Compose
+        run: |
+          docker compose -f docker-compose.yml build backend
+
+      - name: Run Backend Container
+        run: |
+          docker compose -f docker-compose.yml up -d backend
+          sleep 10
+          docker ps
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml down || true
