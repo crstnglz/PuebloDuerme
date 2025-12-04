@@ -1,0 +1,38 @@
+name: Frontend Docker CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Descargar repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Mostrar estructura (debug útil)
+      - name: Show project structure
+        run: ls -R .
+
+      # 3. Construir solo el servicio frontend usando docker compose
+      - name: Build Frontend with Docker Compose
+        run: |
+          docker compose -f docker-compose.yml build front
+
+      # 4. (Opcional pero recomendado) levantar el front y comprobar que arranca
+      - name: Run frontend container
+        run: |
+          docker compose -f docker-compose.yml up -d front
+          sleep 5
+          docker ps
+
+      # 5. Limpiar contenedores al final
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml down || true
