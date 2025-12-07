@@ -25,7 +25,7 @@ class GameStarted implements ShouldBroadcast
     }
     public function broadcastOn()
     {
-        return new PresenceChannel("game.{$this->gameId}");
+        return new Channel("game.{$this->gameId}");
     }
 
     public function broadcastAs()
