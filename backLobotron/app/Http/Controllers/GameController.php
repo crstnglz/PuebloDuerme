@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\PlayerJoined;
 use App\Models\Game;
+use App\Events\GameStarted;
 use App\Models\GameUser;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -68,7 +69,7 @@ class GameController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Partida creada correctamente', 
+                'message' => 'Partida creada correctamente',
                 'data' => ['game' => $game]
             ], 201);
 
@@ -107,12 +108,12 @@ class GameController extends Controller
                 // Incrementar contador de jugadores
                 $game->increment('current_players');
 
-                
+
                 try {
                     event(new PlayerJoined($game, $user));
 
                 } catch (Exception $e) {
-                    
+
                 }
             }
 
@@ -136,7 +137,7 @@ class GameController extends Controller
         try {
             // Buscar partida y cargar jugadores
             $game = Game::with('players')->findOrFail($id);
-            
+
             return response()->json(['success' => true, 'data' => ['game' => $game]], 200);
 
         } catch (Exception $e) {
@@ -179,6 +180,20 @@ class GameController extends Controller
             'status' => 'left',
             'game_id' => $game->id
         ]);
+    }
 
+    public function start($id)
+    {
+        $game = Game::findOrFail($id);
+
+        $game->status = 'en curso';
+        $game->save();
+
+        event(new GameStarted($id));
+
+        return response()->json([
+            'message' => 'Partida iniciada correctamente',
+            'game_id' => $id
+        ]);
     }
 }
