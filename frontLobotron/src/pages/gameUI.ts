@@ -159,6 +159,60 @@ export async function initGameUI() {
         }
     });
 
+    channel.bind("game.started", () => {
+        console.log("EVENTO RECIBIDO: la partida ha comenzado.")
+
+        const overlay = document.getElementById("start-overlay") as HTMLDivElement;
+        const countdownEl = document.getElementById("start-countdown") as HTMLDivElement;
+
+        if(!overlay || !countdownEl) return
+
+        overlay.classList.remove("hidden-overlay")
+        overlay.classList.add("show-overlay")
+
+        let counter = 5;
+        countdownEl.textContent = counter.toString();
+
+        const interval = setInterval(() => {
+            counter--;
+
+            countdownEl.style.animation = "none";
+            countdownEl.offsetHeight
+            countdownEl.style.animation = ""
+
+            if(counter > 0)
+            {
+                countdownEl.textContent = counter.toString()
+                return
+            }
+
+            if(counter === 0)
+            {
+                countdownEl.textContent = "¡Ya!"
+            }
+
+            if(counter < 0 )
+            {
+                clearInterval(interval)
+
+                overlay.style.opacity = "0"
+                overlay.style.pointerEvents = "none"
+
+                setTimeout(() => {
+                    overlay.style.display = "none"
+                    overlay.classList.remove("show-overlay")
+                    overlay.classList.add("hidden-overlay")
+                    
+                    console.log("Cuenta atrás finalizada, iniciando fase de asignación...")
+
+                    //TODO: asignación de roles
+
+
+                }, 500)
+            }
+        }, 1000)
+    })
+
     // === Escuchar mensajes recibidos ===
     channel.bind("message.sent", (data: any) => {
       
@@ -241,6 +295,42 @@ export async function initGameUI() {
         }
 
         const game = response.data.game; 
+
+        const ownerId = game.owner_id;
+
+        const timerBox = document.getElementById("timer-box") as HTMLDivElement;
+
+        if(myUser && myUser.id === ownerId)
+        {
+            timerBox.classList.remove("disabled")
+            timerBox.textContent = "Iniciar Partida"
+
+            timerBox.addEventListener("click", () => {
+
+                timerBox.classList.add("disabled")
+                timerBox.textContent = "Iniciando..."
+
+                fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(()=> {
+                    console.log("Partida iniciada. Enviando evento...")
+                })
+                .catch(err => {
+                    console.error("Error al iniciar partida:", err)
+                })
+            })
+        }
+        else 
+        {
+            timerBox.classList.add("disabled")
+            timerBox.textContent = "Esperando al dueño..."
+        }
         
         // Pintamos a los jugadores
         if (game.players && Array.isArray(game.players)) {

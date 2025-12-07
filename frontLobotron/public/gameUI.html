@@ -9,6 +9,11 @@
   </head>
 
   <body>
+
+     <div id="start-overlay" class="hidden-overlay">
+      <div id="start-countdown">5</div>
+    </div>
+    
     <!-- CONTENEDOR PRINCIPAL -->
     <div id="main-container">
       <!-- GRID DE JUGADORES -->
@@ -46,7 +51,7 @@
           <div class="role role-img" data-role="vidente">Vidente</div>
         </div>
 
-        <div id="timer-box">Tiempo: 60s</div>
+        <div id="timer-box" class="disabled">Iniciar Partida</div>
 
         <!-- CHAT -->
         <div id="chat-box">
@@ -72,7 +77,10 @@
       </div>
     </div>
 
+      
+
   <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
     <script type="module" src="/src/main.ts"></script>
+
   </body>
 </html> 
