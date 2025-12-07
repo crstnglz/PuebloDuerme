@@ -7,10 +7,11 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: sans-serif;
-    /* [INICIO] Código original del fondo (solo lo dejamos como fallback) */
-    background: url("/imagesGameRoom/backgroundDayGame.png") no-repeat center center fixed;
+    background: url("/imagesGameRoom/backgroundDayGame.png") no-repeat center center;
     background-size: cover;
-    /* [FIN] Código original del fondo */
+    background-attachment: scroll;
+    position: relative;
+    z-index: 0;
 }
 
 /* --- CONTENEDOR PRINCIPAL --- */
@@ -21,54 +22,38 @@ html, body {
     gap: 1vw;
     padding: 0 1vw;
     box-sizing: border-box;
-    /* [NUEVO] Aseguramos que #main-container tenga el fondo */
     background-size: cover;
     background-position: center;
-
-    /* [NUEVO] Transición suave para el cambio de imagen de fondo */
     transition: background-image 2s ease-in-out;
 }
 
-/* --- CLASES DE FASE DINÁMICAS (NEW) --- */
-
-/* La imagen base será /imagesGameRoom/backgroundDayGame.png, pero usamos clases para las transiciones */
-/* ==========================================
-   FONDO DEL JUEGO SEGÚN LA FASE
-   ========================================== */
-
-/* Fase de día */
-.is-day {
+/* --- FONDO SEGÚN FASE (aplicadas al body) --- */
+body.is-day {
     background-image: url('/imagesGameRoom/BackgroundDayGame.png');
     background-size: cover;
     background-position: center;
     transition: background-image 0.8s ease-in-out;
 }
-
-/* Fase de noche */
-.is-night {
-    background-image: url('/imagesGameRoom/BackgroundDayGame.png');
+body.is-night {
+    background-image: url('/imagesGameRoom/BackgroundNightGame.png');
     background-size: cover;
     background-position: center;
     transition: background-image 0.8s ease-in-out;
 }
 
-/* --- GRID JUGADORES --- */
 /* --- GRID JUGADORES --- */
 #players-grid {
     display: grid;
-    /* Cambiado a 5 columnas */
     grid-template-columns: repeat(5, 1fr);
-    /* Cambiado a 6 filas */
     grid-template-rows: repeat(6, 1fr);
-    gap: 0.8vw; /* Se ajusta un poco el gap para que quepa mejor, puedes probar con 1vw si prefieres */
+    gap: 0.8vw;
     margin-top: 5vh;
 }
 
-/* [NUEVO] Opcional: Ajuste para reducir un poco el tamaño de fuente si lo deseas para que quepan */
 .player {
     background: rgba(253, 248, 228);
     border-radius: 20px;
-    font-size: 1.1vw; /* Reducido de 1.3vw a 1.1vw */
+    font-size: 1.1vw;
     text-align: center;
     font-weight: bold;
     display: flex;
@@ -78,13 +63,11 @@ html, body {
     box-shadow: 0 0 10px rgba(0,0,0,0.25);
 }
 
-
-/* ⭐ HOVER DE LAS CELDAS */
 .player:hover {
     transform: scale(1.07);
     background: var(--panel-bg);
     box-shadow: 0 0 18px var(--cream),
-                0 0 12px rgba(0, 0, 0, 0.35);
+                0 0 12px rgba(0,0,0,0.35);
     cursor: pointer;
 }
 
@@ -135,7 +118,45 @@ html, body {
     color: var(--dark-wood);
 }
 
-/* TEMPORIZADOR */
+/* ==============
+   ESTILO COMPARTIDO DEL "BOTÓN INICIAR" (clase reutilizable)
+   ============== */
+
+.start-btn {
+    background: var(--panel-bg);
+    padding: 0.6vw 1vw;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.3vw;
+    font-weight: 800;
+    color: var(--dark-wood);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    border: 2px solid rgba(93,64,55,0.15);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* hover para el botón */
+.start-btn:not(.disabled):hover {
+    transform: translateY(-2px) scale(1.02);
+    background: #d4a24c;
+    color: #fff;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+}
+
+/* estado disabled compartido */
+.start-btn.disabled,
+#timer-box.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+    transform: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+}
+
+/* --- TEMPORIZADOR: por defecto conserva su aspecto normal (igual que antes) --- */
 #timer-box {
     background: var(--panel-bg);
     padding: 0.5vw;
@@ -145,9 +166,39 @@ html, body {
     font-weight: bold;
     color: var(--dark-wood);
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-/* CHAT */
+/* --- CUANDO EL TEMPORIZADOR ESTÁ ACTIVO: le aplicamos exactamente el estilo del botón --- */
+/* (aplicar la clase .start-btn al timer-box cuando lo actives en JS) */
+#timer-box.active-timer {
+    /* Reaplicar reutilizando la clase visualmente: hacemos match con .start-btn */
+    background: var(--panel-bg);
+    padding: 0.6vw 1vw;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.3vw;
+    font-weight: 800;
+    color: var(--dark-wood);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    border: 2px solid rgba(93,64,55,0.15);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    width: 100%;
+    box-sizing: border-box;
+    opacity: 1 !important;
+}
+
+/* hover para temporizador activo (mismo que start-btn) */
+#timer-box.active-timer:not(.disabled):hover {
+    transform: translateY(-2px) scale(1.02);
+    background: #d4a24c;
+    color: #fff;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+}
+
+/* --- CHAT --- */
 #chat-box {
     background: rgba(223,204,184,0.75);
     padding: 1vw;
@@ -190,7 +241,7 @@ html, body {
     color: white;
 }
 
-/* MODAL DE INFORMACIÓN DE ROLES */
+/* --- MODAL --- */
 .modal {
     display: none;
     position: fixed;
@@ -219,7 +270,7 @@ html, body {
     font-size: 2vw;
 }
 
-/* CONTENEDOR LOGO + SALIR */
+/* --- TOP BAR / SALIR --- */
 #top-bar {
     display: flex;
     align-items: center;
@@ -227,7 +278,6 @@ html, body {
     gap: 1vw;
 }
 
-/* BOTÓN SALIR */
 #exit-button {
     background: #b15454;
     color: white;
@@ -246,7 +296,7 @@ html, body {
     transform: scale(1.08);
 }
 
-/* Mensajes enviados por ti */
+/* --- chat messages --- */
 .my-msg {
     background: rgba(0, 150, 255, 0.25);
     padding: 6px 10px;
@@ -254,12 +304,111 @@ html, body {
     margin: 4px 0;
     text-align: right;
 }
-
-/* Mensajes enviados por otros */
 .other-msg {
     background: rgba(255, 255, 255, 0.25);
     padding: 6px 10px;
     border-radius: 8px;
     margin: 4px 0;
     text-align: left;
+}
+
+/* --- OVERLAY CUENTA ATRÁS --- */
+#start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    transition: opacity 0.5s ease-out;
+}
+.hidden-overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+.show-overlay {
+    opacity: 1 !important;
+    pointer-events: all !important;
+}
+
+#start-countdown {
+    font-size: 10vw;
+    color: #f8e4b6;
+    font-weight: 900;
+    text-shadow: 0 0 25px #d69936, 0 0 40px #b56a0a;
+    animation: pop 0.7s ease-out forwards;
+}
+@keyframes pop {
+    0% { transform: scale(0.2); opacity: 0; }
+    40% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- RESPONSIVE: TABLET (<= 1024px) ---------- */
+@media (max-width: 1024px) {
+    #main-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+
+    #players-grid {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        gap: 0.9rem;
+        margin-top: 4vh;
+    }
+
+    #roles-box { width: 320px; }
+    #timer-box, .start-btn { font-size: 1.4rem; padding: 0.5rem 0.9rem; }
+    #timer-box.active-timer, .start-btn { font-size: 1.6rem; padding: 0.6rem 1rem; }
+    .player { font-size: 1rem; }
+    #logo { font-size: 2.6rem; }
+    .modal-content { padding: 1.5rem; }
+}
+
+/* ---------- RESPONSIVE: MÓVIL (<= 600px) ---------- */
+@media (max-width: 600px) {
+    html, body { overflow: auto; }
+    #main-container {
+        display: block;
+        height: auto;
+        padding: 1rem;
+    }
+
+    #players-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: minmax(60px, auto);
+        gap: 0.7rem;
+        margin-top: 3rem;
+        max-height: 45vh;
+        overflow: auto;
+    }
+
+    #right-panel {
+        margin-top: 1rem;
+        width: 100%;
+        display: block;
+    }
+
+    #roles-box { width: 100%; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    #timer-box, .start-btn {
+        width: 100%;
+        font-size: 1.2rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+    }
+    #timer-box.active-timer, .start-btn {
+        font-size: 1.8rem;
+        padding: 0.9rem 1rem;
+    }
+
+    #chat-box { height: 36vh; }
+    #start-countdown { font-size: 18vw; }
+    .modal-content { margin: 1rem; width: calc(100% - 2rem); padding: 1rem; }
 }

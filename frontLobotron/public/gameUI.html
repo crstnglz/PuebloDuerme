@@ -9,6 +9,11 @@
   </head>
 
   <body>
+
+     <div id="start-overlay" class="hidden-overlay">
+      <div id="start-countdown">5</div>
+    </div>
+    
     <!-- CONTENEDOR PRINCIPAL -->
     <div id="main-container">
       <!-- GRID DE JUGADORES -->
@@ -52,12 +57,7 @@
           <button id="exit-button">Salir</button>
         </div>
         
-        <div id="game-status-container">
-           
-            <!-- El botón de inicio se oculta por defecto y se muestra si es el dueño. Tambien se muestra el timer-->
-
-        </div>
-        
+      
         <div id="roles-box">
           <div class="role role-img" data-role="aldeano">Aldeano</div>
           <div class="role role-img" data-role="lobo">Lobo</div>
@@ -67,7 +67,7 @@
           <div class="role role-img" data-role="vidente">Vidente</div>
         </div>
 
-        <!-- Se elimina el viejo <div id="timer-box">Tiempo: 60s</div> -->
+        <div id="timer-box" class="disabled">Iniciar Partida</div>
 
         <!-- CHAT -->
         <div id="chat-box">
@@ -92,17 +92,10 @@
       </div>
     </div>
 
-    <!-- MODAL DE CONFIRMACIÓN GENÉRICO -->
-    <div id="generic-modal" class="modal">
-        <div class="modal-content">
-            <h2 id="modal-title">Confirmación</h2>
-            <p id="modal-text">¿Estás seguro de continuar?</p>
-            <button id="modal-confirm-btn">Sí</button>
-            <button id="modal-cancel-btn">No</button>
-        </div>
-    </div>
-    
+      
+
   <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
     <script type="module" src="/src/main.ts"></script>
+
   </body>
 </html>
