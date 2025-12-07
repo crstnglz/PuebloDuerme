@@ -7,8 +7,10 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: sans-serif;
+    /* [INICIO] Código original del fondo (solo lo dejamos como fallback) */
     background: url("/imagesGameRoom/backgroundDayGame.png") no-repeat center center fixed;
     background-size: cover;
+    /* [FIN] Código original del fondo */
 }
 
 /* --- CONTENEDOR PRINCIPAL --- */
@@ -19,21 +21,54 @@ html, body {
     gap: 1vw;
     padding: 0 1vw;
     box-sizing: border-box;
+    /* [NUEVO] Aseguramos que #main-container tenga el fondo */
+    background-size: cover;
+    background-position: center;
+
+    /* [NUEVO] Transición suave para el cambio de imagen de fondo */
+    transition: background-image 2s ease-in-out;
+}
+
+/* --- CLASES DE FASE DINÁMICAS (NEW) --- */
+
+/* La imagen base será /imagesGameRoom/backgroundDayGame.png, pero usamos clases para las transiciones */
+/* ==========================================
+   FONDO DEL JUEGO SEGÚN LA FASE
+   ========================================== */
+
+/* Fase de día */
+.is-day {
+    background-image: url('/imagesGameRoom/BackgroundDayGame.png');
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.8s ease-in-out;
+}
+
+/* Fase de noche */
+.is-night {
+    background-image: url('/imagesGameRoom/BackgroundDayGame.png');
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.8s ease-in-out;
 }
 
 /* --- GRID JUGADORES --- */
+/* --- GRID JUGADORES --- */
 #players-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 1vw;
+    /* Cambiado a 5 columnas */
+    grid-template-columns: repeat(5, 1fr);
+    /* Cambiado a 6 filas */
+    grid-template-rows: repeat(6, 1fr);
+    gap: 0.8vw; /* Se ajusta un poco el gap para que quepa mejor, puedes probar con 1vw si prefieres */
     margin-top: 5vh;
 }
 
+/* [NUEVO] Opcional: Ajuste para reducir un poco el tamaño de fuente si lo deseas para que quepan */
 .player {
-    background: var(--cream);
+    background: rgba(253, 248, 228);
     border-radius: 20px;
-    font-size: 1.3vw;
+    font-size: 1.1vw; /* Reducido de 1.3vw a 1.1vw */
     text-align: center;
     font-weight: bold;
     display: flex;
@@ -42,6 +77,7 @@ html, body {
     color: var(--dark-wood);
     box-shadow: 0 0 10px rgba(0,0,0,0.25);
 }
+
 
 /* ⭐ HOVER DE LAS CELDAS */
 .player:hover {

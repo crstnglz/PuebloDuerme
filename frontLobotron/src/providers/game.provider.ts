@@ -207,3 +207,39 @@ export async function deleteGame(id: number | string): Promise<BackendResponse<{
     return connectionError();
   }
 }
+
+// Cambiar la fase de una partida
+export async function changeGamePhase(gameId: number, phaseName: string) {
+    try {
+        const res = await fetch(`${API_URL}/games/${gameId}/changePhase`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+            body: JSON.stringify({ phase: phaseName }),
+        });
+
+        let json: any;
+        try {
+            json = await res.json(); 
+        } catch {
+      
+            return connectionError();
+        }
+
+        if (!res.ok) {
+            return {
+                error: true,
+                status: res.status,
+                data: json as BackendError,
+            };
+        }
+
+        return json; 
+
+    } catch (error) {
+        console.error("Error en changeGamePhase:", error);
+        return connectionError();
+    }
+}
