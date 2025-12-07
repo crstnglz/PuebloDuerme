@@ -171,7 +171,6 @@ export async function initGameUI() {
         overlay.classList.add("show-overlay")
 
         let counter = 5;
-
         countdownEl.textContent = counter.toString();
 
         const interval = setInterval(() => {
@@ -181,9 +180,15 @@ export async function initGameUI() {
             countdownEl.offsetHeight
             countdownEl.style.animation = ""
 
-            if(counter >= 0)
+            if(counter > 0)
             {
                 countdownEl.textContent = counter.toString()
+                return
+            }
+
+            if(counter === 0)
+            {
+                countdownEl.textContent = "¡Ya!"
             }
 
             if(counter < 0 )
@@ -191,8 +196,13 @@ export async function initGameUI() {
                 clearInterval(interval)
 
                 overlay.style.opacity = "0"
+                overlay.style.pointerEvents = "none"
+
                 setTimeout(() => {
                     overlay.style.display = "none"
+                    overlay.classList.remove("show-overlay")
+                    overlay.classList.add("hidden-overlay")
+                    
                     console.log("Cuenta atrás finalizada, iniciando fase de asignación...")
 
                     //TODO: asignación de roles
