@@ -241,6 +241,19 @@ export async function initGameUI() {
         }
 
         const game = response.data.game; 
+
+        const ownerId = game.owner_id;
+
+        const startBtn = document.getElementById("start-btn") as HTMLButtonElement
+
+        if(myUser && myUser.id === ownerId)
+        {
+            startBtn.disabled = false
+        }
+        else 
+        {
+            startBtn.disabled = false
+        }
         
         // Pintamos a los jugadores
         if (game.players && Array.isArray(game.players)) {
