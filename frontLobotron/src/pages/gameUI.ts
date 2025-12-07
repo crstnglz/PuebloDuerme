@@ -161,6 +161,46 @@ export async function initGameUI() {
 
     channel.bind("game.started", () => {
         console.log("EVENTO RECIBIDO: la partida ha comenzado.")
+
+        const overlay = document.getElementById("start-overlay") as HTMLDivElement;
+        const countdownEl = document.getElementById("start-countdown") as HTMLDivElement;
+
+        if(!overlay || !countdownEl) return
+
+        overlay.classList.remove("hidden-overlay")
+        overlay.classList.add("show-overlay")
+
+        let counter = 5;
+
+        countdownEl.textContent = counter.toString();
+
+        const interval = setInterval(() => {
+            counter--;
+
+            countdownEl.style.animation = "none";
+            countdownEl.offsetHeight
+            countdownEl.style.animation = ""
+
+            if(counter >= 0)
+            {
+                countdownEl.textContent = counter.toString()
+            }
+
+            if(counter < 0 )
+            {
+                clearInterval(interval)
+
+                overlay.style.opacity = "0"
+                setTimeout(() => {
+                    overlay.style.display = "none"
+                    console.log("Cuenta atrás finalizada, iniciando fase de asignación...")
+
+                    //TODO: asignación de roles
+
+
+                }, 500)
+            }
+        }, 1000)
     })
 
     // === Escuchar mensajes recibidos ===
