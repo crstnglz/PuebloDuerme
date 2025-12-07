@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,9 +16,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
         $this->call([
             UserSeeder::class,
             RoleSeeder::class,
+            GamePhasesSeeder::class,
         ]);
+
+         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
