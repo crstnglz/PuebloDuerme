@@ -159,6 +159,10 @@ export async function initGameUI() {
         }
     });
 
+    channel.bind("game.started", () => {
+        console.log("EVENTO RECIBIDO: la partida ha comenzado.")
+    })
+
     // === Escuchar mensajes recibidos ===
     channel.bind("message.sent", (data: any) => {
       
@@ -249,10 +253,31 @@ export async function initGameUI() {
         if(myUser && myUser.id === ownerId)
         {
             startBtn.disabled = false
+
+            startBtn.addEventListener("click", () => {
+                if(startBtn.disabled) return
+
+                startBtn.disabled = true
+
+                fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(()=> {
+                    console.log("Partida iniciada. Enviando evento...")
+                })
+                .catch(err => {
+                    console.error("Error al iniciar partida:", err)
+                })
+            })
         }
         else 
         {
-            startBtn.disabled = false
+            startBtn.disabled = true
         }
         
         // Pintamos a los jugadores
