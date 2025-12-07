@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\PhaseTransitionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
@@ -33,10 +34,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/games/{game}/join', [GameController::class, 'join']);
     Route::get('/games/{game}', [GameController::class, 'show']);
     Route::post('/games/{game}/leave', [GameController::class, 'leave']);
-
+    
 
     //Chat
     Route::post('/chat/send', [ChatController::class, 'send']);
+
+    //Partida
+
+    Route::post('/games/{game}/changePhase', [PhaseTransitionController::class, 'changePhase']);
 
     //ADMIN
     Route::middleware('abilities:admin')->group(function () {

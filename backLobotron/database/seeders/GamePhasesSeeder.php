@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class GamePhasesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Limpiamos la tabla antes de insertar para evitar duplicados si se corre varias veces
