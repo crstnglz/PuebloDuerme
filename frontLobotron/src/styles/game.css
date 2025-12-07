@@ -239,7 +239,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    z-index: 999999;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease-out;
