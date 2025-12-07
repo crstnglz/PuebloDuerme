@@ -231,7 +231,6 @@ export async function initGameUI() {
 
     const timerBox = document.getElementById("timer-box") as HTMLDivElement | null;
     if (!timerBox) {
-        console.error("No se encontró #timer-box en el HTML. Asegúrate de que tu compañera no lo haya eliminado.");
         return;
     }
 
