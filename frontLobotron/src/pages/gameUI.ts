@@ -298,16 +298,17 @@ export async function initGameUI() {
 
         const ownerId = game.owner_id;
 
-        const startBtn = document.getElementById("start-btn") as HTMLButtonElement
+        const timerBox = document.getElementById("timer-box") as HTMLDivElement;
 
         if(myUser && myUser.id === ownerId)
         {
-            startBtn.disabled = false
+            timerBox.classList.remove("disabled")
+            timerBox.textContent = "Iniciar Partida"
 
-            startBtn.addEventListener("click", () => {
-                if(startBtn.disabled) return
+            timerBox.addEventListener("click", () => {
 
-                startBtn.disabled = true
+                timerBox.classList.add("disabled")
+                timerBox.textContent = "Iniciando..."
 
                 fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
                     method: "POST",
@@ -327,7 +328,8 @@ export async function initGameUI() {
         }
         else 
         {
-            startBtn.disabled = true
+            timerBox.classList.add("disabled")
+            timerBox.textContent = "Esperando al dueño..."
         }
         
         // Pintamos a los jugadores

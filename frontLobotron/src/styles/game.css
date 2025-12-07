@@ -112,6 +112,19 @@ html, body {
     font-weight: bold;
     color: var(--dark-wood);
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#timer-box:not(.disabled):hover{
+    transform: scale(1.05);
+    background: #d4a24c;
+    color: white;
+}
+
+#timer-box.disabled{
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* CHAT */
