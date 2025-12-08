@@ -17,7 +17,6 @@ export function modalProfile()
     });
 }
 
-
 //Preview Imagen Local
 export function showImage() {
     const input = document.getElementById("avatarInput") as HTMLInputElement | null;
@@ -135,8 +134,16 @@ export function saveProfile()
 
         //Enviar datos 
         const formData = new FormData();
-        formData.append("nickname", nickname.value)
-        formData.append("description", description.value)
+        
+        if(nickname.value.trim() !== "")
+        {
+            formData.append("nickname", nickname.value)
+        }
+
+        if(description.value.trim() !== "")
+        {
+            formData.append("description", description.value)
+        }
 
         if(profilePhotoUrl)
         {
