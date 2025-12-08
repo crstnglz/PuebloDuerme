@@ -129,15 +129,17 @@ body{
 /* Modal Perfil */
 .modal-profile {
     position: fixed;
+    display: flex;
     inset: 0;
     background: rgba(0,0,0,0.6);
-    display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 0;
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;
+    overflow-y: auto;
 }
 
 .modal-profile.show {
@@ -150,7 +152,7 @@ body{
     max-width: 1100px;
     min-height: 750px;
     padding: 40px 60px;
-    padding-top: 140px;
+    padding-top: 200px;
 
     background: url('/imagesUI/parchment.png');
     background-size: 100% auto;
@@ -175,26 +177,15 @@ body{
     transform: scale(1);
 }
 
-.modal-profile {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; 
-  padding-top: 120px; 
-  overflow-y: auto;
-  z-index: 9999;
-}
-
 /* Botón de Cerrar */
 .close-profile {
     position: absolute;
-    top: 25px;
-    right: 35px;
-    font-size: 38px;
+    top: 200px;
+    right: 100px;
+    font-size: 36px;
     color: var(--dark-color);
     cursor: pointer;
+    z-index: 10;
 }
 
 .close-profile:hover{
