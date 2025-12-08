@@ -4,13 +4,14 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PhaseTransition implements ShouldBroadcast
+class PhaseTransition implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
     public int $gameId;
     public string $phaseName;
     public string $endTime;
@@ -22,15 +23,22 @@ class PhaseTransition implements ShouldBroadcast
         $this->endTime = $endTime;
     }
 
-    public function broadcastOn(): array
+    public function broadcastOn(): Channel
     {
-        return [
-            new Channel('game.' . $this->gameId),
-        ];
+        return new Channel('game.' . $this->gameId);
     }
+
     
     public function broadcastAs(): string
     {
         return 'phase-changed';
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'phaseName' => $this->phaseName,
+            'endTime' => $this->endTime,
+        ];
     }
 }
