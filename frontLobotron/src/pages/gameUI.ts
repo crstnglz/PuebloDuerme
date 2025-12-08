@@ -81,7 +81,7 @@ export async function initGameUI() {
             cell.style.background = "#d4a24c";
             cell.style.color = "white";
             cell.style.border = "2px solid #5d4037";
-            // Marcamos la celda como ocupada
+
             cell.dataset.userId = data.id.toString();
         }
     };
@@ -113,9 +113,32 @@ export async function initGameUI() {
 
     const channel = pusher.subscribe(`game.${gameId}`);
 
-    // ESCUCHAR JUGADORES UNIDOS
+    channel.bind("game.force-exit", (data: { reason: string }) => {
+        console.log("FORZADO A SALIR:", data)
+
+        const p = document.createElement("p")
+        p.classList.add("system-msg")
+        p.innerHTML = data.reason === "owner_left"
+            ? "El dueño ha cerrado la partida."
+            : "La partida ha sido eliminada."
+
+        chatMessages.appendChild(p)
+
+        setTimeout(() => {
+            window.location.href = "/lobby.html"
+        }, 1500)
+    })
+
+    channel.bind("player.left", (data: {
+        gameId: number;
+        userId: number;
+        username: string, 
+        remainingPlayers: number;
+    }) => {
+        handlePlayerLeft(data)
+    });
+
     channel.bind("player.joined", (event: PlayerJoinedEvent) => {
-        //  Mostramos el mensaje en el chat
         const p = document.createElement("p");
         p.innerHTML = `<b>${event.user.nickname}</b> se ha unido a la partida`;
         p.classList.add("system-msg");
@@ -144,7 +167,6 @@ export async function initGameUI() {
             counter--;
 
             countdownEl.style.animation = "none";
-        
             countdownEl.offsetHeight;
             countdownEl.style.animation = "";
 
@@ -168,16 +190,13 @@ export async function initGameUI() {
                     overlay.classList.remove("show-overlay");
                     overlay.classList.add("hidden-overlay");
 
-                    console.log("Cuenta atrás finalizada, iniciando fase de asignación...")
-
-                    //TODO: asignación de roles
+                    console.log("Cuenta atrás finalizada, iniciando fase de asignación...");
 
                 }, 500);
             }
         }, 1000);
     });
 
-    // === Escuchar mensajes recibidos ===
     channel.bind("message.sent", (data: any) => {
         const p = document.createElement("p");
         if (data.from === nickname) {
@@ -224,8 +243,7 @@ export async function initGameUI() {
 
     /* ===================================================================
         BOTÓN INICIAR PARTIDA 
-    ======================================================================
-       */
+    ====================================================================== */
 
     const timerBox = document.getElementById("timer-box") as HTMLDivElement | null;
     if (!timerBox) {
@@ -242,47 +260,86 @@ export async function initGameUI() {
         }
     };
 
-    timerBox.addEventListener("click", async () => {
-        if (!myUser) return;
-        if (timerBox.classList.contains("disabled")) return;
+   timerBox.addEventListener("click", async () => {
+    if (!myUser) return;
+    if (timerBox.classList.contains("disabled")) return;
 
-        timerBox.classList.add("disabled");
-        timerBox.textContent = "Iniciando...";
+    timerBox.classList.add("disabled");
+    timerBox.textContent = "Iniciando...";
 
-        try {
-            const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-            });
+    try {
+        // Llamamos al endpoint para iniciar la partida
+        const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+        });
 
-            if (!res.ok) throw new Error(`start failed: ${res.status}`);
+        if (!res.ok) throw new Error(`start failed: ${res.status}`);
 
-            
-            let startData = null;
-            try { startData = await res.json(); } catch(e) { /* nada */ }
+        const startData = await res.json();
+        let phaseName: string;
+        let endTime: string;
 
-            
-            if (startData && startData.data && startData.data.turn_state) {
-                const phaseName = startData.data.turn_state.toLowerCase();
-                const endTime = startData.data.end_time ?? new Date().toISOString();
-                updatePhaseAndTimer({ name: phaseName }, endTime);
-            } else {
-                
-                const resp = await changeGamePhase(Number(gameId), "day");
-                const phaseName = resp.data.turn_state.toLowerCase();
-                const endTime = resp.data.end_time;
-                updatePhaseAndTimer({ name: phaseName }, endTime);
-            }
-        } catch (err) {
-            console.error("Error al iniciar partida:", err);
-            timerBox.classList.remove("disabled");
-            timerBox.textContent = "Iniciar Partida";
+        if (startData && startData.data && startData.data.turn_state) {
+            phaseName = startData.data.turn_state.toLowerCase();
+            endTime = startData.data.end_time ?? new Date().toISOString();
+        } else {
+            const resp = await changeGamePhase(Number(gameId), "day");
+            phaseName = resp.data.turn_state.toLowerCase();
+            endTime = resp.data.end_time;
         }
-    });
+
+        updatePhaseAndTimer({ name: phaseName }, endTime);
+
+        await changeGamePhase(Number(gameId), phaseName);
+
+    } catch (err) {
+        console.error("Error al iniciar partida:", err);
+        timerBox.classList.remove("disabled");
+        timerBox.textContent = "Iniciar Partida";
+    }
+});
+
+
+    function handlePlayerLeft(data: {
+        gameId: number;
+        userId: number;
+        username: string;
+        remainingPlayers: number;
+    }) {
+
+        if(chatMessages)
+        {
+            const p = document.createElement("p")
+            p.innerHTML = `<b>${data.username}</b> ha abandonado la partida`;
+            p.classList.add("system-msg")
+            chatMessages.appendChild(p)
+            chatMessages.scrollTop = chatMessages.scrollHeight
+        }
+
+        const countEl = document.getElementById("players-count")
+        if(countEl) 
+        {
+            countEl.textContent = `${data.remainingPlayers} / 16`
+        }
+
+        const cells = Array.from(playersGrid.children) as HTMLElement []
+        const slot = cells.find(c => c.dataset.userId === String(data.userId))
+        
+        if(slot)
+        {
+            slot.innerHTML = slot.dataset.index ?? ""
+            delete slot.dataset.userId
+
+            slot.style.background = ""
+            slot.style.color = ""
+            slot.style.border = ""
+        }
+    }
 
     /* ========================================================================
         LÓGICA DE FASES (TEMPORIZADOR, CAMBIO AUTOMÁTICO)
@@ -294,9 +351,7 @@ export async function initGameUI() {
     const updateGamePhase = function (phase: GamePhaseInterface) {
         const name = phase.name.toLowerCase();
 
-        if (!mainContainer) {
-            return;
-        }
+        if (!mainContainer) return;
 
         mainContainer.classList.remove("is-day", "is-night");
         if (name === "day") mainContainer.classList.add("is-day");
@@ -322,7 +377,6 @@ export async function initGameUI() {
             const diff = end - now;
 
             if (diff <= 0) {
-                // Cuando el temporizador llega a cero dejamos de mostrarlo como activo
                 timerBox.classList.remove("active-timer");
 
                 if (countdownInterval) {
@@ -366,7 +420,6 @@ export async function initGameUI() {
         startCountdown(end_time);
     };
 
-    // Escucha el cambio de fase desde el backend
     channel.bind("phase-changed", (data: { phaseName: string; endTime: string }) => {
         const phaseName = data.phaseName.toLowerCase();
         const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night";
@@ -378,36 +431,48 @@ export async function initGameUI() {
     });
 
     /* ========================================================================
-        CARGA INICIAL DE JUGADORES Y ESTADO DE PARTIDA
+        CARGA INICIAL DE JUGADORES, RESTAURACIÓN DE CASILLAS Y ESTADO DE PARTIDA
        ======================================================================== */
     try {
-        const response = await getGame(gameId);
-        if ("error" in response) {
-            console.error("Error cargando partida:", response.data.message);
-            return;
-        }
-        const game = response.data.game;
 
-        const isOwner = myUser?.id === game.owner_id;
-        showStartButtonIfOwner(isOwner);
+    const response = await getGame(gameId);
 
-        Array.from(playersGrid.children).forEach((cell, index) => {
-            cell.innerHTML = (index + 1).toString();
-            delete (cell as HTMLElement).dataset.userId;
-        });
-        game.players?.forEach((player: Player, index: number) => renderPlayer(player, index));
+    Array.from(playersGrid.children).forEach((cell, index) => {
+        const el = cell as HTMLElement;
 
-        if (game.current_phase) {
-            const phase: GamePhaseInterface = { name: game.current_phase.name.toLowerCase() };
-            if (game.phase_ends_at) updatePhaseAndTimer(phase, game.phase_ends_at);
-            else updatePhaseAndTimer(phase, new Date().toISOString());
-        } else {
-            
-            mainContainer?.classList.add("is-day");
-        }
-    } catch (error) {
-        console.error("Error crítico al inicializar estado del juego:", error);
+        el.innerHTML = (index + 1).toString(); 
+        el.dataset.index = String(index + 1);
+        delete el.dataset.userId; 
+    });
+
+    if ("error" in response) {
+        console.error("Error cargando partida:", response.data.message);
+        alert("No se pudo cargar la partida: " + (response.data.message || "Error desconocido"));
+        return;
     }
+
+    const game = response.data.game;
+
+    const isOwner = myUser?.id === game.owner_id;
+    showStartButtonIfOwner(isOwner);
+
+    // Renderizamos jugadores reales en sus celdas
+    game.players?.forEach((player: Player, index: number) => renderPlayer(player, index));
+
+    // Fase inicial (día/noche)
+    if (game.current_phase) {
+        const phase: GamePhaseInterface = { name: game.current_phase.name.toLowerCase() };
+
+        if (game.phase_ends_at) updatePhaseAndTimer(phase, game.phase_ends_at);
+        else updatePhaseAndTimer(phase, new Date().toISOString());
+    } else {
+        // Si no hay fase todavía, asumimos día
+        mainContainer?.classList.add("is-day");
+    }
+
+} catch (error) {
+    console.error("Error crítico al inicializar estado del juego:", error);
+}
 
     /* ========================================================================
         ROL MODALS Y DESCRIPCIONES
@@ -522,4 +587,4 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
             console.error("Error al salir:", err);
         }
     }
-} 
+}
