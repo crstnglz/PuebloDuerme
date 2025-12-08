@@ -111,7 +111,7 @@ if (logoutLink) {
   /* Modal de la Guía */
   const modal = document.getElementById("guide-modal") as HTMLElement | null;
   const openBtn = document.getElementById("open-guide") as HTMLElement | null;
-  const closeBtn = document.querySelector(".close") as HTMLElement | null;
+  const closeGuide = document.querySelector(".close-guide") as HTMLElement | null;
 
   const pages = modal
   ? Array.from(modal.querySelectorAll(".page")) as HTMLElement[]
@@ -129,10 +129,10 @@ if (logoutLink) {
     });
   }
 
-  if(closeBtn && modal)
+  if(closeGuide && modal)
   {
-    closeBtn.addEventListener("click", () => {
-      modal.style.display="none";
+    closeGuide.addEventListener("click", () => {
+      modal.style.display = "none"
     });
   }
 
