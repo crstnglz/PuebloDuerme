@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PhaseTransition;
 use App\Events\PlayerJoined;
 use App\Models\Game;
 use App\Events\GameStarted;
+use App\Models\GamePhase;
 use App\Models\GameUser;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -231,23 +233,46 @@ class GameController extends Controller
         ]);
     }
 
-    public function start(Game $game)
-    {
-        if(auth()->id() !== $game->owner_id)
-        {
-            return response()->json([
-                'error' => 'Solo el creador de la partida puede iniciarla.'
-            ], 403);
-        }
-
-        $game->status = 'en curso';
-        $game->save();
-
-        event(new GameStarted($game->id));
-
-        return response()->json([
-            'message' => 'Partida iniciada',
-            'game_id' => $game->id
-        ]);
+   public function start(Game $game)
+{
+    
+    if (auth()->id() !== $game->owner_id) {
+        return response()->json(['error' => 'Solo el creador de la partida puede iniciarla.'], 403);
     }
+
+    $game->status = 'en curso';
+
+    $dayPhase = GamePhase::firstWhere('name', 'day');
+
+    if (! $dayPhase) {
+        return response()->json(['error' => 'Fase "day" no configurada'], 500);
+    }
+
+    $game->current_phase_id = $dayPhase->id;
+    $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
+
+    $game->save();
+
+    event(new PhaseTransition(
+        $game->id,
+        $dayPhase->name,
+        $game->phase_ends_at->toIso8601String()
+    ));
+
+    event(new GameStarted(
+        $game->id,
+        $dayPhase->name,
+        $game->phase_ends_at->toIso8601String()
+    ));
+
+    return response()->json([
+        'message' => 'Partida iniciada',
+        'game_id' => $game->id,
+        'data' => [
+            'turn_state' => $dayPhase->name,
+            'end_time' => $game->phase_ends_at->toIso8601String()
+        ]
+    ]);
+}
+
 }
