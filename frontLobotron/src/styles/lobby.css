@@ -435,3 +435,37 @@ tr.selected {
   background-color: #222;
   outline: 2px solid #00b3ff;
 }
+
+/* Botones Editar y Borrar */
+.edit-btn, 
+.delete-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+
+  font-family: var(--font-accent);
+  font-size: 1rem;
+  font-weight: bold;
+
+  color: white;
+  border: 2px solid white;
+
+  background: var(--third-color);
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+  background: var(--dark-color);
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background: #b33939;
+  border: #ffb3b3;
+}
+
+.delete-btn:hover {
+  background: #8e2a2a;
+}
