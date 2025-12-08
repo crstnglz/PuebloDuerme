@@ -116,9 +116,10 @@ export async function initGameUI() {
   channel.bind("game.force-exit", (data: { reason: string }) => {
     const p = document.createElement("p");
     p.classList.add("system-msg");
-    p.innerHTML = data.reason === "owner_left"
-      ? "El dueño ha cerrado la partida."
-      : "La partida ha sido eliminada.";
+    p.innerHTML =
+      data.reason === "owner_left"
+        ? "El dueño ha cerrado la partida."
+        : "La partida ha sido eliminada.";
 
     chatMessages?.appendChild(p);
 
@@ -127,14 +128,17 @@ export async function initGameUI() {
     }, 1500);
   });
 
-  channel.bind("player.left", (data: {
-    gameId: number;
-    userId: number;
-    username: string;
-    remainingPlayers: number;
-  }) => {
-    handlePlayerLeft(data);
-  });
+  channel.bind(
+    "player.left",
+    (data: {
+      gameId: number;
+      userId: number;
+      username: string;
+      remainingPlayers: number;
+    }) => {
+      handlePlayerLeft(data);
+    }
+  );
 
   channel.bind("player.joined", (event: PlayerJoinedEvent) => {
     const p = document.createElement("p");
@@ -143,12 +147,11 @@ export async function initGameUI() {
     chatMessages?.appendChild(p);
     if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    const cells = Array.from(playersGrid.children) as HTMLElement[]; 
+    const cells = Array.from(playersGrid.children) as HTMLElement[];
     const emptyIndex = cells.findIndex((cell) => !cell.dataset.userId);
     if (emptyIndex !== -1) renderPlayer(event.user, emptyIndex);
   });
 
-  
   channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
     if (data?.phaseName && data?.endTime) {
       try {
@@ -159,7 +162,6 @@ export async function initGameUI() {
       }
     }
 
-    // Mantén la UI overlay existente (si procede)
     const overlay = document.getElementById("start-overlay") as HTMLDivElement;
     const countdownEl = document.getElementById("start-countdown") as HTMLDivElement;
 
@@ -216,9 +218,10 @@ export async function initGameUI() {
   });
 
   if (sendButton) sendButton.addEventListener("click", sendMsg);
-  if (chatInput) chatInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMsg();
-  });
+  if (chatInput)
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMsg();
+    });
 
   async function sendMsg() {
     const content = chatInput?.value.trim();
@@ -247,7 +250,7 @@ export async function initGameUI() {
   }
 
   /* ===================================================================
-      BOTÓN INICIAR PARTIDA 
+      BOTÓN INICIAR PARTIDA
   ====================================================================== */
 
   const timerBox = document.getElementById("timer-box") as HTMLDivElement | null;
@@ -276,8 +279,8 @@ export async function initGameUI() {
       const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
           "Content-Type": "application/json",
         },
       });
@@ -288,7 +291,7 @@ export async function initGameUI() {
 
       const phaseName = startData.data.turn_state.toLowerCase();
       const endTime = startData.data.end_time;
-      
+
       updatePhaseAndTimer({ name: phaseName }, endTime);
     } catch (err) {
       console.error("Error al iniciar partida:", err);
@@ -317,7 +320,7 @@ export async function initGameUI() {
     }
 
     const cells = Array.from(playersGrid.children) as HTMLElement[];
-    const slot = cells.find(c => c.dataset.userId === String(data.userId));
+    const slot = cells.find((c) => c.dataset.userId === String(data.userId));
 
     if (slot) {
       slot.innerHTML = slot.dataset.index ?? "";
@@ -336,7 +339,70 @@ export async function initGameUI() {
   const mainContainer = document.getElementById("main-container") as HTMLElement | null;
   let countdownInterval: number | null = null;
   let autoChangeInProgress = false;
-  let isOwner = false; 
+  let isOwner = false;
+
+  /* -------------------------
+     ANIMACIÓN SOL / LUNA
+     ------------------------- */
+  const sunPath = "/imagesGameRoom/Sol.png";
+  const moonPath = "/imagesGameRoom/Luna.png";
+
+  // Preload de imágenes
+  const imgSun = new Image();
+  imgSun.src = sunPath;
+
+  const imgMoon = new Image();
+  imgMoon.src = moonPath;
+
+  // Creamos overlay y elemento de icono en body
+  let phaseOverlay = document.getElementById("phase-overlay") as HTMLDivElement | null;
+  if (!phaseOverlay) {
+    phaseOverlay = document.createElement("div");
+    phaseOverlay.id = "phase-overlay";
+    phaseOverlay.setAttribute("aria-hidden", "true");
+    document.body.appendChild(phaseOverlay);
+  }
+
+  let phaseIconEl = document.getElementById("phase-icon") as HTMLImageElement | null;
+  if (!phaseIconEl) {
+    phaseIconEl = document.createElement("img");
+    phaseIconEl.id = "phase-icon";
+    phaseIconEl.alt = "Fase";
+    phaseIconEl.style.pointerEvents = "none";
+    phaseIconEl.style.opacity = "0";
+    document.body.appendChild(phaseIconEl);
+  }
+
+  const PHASE_ANIM_MS = 3000;
+  const CHANGE_DELAY_MS = 0;
+
+  const playPhaseAnimation = function (phaseName: "day" | "night"): Promise<void> {
+    return new Promise((resolve) => {
+      if (!phaseIconEl || !phaseOverlay) return resolve();
+
+      // escoge la imagen según la fase que hay
+      phaseIconEl.src = phaseName === "day" ? sunPath : moonPath;
+      phaseIconEl.alt = phaseName === "day" ? "Sol" : "Luna";
+
+      // reset clases
+      phaseOverlay.classList.remove("show");
+      phaseIconEl.classList.remove("show");
+
+      // gracias a esto la animación se puede reiniciar todas las veces
+      phaseIconEl.offsetHeight;
+
+      // añadimos la clase
+      phaseOverlay.classList.add("show");
+      phaseIconEl.classList.add("show");
+
+      // la quitamos después de la duración
+      setTimeout(() => {
+        phaseIconEl?.classList.remove("show");
+        phaseOverlay?.classList.remove("show");
+        resolve();
+      }, PHASE_ANIM_MS);
+    });
+  };
 
   const updateGamePhase = function (phase: GamePhaseInterface) {
     const name = phase.name.toLowerCase();
@@ -375,29 +441,38 @@ export async function initGameUI() {
           countdownInterval = null;
         }
 
-        if (!isOwner) {
-          return;
-        }
+        // Calculamos siguiente fase local para la animación
+        const currentPhaseLocal = mainContainer?.classList.contains("is-day") ? "day" : "night";
+        const nextPhaseLocal: "day" | "night" = currentPhaseLocal === "day" ? "night" : "day";
 
-        if (!autoChangeInProgress) {
-          autoChangeInProgress = true;
+        // Reproducimos animación en todos los clientes al llegar a 0
+        playPhaseAnimation(nextPhaseLocal).catch(() => {});
 
-          setTimeout(async () => {
-            try {
-              await handleAutomaticPhaseChange();
-            } finally {
+        // Si no eres el owner no cambias fase
+        if (!isOwner) return;
 
-              setTimeout(() => { autoChangeInProgress = false; }, 1000);
-            }
-          }, 50);
-        }
+        // Evitamos que se lance dos veces
+        if (autoChangeInProgress) return;
+        autoChangeInProgress = true;
+
+        // Cambiar la fase durante la animación
+        setTimeout(async () => {
+          try {
+            await handleAutomaticPhaseChange();
+          } finally {
+            // Pequeño margen para evitar repetidos
+            autoChangeInProgress = false;
+          }
+        }, CHANGE_DELAY_MS);
 
         return;
       }
 
       const seconds = Math.floor(diff / 1000) % 60;
       const minutes = Math.floor(diff / 1000 / 60) % 60;
-      timerBox.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      timerBox.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
     };
 
     update();
@@ -492,56 +567,56 @@ export async function initGameUI() {
       title: "Aldeano",
       text: `No tiene ninguna habilidad o poder especial. 
 Sus únicas armas son la capacidad de análisis y la intuición para identificar 
-a los Hombres Lobo, así como la fuerza de convicción para impedir la ejecución de inocentes.`
+a los Hombres Lobo, así como la fuerza de convicción para impedir la ejecución de inocentes.`,
     },
     lobo: {
       title: "Hombre Lobo",
       text: `Durante cada noche se despiertan para devorar a un aldeano. 
 Durante el día deben ocultar su identidad y mezclarse entre los aldeanos, 
-evitando levantar sospechas o ser ejecutados.`
+evitando levantar sospechas o ser ejecutados.`,
     },
     vidente: {
       title: "Vidente",
       text: `Es la líder de los defensores de la aldea. 
 Cada noche puede mirar el rol real de un jugador.  
-Deben ayudar a los aldeanos, pero con discreción: si los lobos descubren quién es, será su final.`
+Deben ayudar a los aldeanos, pero con discreción: si los lobos descubren quién es, será su final.`,
     },
     ladron: {
       title: "Ladrón",
       text: `Una vez durante la partida puede elegir intercambiar su carta con la de otro jugador.  
 El jugador que reciba su carta será ladrón para siempre y no podrá volver a cambiar. 
-El ladrón adopta obligatoriamente el rol del personaje que reciba —le guste o no.`
+El ladrón adopta obligatoriamente el rol del personaje que reciba —le guste o no.`,
     },
     cupido: {
       title: "Cupido",
-      text: `La primera noche enamora a dos jugadores, incluso puede elegirse a sí mismo. 
-Los enamorados forman un bando propio: si uno muere, el otro muere de pena inmediatamente. 
-Su objetivo es sobrevivir juntos hasta el final de la partida.`
+      text: `La primera noche enamora a dos jugadores, incluso puede elegirse a sí mismo.  
+Los enamorados forman un bando propio: si uno muere, el otro muere de pena inmediatamente.  
+Su objetivo es sobrevivir juntos hasta el final de la partida.`,
     },
     ninia: {
       title: "La niña",
-      text: `Puede espiar a los Hombres Lobo por la noche mientras cazan. 
-Sin embargo, si es descubierta es asesinada inmediatamente. 
-Tiene un rol muy arriesgado pero extremadamente útil si juega con cuidado.`
+      text: `Puede espiar a los Hombres Lobo por la noche mientras cazan.  
+Sin embargo, si es descubierta es asesinada inmediatamente.  
+Tiene un rol muy arriesgado pero extremadamente útil si juega con cuidado.`,
     },
     bruja: {
       title: "Bruja",
-      text: `Tiene dos pociones: 
-• Una poción de curación para salvar a la víctima de los lobos. 
-• Una poción de veneno para matar a un jugador. 
-Solo puede usar cada poción una vez en toda la partida.`
+      text: `Tiene dos pociones:  
+• Una poción de curación para salvar a la víctima de los lobos.  
+• Una poción de veneno para matar a un jugador.  
+Solo puede usar cada poción una vez en toda la partida.`,
     },
     cazador: {
       title: "Cazador",
-      text: `Cuando muere —ya sea de noche o de día— puede llevarse a un jugador con él. 
-Su disparo final puede cambiar completamente el rumbo de una partida.`
+      text: `Cuando muere —ya sea de noche o de día— puede llevarse a un jugador con él.  
+Su disparo final puede cambiar completamente el rumbo de una partida.`,
     },
     alguacil: {
       title: "Alguacil",
-      text: `Es elegido por votación durante el día. 
-En las votaciones de linchamiento, en caso de empate, su voto vale doble. 
-Si muere, puede elegir a su sucesor antes de revelar su carta.`
-    }
+      text: `Es elegido por votación durante el día.  
+En las votaciones de linchamiento, en caso de empate, su voto vale doble.  
+Si muere, puede elegir a su sucesor antes de revelar su carta.`,
+    },
   };
 
   const modal = document.getElementById("role-info-modal") as HTMLDivElement | null;
@@ -565,11 +640,12 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
   }
 
   if (closeModalBtn) closeModalBtn.addEventListener("click", closeRoleModal);
-  if (modal) modal.addEventListener("click", (e: MouseEvent) => {
-    if ((e.target as HTMLElement).id === "role-info-modal") closeRoleModal();
-  });
+  if (modal)
+    modal.addEventListener("click", (e: MouseEvent) => {
+      if ((e.target as HTMLElement).id === "role-info-modal") closeRoleModal();
+    });
 
-  document.querySelectorAll(".role").forEach(role => {
+  document.querySelectorAll(".role").forEach((role) => {
     const el = role as HTMLElement;
     el.addEventListener("click", () => {
       const key = el.dataset.role as RoleKey;
@@ -588,7 +664,11 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
     try {
       await fetch(`http://localhost:8000/api/games/${gameId}/leave`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       });
 
       if ((window as any).Echo) (window as any).Echo.leave(`game.${gameId}`);
