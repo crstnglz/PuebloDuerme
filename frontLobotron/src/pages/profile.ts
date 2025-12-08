@@ -1,3 +1,5 @@
+import { showToast } from "../toast";
+
 export function modalProfile()
 {
     const modal = document.getElementById("profileModal")!;
@@ -32,7 +34,7 @@ export function showImage() {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            alert("Debe ser una imagen");
+            showToast("Debe ser una imagen", "info");
             return;
         }
 
@@ -125,7 +127,7 @@ export function saveProfile()
 
             if(!uploadRes.ok)
             {
-                alert("Error subiendo imagen");
+                showToast("Error subiendo imagen", "error");
                 return;
             }
 
@@ -160,13 +162,13 @@ export function saveProfile()
 
         if(res.ok)
         {
-            alert("Perfil actualizado")
+            showToast("Perfil actualizado", "success")
             saveBtn.disabled = true
             saveBtn.classList.add("disabled")
         }
         else
         {
-            alert("Error al guardar cambios")
+            showToast("Error al guardar cambios", "error")
         }
 
         //Refrescar Modal
