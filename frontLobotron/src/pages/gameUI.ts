@@ -278,6 +278,42 @@ export async function initGameUI() {
         }
     }
 
+    function handlePlayerLeft(data: {
+        gameId: number;
+        userId: number;
+        username: string;
+        remainingPlayers: number;
+    }) {
+        if(chatMessages)
+        {
+            const p = document.createElement("p")
+            p.innerHTML = `<b>${data.username}</b> ha abandonado la partida`;
+            p.classList.add("system-msg")
+            chatMessages.appendChild(p)
+            chatMessages.scrollTop = chatMessages.scrollHeight
+        }
+
+        const countEl = document.getElementById("players-count")
+        if(countEl) 
+        {
+            countEl.textContent = `${data.remainingPlayers} / 16`
+        }
+
+        const cells = Array.from(playersGrid.children) as HTMLElement []
+        const cell = cells.find(c => c.dataset.userId === String(data.userId))
+        
+        if(cell)
+        {
+            cell.innerHTML = cell.dataset.index ?? ""
+            delete cell.dataset.userId
+            cell.style.background = ""
+            cell.style.color = ""
+            cell.style.border = ""
+
+            console.log("Slot liberado para userId", data.userId)
+        }
+    }
+
 
     /* ========================================================================
         CARGA INICIAL DE JUGADORES
