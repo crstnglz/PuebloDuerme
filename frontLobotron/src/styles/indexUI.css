@@ -387,16 +387,16 @@ body{
   background-repeat: no-repeat;
   background-size: 4224px 384px;
 
-  position: absolute;
-  top: clamp(180px, 25vh, 260px);
-  left: -200px;
+  position: fixed;
+  top: 0vh;
+  left: -400px;
   z-index: 9999;
   
   animation:
     walk 1s steps(11) infinite,
     move 12s linear normal infinite;
 
-    transform-origin: bottom left;
+  transform-origin: bottom left;
 }
 
 @keyframes walk {
