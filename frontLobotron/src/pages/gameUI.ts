@@ -135,6 +135,15 @@ export async function initGameUI() {
     // === Canal del game ===
     const channel = pusher.subscribe(`game.${gameId}`);
 
+    channel.bind("player.left", (data: {
+        gameId: number;
+        userId: number;
+        username: string, 
+        remainingPlayers: number;
+    }) => {
+        console.log ("EVENTO player.left recibido:", data)
+    });
+
     // === Escuchar jugadores unidos ===
     channel.bind("player.joined", (event: PlayerJoinedEvent) => {
       
