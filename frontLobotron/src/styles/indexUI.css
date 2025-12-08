@@ -390,7 +390,6 @@ body{
   position: fixed;
   top: 0vh;
   left: -400px;
-  z-index: 9999;
   
   animation:
     walk 1s steps(11) infinite,
