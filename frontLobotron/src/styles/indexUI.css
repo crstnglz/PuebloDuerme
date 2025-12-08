@@ -380,23 +380,33 @@ body{
 
 /* Lobo*/
 .wolf{
-  width: 120px;
-  height: 128px;
+  width: 384px;
+  height: 384px;
 
   background-image: url('/imagesUI/wolf-walk2.png');
-  background-position: 0 0;
-  background-size: auto;
+  background-repeat: no-repeat;
+  background-size: 4224px 384px;
 
   position: absolute;
   top: clamp(180px, 25vh, 260px);
   left: -200px;
-
-  transform: scale(clamp(1.5, 3vw, 3.5));
-  transform-origin: bottom left;
+  z-index: 9999;
   
   animation:
-    walk 1s steps(7) infinite,
+    walk 1s steps(11) infinite,
     move 12s linear normal infinite;
+
+    transform-origin: bottom left;
+}
+
+@keyframes walk {
+  from { background-position: 0 0;}
+  to { background-position: -4224px 0; }
+}
+
+@keyframes move {
+  0% { left: -400px; }
+  100% { left: 110%; }
 }
 
 /* Botones */
