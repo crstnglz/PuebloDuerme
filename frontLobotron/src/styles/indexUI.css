@@ -129,15 +129,17 @@ body{
 /* Modal Perfil */
 .modal-profile {
     position: fixed;
+    display: flex;
     inset: 0;
     background: rgba(0,0,0,0.6);
-    display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 0;
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;
+    overflow-y: auto;
 }
 
 .modal-profile.show {
@@ -150,7 +152,7 @@ body{
     max-width: 1100px;
     min-height: 750px;
     padding: 40px 60px;
-    padding-top: 140px;
+    padding-top: 200px;
 
     background: url('/imagesUI/parchment.png');
     background-size: 100% auto;
@@ -175,26 +177,15 @@ body{
     transform: scale(1);
 }
 
-.modal-profile {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; 
-  padding-top: 120px; 
-  overflow-y: auto;
-  z-index: 9999;
-}
-
 /* Botón de Cerrar */
 .close-profile {
     position: absolute;
-    top: 25px;
-    right: 35px;
-    font-size: 38px;
+    top: 200px;
+    right: 100px;
+    font-size: 36px;
     color: var(--dark-color);
     cursor: pointer;
+    z-index: 10;
 }
 
 .close-profile:hover{
@@ -380,23 +371,32 @@ body{
 
 /* Lobo*/
 .wolf{
-  width: 120px;
-  height: 128px;
+  width: 384px;
+  height: 384px;
 
   background-image: url('/imagesUI/wolf-walk2.png');
-  background-position: 0 0;
-  background-size: auto;
+  background-repeat: no-repeat;
+  background-size: 4224px 384px;
 
-  position: absolute;
-  top: clamp(180px, 25vh, 260px);
-  left: -200px;
-
-  transform: scale(clamp(1.5, 3vw, 3.5));
-  transform-origin: bottom left;
+  position: fixed;
+  top: 0vh;
+  left: -400px;
   
   animation:
-    walk 1s steps(7) infinite,
+    walk 1s steps(11) infinite,
     move 12s linear normal infinite;
+
+  transform-origin: bottom left;
+}
+
+@keyframes walk {
+  from { background-position: 0 0;}
+  to { background-position: -4224px 0; }
+}
+
+@keyframes move {
+  0% { left: -400px; }
+  100% { left: 110%; }
 }
 
 /* Botones */
@@ -544,6 +544,16 @@ button{
   color: var(--dark-color);
 }
 
+.close-guide {
+  position: absolute;
+  top: 40px;
+  right: 80px;
+  font-size: 40px;
+  cursor: pointer;
+  color: var(--dark-color);
+  z-index: 9999;
+}
+
 .close:hover{
   color: var(--third-color);
 }
@@ -633,4 +643,68 @@ button{
 
 .guide-btn{
   cursor: pointer;
+}
+
+#toastContainer {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 9999;
+  width: 360px;
+}
+
+.toast {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 18px;
+border-radius: 8px;
+font-size: 15px;
+font-weight: 600;
+
+background: rgba(20, 20, 20, 0.85);
+border: 2px solid rgba(255,255,255,0.12);
+box-shadow: 0 0 15px rgba(0,0,0,0.6);
+backdrop-filter: blur(3px);
+
+animation: toastPop 0.25s ease-out forwards;
+position: relative;
+color: #eee;
+}
+
+.toast.warning{
+  border-color: #ffc642;
+    box-shadow: 0 0 12px #ffc64280;
+}
+
+.toast.success {
+  border-color: #28d764;
+  box-shadow: 0 0 12px #28d76480;
+}
+
+.toast.error{
+  border-color: #ff4040;
+  box-shadow: 0 0 12px #ff404080;
+}
+
+.toast.info{
+  border-color: #4fa3ff;
+    box-shadow: 0 0 12px #4fa3ff80;
+}
+
+@keyframes toastPop {
+    0% { transform: scale(0.85) translateX(20px); opacity: 0; }
+    60% { transform: scale(1.05) translateX(0); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {opacity: 0; transform: translateX(20px);}
 }
