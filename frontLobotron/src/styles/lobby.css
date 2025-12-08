@@ -432,8 +432,13 @@ td {
 }
 
 tr.selected {
-  background-color: #222;
-  outline: 2px solid #00b3ff;
+  background: #1b1b1b;
+  outline: none;
+
+  box-shadow: 
+    inset 4px 0 0 #00b3ff,
+    inset 0 0 10px rgba(0, 179, 255, 0.25);
+
 }
 
 /* Botones Editar y Borrar */
