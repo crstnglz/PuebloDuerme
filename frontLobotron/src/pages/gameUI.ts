@@ -135,6 +135,32 @@ export async function initGameUI() {
     // === Canal del game ===
     const channel = pusher.subscribe(`game.${gameId}`);
 
+    channel.bind("game.force-exit", (data: { reason: string }) => {
+        console.log("FORZADO A SALIR:", data)
+
+        const p = document.createElement("p")
+        p.classList.add("system-msg")
+        p.innerHTML = data.reason === "owner_left"
+            ? "El dueño ha cerrado la partida."
+            : "La partida ha sido eliminada."
+
+        chatMessages.appendChild(p)
+
+        setTimeout(() => {
+            window.location.href = "/lobby.html"
+        }, 1500)
+    })
+
+    channel.bind("player.left", (data: {
+        gameId: number;
+        userId: number;
+        username: string, 
+        remainingPlayers: number;
+    }) => {
+        console.log ("EVENTO player.left recibido:", data)
+        handlePlayerLeft(data)
+    });
+
     // === Escuchar jugadores unidos ===
     channel.bind("player.joined", (event: PlayerJoinedEvent) => {
       
@@ -269,6 +295,46 @@ export async function initGameUI() {
         }
     }
 
+    function handlePlayerLeft(data: {
+        gameId: number;
+        userId: number;
+        username: string;
+        remainingPlayers: number;
+    }) {
+
+        // Mensaje Chat
+        if(chatMessages)
+        {
+            const p = document.createElement("p")
+            p.innerHTML = `<b>${data.username}</b> ha abandonado la partida`;
+            p.classList.add("system-msg")
+            chatMessages.appendChild(p)
+            chatMessages.scrollTop = chatMessages.scrollHeight
+        }
+
+        //Actualizar contador lobby
+        const countEl = document.getElementById("players-count")
+        if(countEl) 
+        {
+            countEl.textContent = `${data.remainingPlayers} / 16`
+        }
+
+        const cells = Array.from(playersGrid.children) as HTMLElement []
+        const slot = cells.find(c => c.dataset.userId === String(data.userId))
+        
+        if(slot)
+        {
+            slot.innerHTML = slot.dataset.index ?? ""
+            delete slot.dataset.userId
+
+            slot.style.background = ""
+            slot.style.color = ""
+            slot.style.border = ""
+
+            console.log("Slot liberado para userId", data.userId)
+        }
+    }
+
 
     /* ========================================================================
         CARGA INICIAL DE JUGADORES
@@ -284,8 +350,11 @@ export async function initGameUI() {
 
         // Limpiamos y restauramos las casillas
         Array.from(playersGrid.children).forEach((cell, index) => {
-             cell.innerHTML = (index + 1).toString(); // Restauramos el número
-             delete (cell as HTMLElement).dataset.userId; // Eliminamos el estado de ocupado
+            const el = cell as HTMLElement
+
+             el.innerHTML = (index + 1).toString(); // Restauramos el número
+             el.dataset.index = String(index + 1)
+             delete el.dataset.userId; // Eliminamos el estado de ocupado
         });
         
         if ('error' in response) {
