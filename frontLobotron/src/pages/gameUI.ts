@@ -142,6 +142,7 @@ export async function initGameUI() {
         remainingPlayers: number;
     }) => {
         console.log ("EVENTO player.left recibido:", data)
+        handlePlayerLeft(data)
     });
 
     // === Escuchar jugadores unidos ===
