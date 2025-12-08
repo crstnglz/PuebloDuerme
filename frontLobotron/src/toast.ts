@@ -15,5 +15,5 @@ export function showToast(message: string, type: "warning" | "info" | "success
     setTimeout(() => {
         toast.classList.add("fadeOut")
         toast.addEventListener("animationend", () => toast.remove())
-    })
+    }, 2000)
 }
