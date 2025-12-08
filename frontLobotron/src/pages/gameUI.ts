@@ -135,6 +135,22 @@ export async function initGameUI() {
     // === Canal del game ===
     const channel = pusher.subscribe(`game.${gameId}`);
 
+    channel.bind("game.force-exit", (data: { reason: string }) => {
+        console.log("FORZADO A SALIR:", data)
+
+        const p = document.createElement("p")
+        p.classList.add("system-msg")
+        p.innerHTML = data.reason === "owner_left"
+            ? "El dueño ha cerrado la partida."
+            : "La partida ha sido eliminada."
+
+        chatMessages.appendChild(p)
+
+        setTimeout(() => {
+            window.location.href = "/lobby.html"
+        }, 1500)
+    })
+
     channel.bind("player.left", (data: {
         gameId: number;
         userId: number;

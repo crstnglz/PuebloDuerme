@@ -10,40 +10,33 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PlayerLeftGame implements ShouldBroadcast
+class GameForceExit implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public int $gameId;
-    public int $userId;
-    public string $username;
-    public int $remainingPlayers;
+    public string $reason;
 
-    public function __construct($gameId, $userId, $username, $remainingPlayers)
+    public function __construct($gameId, $reason = "deleted")
     {
         $this->gameId = $gameId;
-        $this->userId = $userId;
-        $this->username = $username;
-        $this->remainingPlayers = $remainingPlayers;
+        $this->reason = $reason;
     }
-
-    public function broadcastOn()
+        public function broadcastOn()
     {
         return new Channel("game.{$this->gameId}");
     }
 
     public function broadcastAs()
     {
-        return 'player.left';
+        return "game.force-exit";
     }
 
     public function broadcastWith()
     {
         return [
             'gameId' => $this->gameId,
-            'userId' => $this->userId,
-            'username' => $this->username,
-            'remainingPlayers' => $this->remainingPlayers
+            'reason' => $this->reason
         ];
     }
 }

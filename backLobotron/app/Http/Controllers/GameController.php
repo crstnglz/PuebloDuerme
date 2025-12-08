@@ -179,6 +179,20 @@ class GameController extends Controller
             return response()->json(['message' => 'No estás en esta partida', 400]);
         }
 
+        if($user->id === $game->owner_id)
+        {
+            broadcast(new \App\Events\GameForceExit($game->id, "owner_left"));
+            broadcast(new \App\Events\GameDeleted($game->id));
+
+            $game->delete();
+
+            return response()->json([
+                'success' => true,
+                'status' => 'deleted',
+                'reason' => 'owner_left'
+            ]);
+        }
+
         $game->players()->detach($user->id);
 
         if($game->current_players > 0)
@@ -189,6 +203,19 @@ class GameController extends Controller
         $game->refresh();
 
         $remainingPlayers = $game->current_players;
+
+        if($remainingPlayers === 0)
+        {
+            broadcast(new \App\Events\GameDeleted($game->id));
+
+            $game->delete();
+
+            return response()->json([
+                'success' => true,
+                'status' => 'deleted',
+                'reason' => 'game_empty'
+            ]);
+        }
 
         broadcast(new \App\Events\PlayerLeftGame (
             $game->id,
