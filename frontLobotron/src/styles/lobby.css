@@ -474,3 +474,68 @@ tr.selected {
 .delete-btn:hover {
   background: #8e2a2a;
 }
+
+
+#toastContainer {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 9999;
+  width: 360px;
+}
+
+.toast {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 18px;
+border-radius: 8px;
+font-size: 15px;
+font-weight: 600;
+
+background: rgba(20, 20, 20, 0.85);
+border: 2px solid rgba(255,255,255,0.12);
+box-shadow: 0 0 15px rgba(0,0,0,0.6);
+backdrop-filter: blur(3px);
+
+animation: toastPop 0.25s ease-out forwards;
+position: relative;
+color: #eee;
+}
+
+.toast.warning{
+  border-color: #ffc642;
+    box-shadow: 0 0 12px #ffc64280;
+}
+
+.toast.success {
+  border-color: #28d764;
+  box-shadow: 0 0 12px #28d76480;
+}
+
+.toast.error{
+  border-color: #ff4040;
+  box-shadow: 0 0 12px #ff404080;
+}
+
+.toast.info{
+  border-color: #4fa3ff;
+    box-shadow: 0 0 12px #4fa3ff80;
+}
+
+@keyframes toastPop {
+    0% { transform: scale(0.85) translateX(20px); opacity: 0; }
+    60% { transform: scale(1.05) translateX(0); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {opacity: 0; transform: translateX(20px);}
+}
