@@ -174,12 +174,31 @@ class GameController extends Controller
     {
         $user = $request->user();
 
-        $game->users()->detach($user->id);
+        if(! $game->players()->where('user_id', $user->id)->exists())
+        {
+            return response()->json(['message' => 'No estás en esta partida', 400]);
+        }
 
-        return response()->json([
-            'status' => 'left',
-            'game_id' => $game->id
-        ]);
+        $game->players()->detach($user->id);
+
+        if($game->current_players > 0)
+        {
+            $game->decrement('current_players');
+
+            $remainingPlayers = $game->current_players;
+
+            broadcast(new \App\Events\PlayerLeftGame (
+                $game->id,
+                $user->id,
+                $user->nickname,
+                $remainingPlayers
+            ));
+
+            return response()->json([
+                'status' => 'left',
+                'game_id' => $game->id
+            ]);
+        }
     }
 
     public function start(Game $game)
