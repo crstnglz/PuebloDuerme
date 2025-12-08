@@ -40,4 +40,45 @@ class Game extends Model
             ])
             ->withTimestamps();
     }
+
+    /**
+     * Asigna roles básicos (Lobo y Aldeano) de forma aleatoria
+     * a los jugadores de esta partida.
+     *
+     * @param  int  $ratio  Número de aldeanos por cada lobo
+     *                      (ejemplo: 3 → 1 lobo cada 3 jugadores aprox.)
+     */
+    public function assignBasicRoles(int $ratio = 3): void
+    {
+        // Jugadores de esta partida en orden aleatorio
+        $players = $this->players()->inRandomOrder()->get();
+        $total   = $players->count();
+
+        if ($total === 0) {
+            return;
+        }
+
+        // Nº de lobos según el ratio
+        // Ejemplo: 7 jugadores, ratio 3 → intdiv(7,3) = 2 lobos
+        $wolvesCount = max(1, intdiv($total, $ratio));
+
+        // IDs de roles "Lobo" y "Aldeano" desde la tabla roles
+        $wolfRoleId = Role::where('name', 'Lobo')->value('id');
+        $villagerRoleId = Role::where('name', 'Aldeano')->value('id');
+
+        // Si por lo que sea no existen esos roles en la tabla, salimos
+        if (! $wolfRoleId || ! $villagerRoleId) {
+            return;
+        }
+
+        // Asignación aleatoria:
+        // los primeros $wolvesCount jugadores serán lobos, el resto aldeanos
+        foreach ($players as $index => $player) {
+            $roleId = $index < $wolvesCount ? $wolfRoleId : $villagerRoleId;
+
+            $this->players()->updateExistingPivot($player->id, [
+                'role_id' => $roleId,
+            ]);
+        }
+    }
 }

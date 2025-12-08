@@ -1,20 +1,20 @@
 import Pusher from "pusher-js";
 import type { RoleInfo, RoleKey } from "../types/roleInfo";
 import type { User } from "../types/user";
-import type { Player } from "../types/player"; 
-import { getGame } from "../providers/game.provider"; 
+import type { Player } from "../types/player";
+import { getGame } from "../providers/game.provider";
 
 interface PlayerJoinedEvent {
-    user: User; 
+    user: User;
     gameId: number;
 }
 
 export async function initGameUI() {
-    
+
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get("game");
 
-    const token = localStorage.getItem("access_token"); 
+    const token = localStorage.getItem("access_token");
     const raw = localStorage.getItem("user");
 
     // Verificamos la autenticación y la ID
@@ -22,46 +22,46 @@ export async function initGameUI() {
         console.error("No se encontró el ID de la partida en la URL.");
         return;
     }
-    
+
     if (!raw || !token) {
-        
+
         console.error("Usuario o token no encontrado.");
         return;
     }
 
     let nickname = "Jugador";
     let myUser: User | null = null;
-    
+
     try {
-        myUser = JSON.parse(raw) as User; 
+        myUser = JSON.parse(raw) as User;
         nickname = myUser.nickname ?? nickname;
-      
-    } catch(e) {
+
+    } catch (e) {
         console.error("CRÍTICO: Error al parsear el usuario del localStorage.", e);
-        return; 
+        return;
     }
 
     /* ========================================================================
-         LÓGICA DE INTERFAZ Y RENDERIZADO DE JUGADORES
-        ======================================================================== */
-    
+         LÓGICA DE INTERFAZ Y RENDERIZADO DE JUGADORES
+        ======================================================================== */
+
     const playersGrid = document.getElementById("players-grid") as HTMLDivElement;
-    
+
     // Mantenemos la verificación crítica del DOM
     if (!playersGrid) {
         console.error("CRÍTICO: No se encontró el elemento DOM con ID #players-grid.");
-        return; 
+        return;
     }
 
     // Renderizamos un jugador en la cuadrícula
     const renderPlayer = (data: Player | User, index: number) => {
         const cells = playersGrid.children;
-        
+
         if (index < cells.length) {
             const cell = cells[index] as HTMLElement;
-            
-            cell.innerHTML = ''; 
-            
+
+            cell.innerHTML = '';
+
             // Contenido avatar
             const avatarContainer = document.createElement('div');
             avatarContainer.style.display = 'flex';
@@ -71,13 +71,13 @@ export async function initGameUI() {
 
             // imagen
             const img = document.createElement('img');
-            img.src = data.profile_photo || '/images/usuario_predeterminado.png'; 
+            img.src = data.profile_photo || '/images/usuario_predeterminado.png';
             img.style.width = '3vw';
             img.style.height = '3vw';
             img.style.borderRadius = '50%';
             img.style.marginBottom = '5px';
             img.style.border = "2px solid #3e2723";
-            img.style.transition = "filter 0.3s"; 
+            img.style.transition = "filter 0.3s";
 
             // nombre
             const nameSpan = document.createElement('span');
@@ -90,10 +90,10 @@ export async function initGameUI() {
             cell.appendChild(avatarContainer);
 
             // Estilos de celda ocupada
-            cell.style.background = "#d4a24c"; 
+            cell.style.background = "#d4a24c";
             cell.style.color = "white";
             cell.style.border = "2px solid #5d4037";
-            
+
             // Marcamos la celda como ocupada
             cell.dataset.userId = data.id.toString();
         }
@@ -101,12 +101,80 @@ export async function initGameUI() {
 
 
     /* ========================================================================
-        LÓGICA DE CHAT Y PUSHER/REVERB
-        ======================================================================== */
+        LÓGICA DE CHAT Y PUSHER/REVERB
+        ======================================================================== */
 
     const chatMessages = document.getElementById("chat-messages") as HTMLDivElement;
     const chatInput = document.getElementById("chat-input") as HTMLInputElement;
     const sendButton = document.getElementById("send-button") as HTMLButtonElement;
+
+    const myRoleModal = document.getElementById("my-role-modal") as HTMLDivElement | null;
+    const myRoleTitle = document.getElementById("my-role-title") as HTMLElement | null;
+    const myRoleText = document.getElementById("my-role-text") as HTMLElement | null;
+    const closeMyRoleBtn = document.getElementById("close-my-role-modal") as HTMLButtonElement | null;
+
+    function openMyRoleModal(roleName: string) {
+        if (!myRoleModal || !myRoleText) return;
+
+        // Título fijo, por si quieres cambiarlo luego
+        if (myRoleTitle) {
+            myRoleTitle.textContent = "Tu rol";
+        }
+
+        myRoleText.textContent = roleName;
+        myRoleModal.style.display = "flex";
+    }
+
+    function closeMyRoleModal() {
+        if (!myRoleModal) return;
+        myRoleModal.style.display = "none";
+    }
+
+    if (closeMyRoleBtn) {
+        closeMyRoleBtn.addEventListener("click", closeMyRoleModal);
+    }
+
+    if (myRoleModal) {
+        myRoleModal.addEventListener("click", (e: MouseEvent) => {
+            if (e.target === myRoleModal) {
+                closeMyRoleModal();
+            }
+        });
+    }
+
+    // === PETICIÓN AL BACK PARA OBTENER MI ROL ===
+    async function fetchMyRole(): Promise<string | null> {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("No hay token, no puedo pedir el rol.");
+            return null;
+        }
+
+        try {
+            const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/me/role`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                console.error("Error al obtener mi rol:", res.status);
+                return null;
+            }
+
+            const data = await res.json();
+            console.log("Respuesta /me/role:", data);
+
+            // Espero algo tipo { role_name: "Lobo", role_slug: "wolf" }
+            return data?.role_name ?? null;
+        } catch (error) {
+            console.error("Error de red al obtener mi rol:", error);
+            return null;
+        }
+    }
+
 
     // === Parámetros conexión ===
     const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
@@ -154,24 +222,24 @@ export async function initGameUI() {
     channel.bind("player.left", (data: {
         gameId: number;
         userId: number;
-        username: string, 
+        username: string,
         remainingPlayers: number;
     }) => {
-        console.log ("EVENTO player.left recibido:", data)
+        console.log("EVENTO player.left recibido:", data)
         handlePlayerLeft(data)
     });
 
     // === Escuchar jugadores unidos ===
     channel.bind("player.joined", (event: PlayerJoinedEvent) => {
-      
+
 
         //  Mostramos el mensaje en el chat
         const p = document.createElement("p");
         p.innerHTML = `<b>${event.user.nickname}</b> se ha unido a la partida`;
         p.classList.add("system-msg");
         if (chatMessages) {
-             chatMessages.appendChild(p);
-             chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessages.appendChild(p);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         // Renderizamos el nuevo jugador en la casilla correspondiente
@@ -191,7 +259,7 @@ export async function initGameUI() {
         const overlay = document.getElementById("start-overlay") as HTMLDivElement;
         const countdownEl = document.getElementById("start-countdown") as HTMLDivElement;
 
-        if(!overlay || !countdownEl) return
+        if (!overlay || !countdownEl) return
 
         overlay.classList.remove("hidden-overlay")
         overlay.classList.add("show-overlay")
@@ -206,33 +274,37 @@ export async function initGameUI() {
             countdownEl.offsetHeight
             countdownEl.style.animation = ""
 
-            if(counter > 0)
-            {
+            if (counter > 0) {
                 countdownEl.textContent = counter.toString()
                 return
             }
 
-            if(counter === 0)
-            {
+            if (counter === 0) {
                 countdownEl.textContent = "¡Ya!"
             }
 
-            if(counter < 0 )
-            {
+            if (counter < 0) {
                 clearInterval(interval)
 
                 overlay.style.opacity = "0"
                 overlay.style.pointerEvents = "none"
 
-                setTimeout(() => {
+                setTimeout(async () => {
                     overlay.style.display = "none"
                     overlay.classList.remove("show-overlay")
                     overlay.classList.add("hidden-overlay")
-                    
-                    console.log("Cuenta atrás finalizada, iniciando fase de asignación...")
 
-                    //TODO: asignación de roles
+                    console.log("Cuenta atrás finalizada, obteniendo rol del jugador...")
 
+                    // 1) Pedimos al backend cuál es mi rol
+                    const roleName = await fetchMyRole();
+
+                    // 2) Mostramos el modal con ese rol
+                    if (roleName) {
+                        openMyRoleModal(roleName);
+                    } else {
+                        console.warn("No se pudo obtener el rol del jugador.");
+                    }
 
                 }, 500)
             }
@@ -241,7 +313,7 @@ export async function initGameUI() {
 
     // === Escuchar mensajes recibidos ===
     channel.bind("message.sent", (data: any) => {
-      
+
 
         const p = document.createElement("p");
 
@@ -303,8 +375,7 @@ export async function initGameUI() {
     }) {
 
         // Mensaje Chat
-        if(chatMessages)
-        {
+        if (chatMessages) {
             const p = document.createElement("p")
             p.innerHTML = `<b>${data.username}</b> ha abandonado la partida`;
             p.classList.add("system-msg")
@@ -314,16 +385,14 @@ export async function initGameUI() {
 
         //Actualizar contador lobby
         const countEl = document.getElementById("players-count")
-        if(countEl) 
-        {
+        if (countEl) {
             countEl.textContent = `${data.remainingPlayers} / 16`
         }
 
-        const cells = Array.from(playersGrid.children) as HTMLElement []
+        const cells = Array.from(playersGrid.children) as HTMLElement[]
         const slot = cells.find(c => c.dataset.userId === String(data.userId))
-        
-        if(slot)
-        {
+
+        if (slot) {
             slot.innerHTML = slot.dataset.index ?? ""
             delete slot.dataset.userId
 
@@ -337,14 +406,14 @@ export async function initGameUI() {
 
 
     /* ========================================================================
-        CARGA INICIAL DE JUGADORES
-        ======================================================================== */
-    
+        CARGA INICIAL DE JUGADORES
+        ======================================================================== */
+
     // carga inicial de datos
     try {
-        
-        const response = await getGame(gameId); 
-        
+
+        const response = await getGame(gameId);
+
         // Estado para rastrear si el usuario actual fue pintado
         let isCurrentUserRendered = false;
 
@@ -352,25 +421,24 @@ export async function initGameUI() {
         Array.from(playersGrid.children).forEach((cell, index) => {
             const el = cell as HTMLElement
 
-             el.innerHTML = (index + 1).toString(); // Restauramos el número
-             el.dataset.index = String(index + 1)
-             delete el.dataset.userId; // Eliminamos el estado de ocupado
+            el.innerHTML = (index + 1).toString(); // Restauramos el número
+            el.dataset.index = String(index + 1)
+            delete el.dataset.userId; // Eliminamos el estado de ocupado
         });
-        
+
         if ('error' in response) {
             console.error("Error cargando partida:", response.data.message);
             alert("No se pudo cargar la partida: " + (response.data.message || "Error desconocido"));
             return;
         }
 
-        const game = response.data.game; 
+        const game = response.data.game;
 
         const ownerId = game.owner_id;
 
         const timerBox = document.getElementById("timer-box") as HTMLDivElement;
 
-        if(myUser && myUser.id === ownerId)
-        {
+        if (myUser && myUser.id === ownerId) {
             timerBox.classList.remove("disabled")
             timerBox.textContent = "Iniciar Partida"
 
@@ -387,26 +455,25 @@ export async function initGameUI() {
                         "Content-Type": "application/json"
                     }
                 })
-                .then(()=> {
-                    console.log("Partida iniciada. Enviando evento...")
-                })
-                .catch(err => {
-                    console.error("Error al iniciar partida:", err)
-                })
+                    .then(() => {
+                        console.log("Partida iniciada. Enviando evento...")
+                    })
+                    .catch(err => {
+                        console.error("Error al iniciar partida:", err)
+                    })
             })
         }
-        else 
-        {
+        else {
             timerBox.classList.add("disabled")
             timerBox.textContent = "Esperando al dueño..."
         }
-        
+
         // Pintamos a los jugadores
         if (game.players && Array.isArray(game.players)) {
             game.players.forEach((player: Player, index: number) => {
-                
+
                 renderPlayer(player, index); // Pintamos al jugador en la casilla correspondiente
-                
+
                 if (myUser && player.id === myUser.id) {
                     isCurrentUserRendered = true;
                 }
@@ -475,7 +542,7 @@ En las votaciones de linchamiento, en caso de empate, su voto vale doble.  
 Si muere, puede elegir a su sucesor antes de revelar su carta.`
         }
     };
-    
+
     // --- ELEMENTOS DEL MODAL ---
     const modal = document.getElementById("role-info-modal") as HTMLDivElement | null;
     const titleEl = document.getElementById("role-info-title") as HTMLElement | null;
@@ -522,37 +589,33 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
     }
     );
 
-    
-  const exitButton = document.getElementById("exit-button") as HTMLButtonElement
 
-  exitButton?.addEventListener("click", leaveGame);
+    const exitButton = document.getElementById("exit-button") as HTMLButtonElement
 
-  async function leaveGame() 
-  {
-    const token = localStorage.getItem("access_token")
+    exitButton?.addEventListener("click", leaveGame);
 
-    try 
-    {
-      const res = await fetch(`http://localhost:8000/api/games/${gameId}/leave`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json",
-          "Content-Type": "application/json"
+    async function leaveGame() {
+        const token = localStorage.getItem("access_token")
+
+        try {
+            const res = await fetch(`http://localhost:8000/api/games/${gameId}/leave`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if ((window as any).Echo) {
+                (window as any).Echo.leave(`game.${gameId}`)
+                console.log("Abandonado canal", `game.${gameId}`);
+            }
+
+            window.location.href = "/lobby.html"
+
+        } catch (err) {
+            console.error("Error al salir:", err)
         }
-      });
-
-      if((window as any).Echo)
-      {
-        (window as any).Echo.leave(`game.${gameId}`)
-        console.log("Abandonado canal", `game.${gameId}`);
-      }
-
-      window.location.href = "/lobby.html"
-
-    } catch (err)
-    {
-      console.error("Error al salir:", err)
     }
-  }
 }
