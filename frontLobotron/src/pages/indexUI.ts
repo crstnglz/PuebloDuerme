@@ -25,6 +25,18 @@ export function indexUI()
     }
   })
 
+  const profileModal = document.getElementById("profileModal") as HTMLElement | null;
+
+  if(profileModal)
+  {
+    profileModal.addEventListener("click", (e) => {
+      if(e.target === profileModal)
+      {
+        profileModal.classList.remove("show")
+      }
+    })
+  }
+
   // Botón para mostrar la opción de administrar en el desplegable, solamente si eres admin
 const adminBtn = document.getElementById("admin-panel-btn");
 const userRaw = localStorage.getItem("user");
