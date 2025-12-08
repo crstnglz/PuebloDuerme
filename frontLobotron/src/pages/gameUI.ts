@@ -284,6 +284,8 @@ export async function initGameUI() {
         username: string;
         remainingPlayers: number;
     }) {
+
+        // Mensaje Chat
         if(chatMessages)
         {
             const p = document.createElement("p")
@@ -293,6 +295,7 @@ export async function initGameUI() {
             chatMessages.scrollTop = chatMessages.scrollHeight
         }
 
+        //Actualizar contador lobby
         const countEl = document.getElementById("players-count")
         if(countEl) 
         {
@@ -300,15 +303,16 @@ export async function initGameUI() {
         }
 
         const cells = Array.from(playersGrid.children) as HTMLElement []
-        const cell = cells.find(c => c.dataset.userId === String(data.userId))
+        const slot = cells.find(c => c.dataset.userId === String(data.userId))
         
-        if(cell)
+        if(slot)
         {
-            cell.innerHTML = cell.dataset.index ?? ""
-            delete cell.dataset.userId
-            cell.style.background = ""
-            cell.style.color = ""
-            cell.style.border = ""
+            slot.innerHTML = slot.dataset.index ?? ""
+            delete slot.dataset.userId
+
+            slot.style.background = ""
+            slot.style.color = ""
+            slot.style.border = ""
 
             console.log("Slot liberado para userId", data.userId)
         }
