@@ -329,8 +329,11 @@ export async function initGameUI() {
 
         // Limpiamos y restauramos las casillas
         Array.from(playersGrid.children).forEach((cell, index) => {
-             cell.innerHTML = (index + 1).toString(); // Restauramos el número
-             delete (cell as HTMLElement).dataset.userId; // Eliminamos el estado de ocupado
+            const el = cell as HTMLElement
+
+             el.innerHTML = (index + 1).toString(); // Restauramos el número
+             el.dataset.index = String(index + 1)
+             delete el.dataset.userId; // Eliminamos el estado de ocupado
         });
         
         if ('error' in response) {
