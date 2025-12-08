@@ -42,7 +42,6 @@ export async function initGameUI() {
         RENDERIZADO DE JUGADORES
        ======================================================================== */
 
-    // Renderizamos un jugador en la cuadrícula
     const playersGrid = document.getElementById("players-grid") as HTMLDivElement;
     if (!playersGrid) {
         console.error("CRÍTICO: No se encontró el elemento DOM con ID #players-grid.");
@@ -91,7 +90,6 @@ export async function initGameUI() {
         CHAT Y PUSHER
        ======================================================================== */
 
-    // LÓGICA DE CHAT Y PUSHER/REVERB
     const chatMessages = document.getElementById("chat-messages") as HTMLDivElement;
     const chatInput = document.getElementById("chat-input") as HTMLInputElement;
     const sendButton = document.getElementById("send-button") as HTMLButtonElement;
@@ -130,7 +128,7 @@ export async function initGameUI() {
     });
 
     channel.bind("game.started", () => {
-    
+
         const overlay = document.getElementById("start-overlay") as HTMLDivElement;
         const countdownEl = document.getElementById("start-countdown") as HTMLDivElement;
 
@@ -252,7 +250,6 @@ export async function initGameUI() {
         timerBox.textContent = "Iniciando...";
 
         try {
-    
             const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
                 method: "POST",
                 headers: {
@@ -291,16 +288,19 @@ export async function initGameUI() {
         LÓGICA DE FASES (TEMPORIZADOR, CAMBIO AUTOMÁTICO)
        ======================================================================== */
 
-    const mainContainer = document.getElementById("main-container");
+    const mainContainer = document.getElementById("main-container") as HTMLElement | null;
     let countdownInterval: number | null = null;
 
     const updateGamePhase = function (phase: GamePhaseInterface) {
-        
         const name = phase.name.toLowerCase();
 
-        document.body.classList.remove("is-day", "is-night");
-        if (name === "day") document.body.classList.add("is-day");
-        else if (name === "night") document.body.classList.add("is-night");
+        if (!mainContainer) {
+            return;
+        }
+
+        mainContainer.classList.remove("is-day", "is-night");
+        if (name === "day") mainContainer.classList.add("is-day");
+        else if (name === "night") mainContainer.classList.add("is-night");
 
         const phaseDisplay = document.getElementById("phase-display");
         if (phaseDisplay) phaseDisplay.textContent = `Fase: ${name}`;
@@ -309,7 +309,6 @@ export async function initGameUI() {
     const startCountdown = function (endTime: string) {
         if (!timerBox) return;
 
-        // Añadimos la clase que marca el temporizador como activo
         timerBox.classList.add("active-timer");
 
         if (countdownInterval) {
@@ -345,8 +344,9 @@ export async function initGameUI() {
 
     async function handleAutomaticPhaseChange() {
         try {
-            
-            const currentPhase = document.body.classList.contains("is-day") ? "day" : "night";
+            if (!mainContainer) return;
+
+            const currentPhase = mainContainer.classList.contains("is-day") ? "day" : "night";
             const nextPhase = currentPhase === "day" ? "night" : "day";
 
             const response = await changeGamePhase(Number(gameId), nextPhase);
@@ -354,7 +354,7 @@ export async function initGameUI() {
             const phaseName = response.data.turn_state.toLowerCase();
             const endTime = response.data.end_time;
 
-            const newPhase: GamePhaseInterface = { name: phaseName};
+            const newPhase: GamePhaseInterface = {name: phaseName};
             updatePhaseAndTimer(newPhase, endTime);
         } catch (error) {
             console.error("Error cambiando fase automáticamente:", error);
@@ -366,13 +366,13 @@ export async function initGameUI() {
         startCountdown(end_time);
     };
 
-    // ESCUCHAR CAMBIO DE FASE DESDE BACKEND
+    // Escucha el cambio de fase desde el backend
     channel.bind("phase-changed", (data: { phaseName: string; endTime: string }) => {
         const phaseName = data.phaseName.toLowerCase();
-        const currentPhase = document.body.classList.contains("is-day") ? "day" : "night";
+        const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night";
 
         if (phaseName !== currentPhase) {
-            const phase: GamePhaseInterface = { name: phaseName};
+            const phase: GamePhaseInterface = {name: phaseName};
             updatePhaseAndTimer(phase, data.endTime);
         }
     });
@@ -398,9 +398,12 @@ export async function initGameUI() {
         game.players?.forEach((player: Player, index: number) => renderPlayer(player, index));
 
         if (game.current_phase) {
-            const phase: GamePhaseInterface = { name: game.current_phase.name.toLowerCase()};
+            const phase: GamePhaseInterface = { name: game.current_phase.name.toLowerCase() };
             if (game.phase_ends_at) updatePhaseAndTimer(phase, game.phase_ends_at);
             else updatePhaseAndTimer(phase, new Date().toISOString());
+        } else {
+            
+            mainContainer?.classList.add("is-day");
         }
     } catch (error) {
         console.error("Error crítico al inicializar estado del juego:", error);
@@ -409,7 +412,6 @@ export async function initGameUI() {
     /* ========================================================================
         ROL MODALS Y DESCRIPCIONES
        ======================================================================== */
- /* --- DESCRIPCIÓN DE ROLES --- */
     const roleDescriptions: Record<RoleKey, RoleInfo> = {
         aldeano: {
             title: "Aldeano",
@@ -520,4 +522,4 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`
             console.error("Error al salir:", err);
         }
     }
-}
+} 

@@ -16,29 +16,29 @@ html, body {
 
 /* --- CONTENEDOR PRINCIPAL --- */
 #main-container {
-    height: calc(100vh - 5vh);
+    height: calc(100vh - 0.2vh);
     display: grid;
     grid-template-columns: 4fr 1.2fr;
     gap: 1vw;
     padding: 0 1vw;
     box-sizing: border-box;
+    background-image: url('/imagesGameRoom/backgroundDayGame.png');
     background-size: cover;
     background-position: center;
-    transition: background-image 2s ease-in-out;
+    transition: background-image 0.8s ease-in-out;
 }
 
-/* --- FONDO SEGÚN FASE (aplicadas al body) --- */
-body.is-day {
+/* --- FONDO SEGÚN FASE --- */
+#main-container.is-day {
     background-image: url('/imagesGameRoom/BackgroundDayGame.png');
     background-size: cover;
     background-position: center;
-    transition: background-image 0.8s ease-in-out;
 }
-body.is-night {
+
+#main-container.is-night {
     background-image: url('/imagesGameRoom/BackgroundNightGame.png');
     background-size: cover;
     background-position: center;
-    transition: background-image 0.8s ease-in-out;
 }
 
 /* --- GRID JUGADORES --- */
@@ -119,9 +119,8 @@ body.is-night {
 }
 
 /* ==============
-   ESTILO COMPARTIDO DEL "BOTÓN INICIAR" (clase reutilizable)
+   ESTILO COMPARTIDO "Boton Iniciar Partida"
    ============== */
-
 .start-btn {
     background: var(--panel-bg);
     padding: 0.6vw 1vw;
@@ -139,7 +138,6 @@ body.is-night {
     box-sizing: border-box;
 }
 
-/* hover para el botón */
 .start-btn:not(.disabled):hover {
     transform: translateY(-2px) scale(1.02);
     background: #d4a24c;
@@ -147,16 +145,14 @@ body.is-night {
     box-shadow: 0 18px 36px rgba(0,0,0,0.28);
 }
 
-/* estado disabled compartido */
-.start-btn.disabled,
-#timer-box.disabled {
+.start-btn.disabled {
     opacity: 0.55;
     pointer-events: none;
     transform: none;
     box-shadow: 0 4px 8px rgba(0,0,0,0.06);
 }
 
-/* --- TEMPORIZADOR: por defecto conserva su aspecto normal (igual que antes) --- */
+/* --- TEMPORIZADOR (por defecto) --- */
 #timer-box {
     background: var(--panel-bg);
     padding: 0.5vw;
@@ -170,10 +166,8 @@ body.is-night {
     transition: 0.2s;
 }
 
-/* --- CUANDO EL TEMPORIZADOR ESTÁ ACTIVO: le aplicamos exactamente el estilo del botón --- */
-/* (aplicar la clase .start-btn al timer-box cuando lo actives en JS) */
+/* CUANDO EL TEMPORIZADOR ESTÁ ACTIVO*/
 #timer-box.active-timer {
-    /* Reaplicar reutilizando la clase visualmente: hacemos match con .start-btn */
     background: var(--panel-bg);
     padding: 0.6vw 1vw;
     border-radius: 12px;
@@ -190,12 +184,16 @@ body.is-night {
     opacity: 1 !important;
 }
 
-/* hover para temporizador activo (mismo que start-btn) */
 #timer-box.active-timer:not(.disabled):hover {
     transform: translateY(-2px) scale(1.02);
     background: #d4a24c;
     color: #fff;
     box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+}
+
+#timer-box.disabled {
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 /* --- CHAT --- */
