@@ -72,27 +72,28 @@ body {
 }
 
 .back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  text-decoration: none;
+position: absolute;
+    top: 20px;
+    left: 20px;
+    text-decoration: none;
 
-  background-color: var(--color-contraste);
-  color: var(--color-white);
+    background-color: var(--contrast-color);
+    color: white;
 
-  padding: 10px 18px;
-  font-size: 1rem;
-  border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 1rem;
+    border-radius: 10px;
 
-  box-shadow: 0 0 10px var(--color-black);
-  transition: 0.3s ease;
-  font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    transition: 0.3s ease;
+    font-family: sans-serif;
+    font-weight: bold;
 }
 
 .back-btn:hover {
-  background-color: var(--color-acento-1);
-  box-shadow: 0 0 13px var(--color-black);
-  transform: translateY(-2px);
+    background-color: var(--color-acento-1);
+    box-shadow: 0 0 13px rgba(0,0,0,0.6);
+    transform: translateY(-2px)
 }
 
 @keyframes temblor {
