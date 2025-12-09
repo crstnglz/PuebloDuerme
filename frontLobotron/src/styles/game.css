@@ -654,3 +654,19 @@ color: #eee;
 @keyframes fadeOut {
   to {opacity: 0; transform: translateX(20px);}
 }
+
+/* Filtro nocturno */
+#night-filter {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,40,90,0.45);
+    backdrop-filter: brightness(0.75) saturate(0.8);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 999;
+}
+
+#night-filter.show {
+    opacity: 1;
+}

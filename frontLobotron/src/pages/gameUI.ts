@@ -385,6 +385,8 @@ export async function initGameUI() {
     document.body.appendChild(phaseIconEl);
   }
 
+  const nightFilter = document.getElementById("night-filter") as HTMLDivElement | null;
+
   const PHASE_ANIM_MS = 3000;
   const CHANGE_DELAY_MS = 0;
 
@@ -424,6 +426,12 @@ export async function initGameUI() {
     mainContainer.classList.remove("is-day", "is-night");
     if (name === "day") mainContainer.classList.add("is-day");
     else if (name === "night") mainContainer.classList.add("is-night");
+
+    if(nightFilter)
+    {
+      if(name === "night") nightFilter.classList.add("show")
+      else nightFilter.classList.remove("show")
+    }
 
     const phaseDisplay = document.getElementById("phase-display");
     if (phaseDisplay) phaseDisplay.textContent = `Fase: ${name}`;
