@@ -251,15 +251,22 @@ class GameController extends Controller
 
     public function start(Game $game)
     {
+        // Solo el dueño puede iniciar la partida
         if (auth()->id() !== $game->owner_id) {
             return response()->json([
                 'error' => 'Solo el creador de la partida puede iniciarla.'
             ], 403);
         }
 
+        // 1) Asignar roles básicos (Lobo / Aldeano)
+        //    Ajusta el ratio a lo que quieras: 2 = aprox. 1 lobo cada 2 jugadores
+        $game->assignBasicRoles(2);
+
+        // 2) Cambiar estado del juego
         $game->status = 'en curso';
         $game->save();
 
+        // 3) Emitir evento "la partida ha empezado"
         event(new GameStarted($game->id));
 
         return response()->json([
