@@ -4,6 +4,7 @@ import type { User } from "../types/user";
 import type { Player } from "../types/player";
 import { getGame, changeGamePhase } from "../providers/game.provider";
 import type { GamePhaseInterface } from "../types/gamePhaseInterface";
+import { showToast } from "../toast";
 
 interface PlayerJoinedEvent {
   user: User;
@@ -230,7 +231,7 @@ export async function initGameUI() {
 
     const msgToken = localStorage.getItem("access_token");
     if (!msgToken) {
-      alert("Debes iniciar sesión.");
+      showToast("Debes iniciar sesión.", "info");
       return;
     }
 
@@ -534,7 +535,7 @@ export async function initGameUI() {
 
     if ("error" in response) {
       console.error("Error cargando partida:", response.data.message);
-      alert("No se pudo cargar la partida: " + (response.data.message || "Error desconocido"));
+      showToast("No se pudo cargar la partida: " + (response.data.message || "Error desconocido", "error"));
       return;
     }
 

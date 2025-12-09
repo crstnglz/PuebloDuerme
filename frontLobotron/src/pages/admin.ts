@@ -11,6 +11,8 @@ import type { PaginatedResponse } from "../types/paginatedResponse";
 import type { NewUser } from "../types/newUser";
 import type { UpdateUserBody } from "../types/updateUserBody";
 
+import { showToast } from "../toast";
+
 export function initAdmin() {
 
     /* --- Elementos del DOM --- */
@@ -176,7 +178,7 @@ export function initAdmin() {
         editBtns.forEach((btn, index) => {
             btn.addEventListener("click", () => {
                 const user = users[index];
-                if (!user) return alert("Usuario no encontrado.");
+                if (!user) return showToast("Usuario no encontrado.", "error");
                 openModal(user);
             });
         });
