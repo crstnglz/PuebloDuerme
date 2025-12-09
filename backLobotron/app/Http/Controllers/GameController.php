@@ -53,7 +53,7 @@ class GameController extends Controller
             $game = Game::create([
                 'name' => $request->name,
                 'owner_id' => $user->id,
-                'max_players' => 16,
+                'max_players' => 30,
                 'current_players' => 1,
                 'status' => 'esperando'
             ]);
