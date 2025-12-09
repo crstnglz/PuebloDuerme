@@ -79,7 +79,6 @@ class GameController extends Controller
                 'message' => 'Partida creada correctamente',
                 'data' => ['game' => $game]
             ], 201);
-
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error creando la partida: ' . $e->getMessage()], 500);
         }
@@ -98,8 +97,8 @@ class GameController extends Controller
 
             // Comprobar si el usuario ya está unido
             $alreadyJoined = GameUser::where('game_id', $game->id)
-                                    ->where('user_id', $user->id)
-                                    ->exists();
+                ->where('user_id', $user->id)
+                ->exists();
 
             if (!$alreadyJoined) {
                 $villagerRole = Role::where('name', 'aldeano')->first();
@@ -118,9 +117,7 @@ class GameController extends Controller
 
                 try {
                     event(new PlayerJoined($game, $user));
-
                 } catch (Exception $e) {
-
                 }
             }
 
@@ -132,7 +129,6 @@ class GameController extends Controller
                 'message' => 'Te has unido correctamente',
                 'data' => ['game' => $game]
             ], 200);
-
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error al unirse a la partida: ' . $e->getMessage()], 500);
         }
@@ -146,7 +142,6 @@ class GameController extends Controller
             $game = Game::with('players')->findOrFail($id);
 
             return response()->json(['success' => true, 'data' => ['game' => $game]], 200);
-
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Partida no encontrada o error interno'], 404);
         }
@@ -187,13 +182,11 @@ class GameController extends Controller
     {
         $user = $request->user();
 
-        if(! $game->players()->where('user_id', $user->id)->exists())
-        {
+        if (! $game->players()->where('user_id', $user->id)->exists()) {
             return response()->json(['message' => 'No estás en esta partida', 400]);
         }
 
-        if($user->id === $game->owner_id)
-        {
+        if ($user->id === $game->owner_id) {
             broadcast(new \App\Events\GameForceExit($game->id, "owner_left"))->toOthers();
             broadcast(new GameDeleted($game->id))->toOthers();
 
@@ -208,8 +201,7 @@ class GameController extends Controller
 
         $game->players()->detach($user->id);
 
-        if($game->current_players > 0)
-        {
+        if ($game->current_players > 0) {
             $game->decrement('current_players');
         }
 
@@ -217,8 +209,7 @@ class GameController extends Controller
 
         $remainingPlayers = $game->current_players;
 
-        if($remainingPlayers === 0)
-        {
+        if ($remainingPlayers === 0) {
             broadcast(new GameDeleted($game->id))->toOthers();
 
             $game->delete();
@@ -230,7 +221,7 @@ class GameController extends Controller
             ]);
         }
 
-        broadcast(new \App\Events\PlayerLeftGame (
+        broadcast(new \App\Events\PlayerLeftGame(
             $game->id,
             $user->id,
             $user->nickname,
@@ -244,46 +235,77 @@ class GameController extends Controller
         ]);
     }
 
-   public function start(Game $game)
-{
+    public function start(Game $game)
+    {
 
-    if (auth()->id() !== $game->owner_id) {
-        return response()->json(['error' => 'Solo el creador de la partida puede iniciarla.'], 403);
+        if (auth()->id() !== $game->owner_id) {
+            return response()->json(['error' => 'Solo el creador de la partida puede iniciarla.'], 403);
+        }
+
+        // 1) Asignar roles básicos (Lobo / Aldeano)
+        //    Ajusta el ratio a lo que quieras: 3 = aprox. 1 lobo cada 3 jugadores
+        $game->assignBasicRoles(3);
+
+        $game->status = 'en curso';
+
+        $dayPhase = GamePhase::firstWhere('name', 'day');
+
+        if (! $dayPhase) {
+            return response()->json(['error' => 'Fase "day" no configurada'], 500);
+        }
+
+        $game->current_phase_id = $dayPhase->id;
+        $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
+
+        $game->save();
+
+        // 3) Emitir evento "la partida ha empezado"
+        event(new GameStarted($game->id));
+
+        event(new PhaseTransition(
+            $game->id,
+            $dayPhase->name,
+            $game->phase_ends_at->toIso8601String()
+        ));
+
+        event(new GameStarted(
+            $game->id,
+            $dayPhase->name,
+            $game->phase_ends_at->toIso8601String()
+        ));
+
+        return response()->json([
+            'message' => 'Partida iniciada',
+            'game_id' => $game->id,
+            'data' => [
+                'turn_state' => $dayPhase->name,
+                'end_time' => $game->phase_ends_at->toIso8601String()
+            ]
+        ]);
     }
 
-    $game->status = 'en curso';
+    public function meRole(Request $request, Game $game)
+    {
+        $user = $request->user(); // usuario autenticado (por Sanctum)
 
-    $dayPhase = GamePhase::firstWhere('name', 'day');
+        // Buscamos al jugador en esta partida
+        $player = $game->players()
+            ->where('users.id', $user->id)
+            ->first();
 
-    if (! $dayPhase) {
-        return response()->json(['error' => 'Fase "day" no configurada'], 500);
+        // Si no está en la partida o aún no tiene rol asignado
+        if (! $player || ! $player->pivot->role_id) {
+            return response()->json([
+                'role_name' => null,
+                'role_team' => null,
+            ], 200);
+        }
+
+        $role = Role::find($player->pivot->role_id);
+
+        return response()->json([
+            'role_name' => $role?->name,
+            'role_team' => $role?->team,
+        ], 200);
     }
-
-    $game->current_phase_id = $dayPhase->id;
-    $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
-
-    $game->save();
-
-    event(new PhaseTransition(
-        $game->id,
-        $dayPhase->name,
-        $game->phase_ends_at->toIso8601String()
-    ));
-
-    event(new GameStarted(
-        $game->id,
-        $dayPhase->name,
-        $game->phase_ends_at->toIso8601String()
-    ));
-
-    return response()->json([
-        'message' => 'Partida iniciada',
-        'game_id' => $game->id,
-        'data' => [
-            'turn_state' => $dayPhase->name,
-            'end_time' => $game->phase_ends_at->toIso8601String()
-        ]
-    ]);
-}
-
 }
