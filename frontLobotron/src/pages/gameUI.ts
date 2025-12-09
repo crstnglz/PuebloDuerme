@@ -523,6 +523,20 @@ export async function initGameUI() {
     const phaseName = data.phaseName.toLowerCase();
     const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night";
 
+    if(chatMessages)
+    {
+      const p = document.createElement("p")
+      const readable = 
+        phaseName === "day"
+        ? "🌞 Comienza el día. ¡La aldea despierta!"
+        : "🌚 Comienza la noche... los lobos salen a cazar."
+
+      p.innerHTML = `<b>${readable}</b>`
+      p.classList.add("system-msg")
+      chatMessages.appendChild(p)
+      chatMessages.scrollTop = chatMessages.scrollHeight
+    }
+
     if (phaseName !== currentPhase) {
       const phase: GamePhaseInterface = { name: phaseName };
       updatePhaseAndTimer(phase, data.endTime);
