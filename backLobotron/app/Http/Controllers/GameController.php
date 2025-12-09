@@ -6,6 +6,9 @@ use App\Events\PhaseTransition;
 use App\Events\PlayerJoined;
 use App\Models\Game;
 use App\Events\GameStarted;
+use App\Events\GameCreated;
+use App\Events\GameUpdated;
+use App\Events\GameDeleted;
 use App\Models\GamePhase;
 use App\Models\GameUser;
 use App\Models\Role;
@@ -68,6 +71,8 @@ class GameController extends Controller
 
             // Cargar los datos del dueño para el frontend
             $game->load('owner:id,nickname');
+
+            broadcast(new GameCreated($game));
 
             return response()->json([
                 'success' => true,
@@ -178,6 +183,9 @@ class GameController extends Controller
         }
 
         $game->update($request->all());
+        $game->load('owner:id,nickname');
+
+        broadcast(new GameUpdated($game));
 
         return response()->json(['success' => true, 'data' => ['game' => $game]], 200);
     }
@@ -189,7 +197,10 @@ class GameController extends Controller
             return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
         }
 
+        $id = $game->id;
         $game->delete();
+
+        broadcast(new GameDeleted($id));
 
         return response()->json(['success' => true, 'message' => 'Partida eliminada'], 200);
     }
@@ -225,8 +236,9 @@ class GameController extends Controller
 
         $remainingPlayers = $game->current_players;
 
-        if ($remainingPlayers === 0) {
-            broadcast(new \App\Events\GameDeleted($game->id));
+        if($remainingPlayers === 0)
+        {
+            broadcast(new GameDeleted($game->id))->toOthers();
 
             $game->delete();
 

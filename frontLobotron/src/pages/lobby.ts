@@ -1,4 +1,6 @@
+import Pusher from "pusher-js";
 import { Game } from '../models/Game';
+import { showToast } from '../toast';
 import {
     getGames,
     createGame,
@@ -40,7 +42,7 @@ export function initLobby() {
     joinGameBtn?.addEventListener("click", async () => {
         const selected = document.querySelector("tr.selected") as HTMLTableRowElement
         if (!selected) {
-            alert("Selecciona una partida primero")
+            showToast("Selecciona una partida primero", "warning")
             return
         }
 
@@ -50,7 +52,7 @@ export function initLobby() {
         const response = await joinGame(gameId);
 
         if ('error' in response) {
-            alert(`Error al unirse: ${response.data.message}`);
+            showToast(`Error al unirse: ${response.data.message}`, "error");
             return;
         }
 
@@ -79,7 +81,7 @@ export function initLobby() {
         if (!gameNameInput || !createGameModal) return;
 
         const gameName = gameNameInput.value.trim();
-        if (!gameName) return alert("Pon un nombre válido")
+        if (!gameName) return showToast("Pon un nombre válido", "warning")
 
         const mode = createGameModal.dataset.mode
 
@@ -90,15 +92,17 @@ export function initLobby() {
                 const gameId = response.data.game.id;
                 
                 if (gameId) {
-                    window.location.href = `/gameUI.html?game=${gameId}`;
+                    showToast("Partida creada", "success");
 
-;
+                    setTimeout(() => {
+                    window.location.href = `/gameUI.html?game=${gameId}`;
+                    }, 600)
                 } else {
-                    alert("Error: El servidor no devolvió el ID de la partida.");
+                    showToast("Error: El servidor no devolvió el ID de la partida.", "error");
                 }
                 return;
             } else {
-                alert(`Error al crear: ${response.data.message}`)
+                showToast(`Error al crear: ${response.data.message}`, "error")
                 return;
             }
         }
@@ -110,7 +114,7 @@ export function initLobby() {
             const response = await editGame(parseInt(gameId), gameName)
             
             if ('error' in response) {
-                alert(`Error al editar: ${response.data.message}`)
+                showToast(`Error al editar: ${response.data.message}`, "error")
                 return;
             }
             
@@ -130,6 +134,70 @@ export function initLobby() {
 
     // Cargar Partidas
     loadGamesAndRender()
+
+    const token = localStorage.getItem("access_token")
+
+  const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
+  const wsPort = Number(import.meta.env.VITE_REVERB_PORT ?? 9090);
+  const apiHost = "localhost";
+  const apiPort = 8000;
+
+  const pusherKey = import.meta.env.VITE_REVERB_APP_KEY as string;
+  const pusher = new Pusher(pusherKey, {
+    wsHost,
+    wsPort,
+    forceTLS: false,
+    enabledTransports: ["ws"],
+    cluster: "mt1",
+    disableStats: true,
+    authEndpoint: `http://${apiHost}:${apiPort}/broadcasting/auth`,
+    auth: { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } },
+  });
+
+  const lobbyChannel = pusher.subscribe("lobby");
+
+  lobbyChannel.bind("GameCreated", (e: any) => {
+    console.log("GameCreated recibido:", e.game)
+
+    addGame(new Game(
+        e.game.id,
+        e.game.name,
+        e.game.current_players,
+        e.game.status,
+        e.game.owner
+    ))
+    highlightRow(e.game.id)
+  })
+
+  lobbyChannel.bind("GameUpdated", (e:any) => {
+    console.log("GameUpdated recibido:", e.game)
+
+    updateRow(new Game (
+        e.game.id,
+        e.game.name,
+        e.game.current_players,
+        e.game.status,
+        e.game.owner
+    ))
+
+    highlightRow(e.game.id)
+  })
+
+  lobbyChannel.bind("GameDeleted", (editGame: any) => {
+    console.log("GameDeleted recibido:", editGame.id)
+
+    const row = document.querySelector(`tr[data-id="${editGame.id}"]`)
+    row?.remove()
+  })
+}
+
+function highlightRow(id: number)
+{
+     const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (!row) return;
+
+    row.classList.add("gold-glow");
+    setTimeout(() => row.classList.remove("gold-glow"), 700);
 }
 
 // Carga partidas del servidor y las pinta en la tabla
@@ -191,7 +259,7 @@ function addGame(game: Game) {
 
         const response = await deleteGame(game.id)
         if ('error' in response) {
-             alert(`Error al borrar: ${response.data.message}`);
+             showToast(`Error al borrar: ${response.data.message}`, "error");
              return;
         }
 

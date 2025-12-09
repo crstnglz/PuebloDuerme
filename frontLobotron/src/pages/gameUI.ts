@@ -215,14 +215,17 @@ export async function initGameUI() {
     }, 1500);
   });
 
-  channel.bind("player.left", (data: {
-    gameId: number;
-    userId: number;
-    username: string;
-    remainingPlayers: number;
-  }) => {
-    handlePlayerLeft(data);
-  });
+  channel.bind(
+    "player.left",
+    (data: {
+      gameId: number;
+      userId: number;
+      username: string;
+      remainingPlayers: number;
+    }) => {
+      handlePlayerLeft(data);
+    }
+  );
 
   channel.bind("player.joined", (event: PlayerJoinedEvent) => {
     const p = document.createElement("p");
@@ -234,6 +237,58 @@ export async function initGameUI() {
     const cells = Array.from(playersGrid.children) as HTMLElement[];
     const emptyIndex = cells.findIndex((cell) => !cell.dataset.userId);
     if (emptyIndex !== -1) renderPlayer(event.user, emptyIndex);
+  });
+
+  channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
+    if (data?.phaseName && data?.endTime) {
+      try {
+        const phaseName = String(data.phaseName).toLowerCase();
+        updatePhaseAndTimer({ name: phaseName }, data.endTime);
+      } catch (err) {
+        console.error("Error aplicando datos de game.started:", err);
+      }
+    }
+
+    const overlay = document.getElementById("start-overlay") as HTMLDivElement;
+    const countdownEl = document.getElementById("start-countdown") as HTMLDivElement;
+
+    if (!overlay || !countdownEl) return;
+
+    overlay.classList.remove("hidden-overlay");
+    overlay.classList.add("show-overlay");
+
+    let counter = 5;
+    countdownEl.textContent = counter.toString();
+
+    const interval = setInterval(() => {
+      counter--;
+
+      countdownEl.style.animation = "none";
+      countdownEl.offsetHeight;
+      countdownEl.style.animation = "";
+
+      if (counter > 0) {
+        countdownEl.textContent = counter.toString();
+        return;
+      }
+
+      if (counter === 0) {
+        countdownEl.textContent = "¡Ya!";
+      }
+
+      if (counter < 0) {
+        clearInterval(interval);
+
+        overlay.style.opacity = "0";
+        overlay.style.pointerEvents = "none";
+
+        setTimeout(() => {
+          overlay.style.display = "none";
+          overlay.classList.remove("show-overlay");
+          overlay.classList.add("hidden-overlay");
+        }, 500);
+      }
+    }, 1000);
   });
 
   channel.bind("message.sent", (data: any) => {
@@ -251,6 +306,121 @@ export async function initGameUI() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
+  if (sendButton) sendButton.addEventListener("click", sendMsg);
+  if (chatInput)
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMsg();
+    });
+
+  async function sendMsg() {
+    const content = chatInput?.value.trim();
+    if (!content) return;
+
+    const msgToken = localStorage.getItem("access_token");
+    if (!msgToken) {
+      alert("Debes iniciar sesión.");
+      return;
+    }
+
+    try {
+      await fetch(`http://${apiHost}:${apiPort}/api/chat/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${msgToken}`,
+        },
+        body: JSON.stringify({ message: content, game_id: Number(gameId), from: nickname }),
+      });
+      if (chatInput) chatInput.value = "";
+    } catch (err) {
+      console.error("Error al enviar mensaje:", err);
+    }
+  }
+
+  /* ===================================================================
+      BOTÓN INICIAR PARTIDA
+  ====================================================================== */
+
+  const timerBox = document.getElementById("timer-box") as HTMLDivElement | null;
+  if (!timerBox) {
+    return;
+  }
+
+  const showStartButtonIfOwner = function (isOwner: boolean) {
+    if (isOwner) {
+      timerBox.classList.remove("disabled");
+      timerBox.textContent = "Iniciar Partida";
+    } else {
+      timerBox.classList.add("disabled");
+      timerBox.textContent = "Esperando al dueño...";
+    }
+  };
+
+  timerBox.addEventListener("click", async () => {
+    if (!myUser) return;
+    if (timerBox.classList.contains("disabled")) return;
+
+    timerBox.classList.add("disabled");
+    timerBox.textContent = "Iniciando...";
+
+    try {
+      const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error(`start failed: ${res.status}`);
+
+      const startData = await res.json();
+
+      const phaseName = startData.data.turn_state.toLowerCase();
+      const endTime = startData.data.end_time;
+
+      updatePhaseAndTimer({ name: phaseName }, endTime);
+    } catch (err) {
+      console.error("Error al iniciar partida:", err);
+      timerBox.classList.remove("disabled");
+      timerBox.textContent = "Iniciar Partida";
+    }
+  });
+
+  function handlePlayerLeft(data: {
+    gameId: number;
+    userId: number;
+    username: string;
+    remainingPlayers: number;
+  }) {
+    if (chatMessages) {
+      const p = document.createElement("p");
+      p.innerHTML = `<b>${data.username}</b> ha abandonado la partida`;
+      p.classList.add("system-msg");
+      chatMessages.appendChild(p);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    const countEl = document.getElementById("players-count");
+    if (countEl) {
+      countEl.textContent = `${data.remainingPlayers} / 16`;
+    }
+
+    const cells = Array.from(playersGrid!.children) as HTMLElement[];
+    const slot = cells.find((c) => c.dataset.userId === String(data.userId));
+
+    if (slot) {
+      slot.innerHTML = slot.dataset.index ?? "";
+      delete slot.dataset.userId;
+
+      slot.style.background = "";
+      slot.style.color = "";
+      slot.style.border = "";
+    }
+  }
+
   /* ========================================================================
       FASES, TEMPORIZADOR Y GAME.STARTED
      ======================================================================== */
@@ -258,6 +428,69 @@ export async function initGameUI() {
   let countdownInterval: number | null = null;
   let autoChangeInProgress = false;
   let isOwner = false;
+
+  /* -------------------------
+     ANIMACIÓN SOL / LUNA
+     ------------------------- */
+  const sunPath = "/imagesGameRoom/Sol.png";
+  const moonPath = "/imagesGameRoom/Luna.png";
+
+  // Preload de imágenes
+  const imgSun = new Image();
+  imgSun.src = sunPath;
+
+  const imgMoon = new Image();
+  imgMoon.src = moonPath;
+
+  // Creamos overlay y elemento de icono en body
+  let phaseOverlay = document.getElementById("phase-overlay") as HTMLDivElement | null;
+  if (!phaseOverlay) {
+    phaseOverlay = document.createElement("div");
+    phaseOverlay.id = "phase-overlay";
+    phaseOverlay.setAttribute("aria-hidden", "true");
+    document.body.appendChild(phaseOverlay);
+  }
+
+  let phaseIconEl = document.getElementById("phase-icon") as HTMLImageElement | null;
+  if (!phaseIconEl) {
+    phaseIconEl = document.createElement("img");
+    phaseIconEl.id = "phase-icon";
+    phaseIconEl.alt = "Fase";
+    phaseIconEl.style.pointerEvents = "none";
+    phaseIconEl.style.opacity = "0";
+    document.body.appendChild(phaseIconEl);
+  }
+
+  const PHASE_ANIM_MS = 3000;
+  const CHANGE_DELAY_MS = 0;
+
+  const playPhaseAnimation = function (phaseName: "day" | "night"): Promise<void> {
+    return new Promise((resolve) => {
+      if (!phaseIconEl || !phaseOverlay) return resolve();
+
+      // escoge la imagen según la fase que hay
+      phaseIconEl.src = phaseName === "day" ? sunPath : moonPath;
+      phaseIconEl.alt = phaseName === "day" ? "Sol" : "Luna";
+
+      // reset clases
+      phaseOverlay.classList.remove("show");
+      phaseIconEl.classList.remove("show");
+
+      // gracias a esto la animación se puede reiniciar todas las veces
+      phaseIconEl.offsetHeight;
+
+      // añadimos la clase
+      phaseOverlay.classList.add("show");
+      phaseIconEl.classList.add("show");
+
+      // la quitamos después de la duración
+      setTimeout(() => {
+        phaseIconEl?.classList.remove("show");
+        phaseOverlay?.classList.remove("show");
+        resolve();
+      }, PHASE_ANIM_MS);
+    });
+  };
 
   const updateGamePhase = function (phase: GamePhaseInterface) {
     const name = phase.name.toLowerCase();
@@ -295,30 +528,38 @@ export async function initGameUI() {
           countdownInterval = null;
         }
 
+        // Calculamos siguiente fase local para la animación
+        const currentPhaseLocal = mainContainer?.classList.contains("is-day") ? "day" : "night";
+        const nextPhaseLocal: "day" | "night" = currentPhaseLocal === "day" ? "night" : "day";
+
+        // Reproducimos animación en todos los clientes al llegar a 0
+        playPhaseAnimation(nextPhaseLocal).catch(() => {});
+
+        // Si no eres el owner no cambias fase
         if (!isOwner) return;
 
-        if (!autoChangeInProgress) {
-          autoChangeInProgress = true;
+        // Evitamos que se lance dos veces
+        if (autoChangeInProgress) return;
+        autoChangeInProgress = true;
 
-          setTimeout(async () => {
-            try {
-              await handleAutomaticPhaseChange();
-            } finally {
-              setTimeout(() => {
-                autoChangeInProgress = false;
-              }, 1000);
-            }
-          }, 50);
-        }
+        // Cambiar la fase durante la animación
+        setTimeout(async () => {
+          try {
+            await handleAutomaticPhaseChange();
+          } finally {
+            // Pequeño margen para evitar repetidos
+            autoChangeInProgress = false;
+          }
+        }, CHANGE_DELAY_MS);
 
         return;
       }
 
       const seconds = Math.floor(diff / 1000) % 60;
       const minutes = Math.floor(diff / 1000 / 60) % 60;
-      timerBox.textContent = `${minutes
+      timerBox.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
         .toString()
-        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        .padStart(2, "0")}`;
     };
 
     update();
@@ -624,32 +865,32 @@ El ladrón adopta obligatoriamente el rol del personaje que reciba —le guste o
     },
     cupido: {
       title: "Cupido",
-      text: `La primera noche enamora a dos jugadores, incluso puede elegirse a sí mismo. 
-Los enamorados forman un bando propio: si uno muere, el otro muere de pena inmediatamente. 
+      text: `La primera noche enamora a dos jugadores, incluso puede elegirse a sí mismo.  
+Los enamorados forman un bando propio: si uno muere, el otro muere de pena inmediatamente.  
 Su objetivo es sobrevivir juntos hasta el final de la partida.`,
     },
     ninia: {
       title: "La niña",
-      text: `Puede espiar a los Hombres Lobo por la noche mientras cazan. 
-Sin embargo, si es descubierta es asesinada inmediatamente. 
+      text: `Puede espiar a los Hombres Lobo por la noche mientras cazan.  
+Sin embargo, si es descubierta es asesinada inmediatamente.  
 Tiene un rol muy arriesgado pero extremadamente útil si juega con cuidado.`,
     },
     bruja: {
       title: "Bruja",
-      text: `Tiene dos pociones: 
-• Una poción de curación para salvar a la víctima de los lobos. 
-• Una poción de veneno para matar a un jugador. 
+      text: `Tiene dos pociones:  
+• Una poción de curación para salvar a la víctima de los lobos.  
+• Una poción de veneno para matar a un jugador.  
 Solo puede usar cada poción una vez en toda la partida.`,
     },
     cazador: {
       title: "Cazador",
-      text: `Cuando muere —ya sea de noche o de día— puede llevarse a un jugador con él. 
+      text: `Cuando muere —ya sea de noche o de día— puede llevarse a un jugador con él.  
 Su disparo final puede cambiar completamente el rumbo de una partida.`,
     },
     alguacil: {
       title: "Alguacil",
-      text: `Es elegido por votación durante el día. 
-En las votaciones de linchamiento, en caso de empate, su voto vale doble. 
+      text: `Es elegido por votación durante el día.  
+En las votaciones de linchamiento, en caso de empate, su voto vale doble.  
 Si muere, puede elegir a su sucesor antes de revelar su carta.`,
     },
   };
@@ -674,17 +915,11 @@ Si muere, puede elegir a su sucesor antes de revelar su carta.`,
     if (modal) modal.style.display = "none";
   }
 
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener("click", closeRoleModal);
-  }
-
-  if (modal) {
+  if (closeModalBtn) closeModalBtn.addEventListener("click", closeRoleModal);
+  if (modal)
     modal.addEventListener("click", (e: MouseEvent) => {
-      if ((e.target as HTMLElement).id === "role-info-modal") {
-        closeRoleModal();
-      }
+      if ((e.target as HTMLElement).id === "role-info-modal") closeRoleModal();
     });
-  }
 
   document.querySelectorAll(".role").forEach((role) => {
     const el = role as HTMLElement;

@@ -346,6 +346,56 @@ html, body {
     100% { transform: scale(1); opacity: 1; }
 }
 
+/* ------------------------
+   OVERLAY + ICONO (SOL / LUNA)
+   ------------------------ */
+
+#phase-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,4,3,0.65); 
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+  z-index: 999998;
+}
+
+#phase-overlay.show {
+  opacity: 1;
+  pointer-events: none;
+}
+
+#phase-icon {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  width: 22vw;
+  height: 22vw;
+  max-width: 380px;
+  max-height: 380px;
+  z-index: 999999;
+  opacity: 0;
+  transition: opacity 160ms ease, transform 160ms ease;
+  filter: drop-shadow(0 18px 40px rgba(0,0,0,0.6)) drop-shadow(0 0 28px rgba(255,200,80,0.12));
+}
+
+#phase-icon.show {
+  opacity: 1;
+  animation: pop 0.9s cubic-bezier(.2,.9,.3,1) forwards;
+  transform-origin: center center;
+  box-shadow: 0 0 36px rgba(255,220,110,0.28), 0 0 18px rgba(255,200,60,0.12) inset;
+  filter: drop-shadow(0 24px 48px rgba(0,0,0,0.65));
+}
+
+/* keyframes de pop usados por #phase-icon */
+@keyframes pop {
+  0% { transform: translate(-50%, -50%) scale(0.15); opacity: 0; filter: blur(2px); }
+  40% { transform: translate(-50%, -50%) scale(1.12); opacity: 1; filter: blur(0); }
+  70% { transform: translate(-50%, -50%) scale(0.98); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
 /* ---------- RESPONSIVE: TABLET (<= 1024px) ---------- */
 @media (max-width: 1024px) {
     #main-container {
@@ -409,4 +459,11 @@ html, body {
     #chat-box { height: 36vh; }
     #start-countdown { font-size: 18vw; }
     .modal-content { margin: 1rem; width: calc(100% - 2rem); padding: 1rem; }
+
+    #phase-icon {
+      width: 42vw;
+      height: 42vw;
+      max-width: none;
+      max-height: none;
+    }
 }
