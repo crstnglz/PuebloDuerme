@@ -264,6 +264,10 @@ class GameController extends Controller
 
     $game->save();
 
+    $game->load('owner');
+
+    broadcast(new GameUpdated($game));
+
     event(new PhaseTransition(
         $game->id,
         $dayPhase->name,
