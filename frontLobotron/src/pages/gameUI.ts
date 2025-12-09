@@ -187,19 +187,20 @@ export async function initGameUI() {
 
       if (counter === 0) {
         countdownEl.textContent = "¡Ya!";
-      }
 
-      if (counter < 0) {
-        clearInterval(interval);
-
-        overlay.style.opacity = "0";
-        overlay.style.pointerEvents = "none";
+        clearInterval(interval)
 
         setTimeout(() => {
-          overlay.style.display = "none";
-          overlay.classList.remove("show-overlay");
-          overlay.classList.add("hidden-overlay");
-        }, 500);
+          overlay.style.opacity = "0"
+          overlay.style.pointerEvents = "none"
+
+          setTimeout(() => {
+            overlay.style.display = "none"
+            overlay.classList.remove("show-overlay")
+            overlay.classList.add("hidden-overlay")
+          }, 500)
+        }, 700)
+        return
       }
     }, 1000);
   });
