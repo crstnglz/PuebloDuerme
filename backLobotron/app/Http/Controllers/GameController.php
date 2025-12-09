@@ -91,6 +91,15 @@ class GameController extends Controller
         $user = $request->user();
 
         try {
+
+            //Comprobar si la partida está empezada
+            if($game->status !== 'esperando')
+            {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La partida ya está en curso. No puedes unirte.'
+                ], 403);
+            }
             // Comprobar si la partida está llena
             if ($game->current_players >= $game->max_players) {
                 return response()->json(['success' => false, 'message' => 'La partida está llena'], 403);

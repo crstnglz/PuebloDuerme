@@ -46,6 +46,13 @@ export function initLobby() {
             return
         }
 
+        const status = selected.querySelector("td:nth-child(4")?.textContent?.trim();
+        if(status !== "esperando")
+        {
+            showToast("Esta partida ya está en curso, no puedes unirte.", "warning")
+            return
+        }
+
         const gameId = selected.dataset.id
         if (!gameId) return;
 
