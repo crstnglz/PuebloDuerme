@@ -154,6 +154,16 @@ export async function initGameUI() {
   });
 
   channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
+
+    if(chatMessages)
+    {
+      const p = document.createElement("p")
+      p.innerHTML = `<b>Se ha iniciado la partida.</b>`
+      p.classList.add("system-msg")
+      chatMessages.appendChild(p)
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
     if (data?.phaseName && data?.endTime) {
       try {
         const phaseName = String(data.phaseName).toLowerCase();
