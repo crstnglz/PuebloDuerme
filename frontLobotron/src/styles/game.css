@@ -23,12 +23,9 @@ html, body {
     display: grid;
     grid-template-columns: 4fr 1.2fr;
     gap: 1vw;
-    padding: 0 1vw;
+
+    padding: 2vh 1vw 2vh 1vw;
     box-sizing: border-box;
-    background-image: url('/imagesGameRoom/backgroundDayGame.png');
-    background-size: cover;
-    background-position: center;
-    transition: background-image 0.8s ease-in-out;
 }
 
 /* --- FONDO SEGÚN FASE --- */
@@ -49,9 +46,9 @@ html, body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: space-between;
+    justify-content: space-around;
     padding-bottom: 1vh;
-    box-sizing: border-box;
+    padding-top: 1vh;
 }
 
 #players-grid {
@@ -61,6 +58,7 @@ html, body {
     gap: 0.8vw;
     flex: 1;
     align-content: center;
+    margin-bottom: 2vh;
 }
 
 #action-container {
@@ -68,11 +66,13 @@ html, body {
     display: flex;
     justify-content: center;
     margin: 1.5vh 0;
+    margin-top: 1vh;
+    margin-bottom: 2vh;
 }
 
 #action-btn {
-    width: 105px;
-    height: 105px;
+    width: 85px;
+    height: 85px;
     border-radius: 50%;
     padding: 0;
 
@@ -132,7 +132,11 @@ html, body {
 #right-panel {
     display: flex;
     flex-direction: column;
-    gap: 1vh;
+    gap: 1.5vh;
+
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+
     height: 100%;
     max-height: 100%;
     overflow: hidden;
@@ -554,6 +558,7 @@ html, body {
         margin-top: 3rem;
         max-height: 45vh;
         overflow: auto;
+        align-items: center;
     }
 
     #right-panel {
