@@ -108,6 +108,31 @@ export async function initGameUI() {
     const chatInput = document.getElementById("chat-input") as HTMLInputElement;
     const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
+
+    // === Parámetros conexión ===
+    const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
+    const wsPort = Number(import.meta.env.VITE_REVERB_PORT ?? 9090);
+    const apiHost = "localhost";
+    const apiPort = 8000;
+
+    // === Pusher / Reverb ===
+    const pusherKey = import.meta.env.VITE_REVERB_APP_KEY as string;
+    const pusher = new Pusher(pusherKey, {
+        wsHost,
+        wsPort,
+        forceTLS: false,
+        enabledTransports: ["ws"],
+        cluster: "mt1",
+        disableStats: true,
+        authEndpoint: `http://${apiHost}:${apiPort}/broadcasting/auth`,
+        auth: {
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`, // Token de autenticación para Reverb
+            },
+        },
+    });
+
     const myRoleModal = document.getElementById("my-role-modal") as HTMLDivElement | null;
     const myRoleTitle = document.getElementById("my-role-title") as HTMLElement | null;
     const myRoleText = document.getElementById("my-role-text") as HTMLElement | null;
@@ -174,31 +199,6 @@ export async function initGameUI() {
             return null;
         }
     }
-
-
-    // === Parámetros conexión ===
-    const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
-    const wsPort = Number(import.meta.env.VITE_REVERB_PORT ?? 9090);
-    const apiHost = "localhost";
-    const apiPort = 8000;
-
-    // === Pusher / Reverb ===
-    const pusherKey = import.meta.env.VITE_REVERB_APP_KEY as string;
-    const pusher = new Pusher(pusherKey, {
-        wsHost,
-        wsPort,
-        forceTLS: false,
-        enabledTransports: ["ws"],
-        cluster: "mt1",
-        disableStats: true,
-        authEndpoint: `http://${apiHost}:${apiPort}/broadcasting/auth`,
-        auth: {
-            headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${token}`, // Token de autenticación para Reverb
-            },
-        },
-    });
 
     // === Canal del game ===
     const channel = pusher.subscribe(`game.${gameId}`);

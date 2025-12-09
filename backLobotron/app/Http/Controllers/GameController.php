@@ -72,7 +72,6 @@ class GameController extends Controller
                 'message' => 'Partida creada correctamente',
                 'data' => ['game' => $game]
             ], 201);
-
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error creando la partida: ' . $e->getMessage()], 500);
         }
@@ -91,8 +90,8 @@ class GameController extends Controller
 
             // Comprobar si el usuario ya está unido
             $alreadyJoined = GameUser::where('game_id', $game->id)
-                                    ->where('user_id', $user->id)
-                                    ->exists();
+                ->where('user_id', $user->id)
+                ->exists();
 
             if (!$alreadyJoined) {
                 $villagerRole = Role::where('name', 'aldeano')->first();
@@ -111,9 +110,7 @@ class GameController extends Controller
 
                 try {
                     event(new PlayerJoined($game, $user));
-
                 } catch (Exception $e) {
-
                 }
             }
 
@@ -125,11 +122,37 @@ class GameController extends Controller
                 'message' => 'Te has unido correctamente',
                 'data' => ['game' => $game]
             ], 200);
-
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error al unirse a la partida: ' . $e->getMessage()], 500);
         }
     }
+
+    public function meRole(Request $request, Game $game)
+    {
+        $user = $request->user(); // usuario autenticado (por Sanctum)
+
+        // Buscamos al jugador en esta partida
+        $player = $game->players()
+            ->where('users.id', $user->id)
+            ->first();
+
+        // Si no está en la partida o aún no tiene rol asignado
+        if (! $player || ! $player->pivot->role_id) {
+            return response()->json([
+                'role_name' => null,
+                'role_team' => null,
+            ], 200);
+        }
+
+        $role = Role::find($player->pivot->role_id);
+
+        return response()->json([
+            'role_name' => $role?->name,
+            'role_team' => $role?->team,
+        ], 200);
+    }
+
+
 
     // Mostrar detalles de la partida (Sala)
     public function show($id)
@@ -139,7 +162,6 @@ class GameController extends Controller
             $game = Game::with('players')->findOrFail($id);
 
             return response()->json(['success' => true, 'data' => ['game' => $game]], 200);
-
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Partida no encontrada o error interno'], 404);
         }
@@ -174,13 +196,11 @@ class GameController extends Controller
     {
         $user = $request->user();
 
-        if(! $game->players()->where('user_id', $user->id)->exists())
-        {
+        if (! $game->players()->where('user_id', $user->id)->exists()) {
             return response()->json(['message' => 'No estás en esta partida', 400]);
         }
 
-        if($user->id === $game->owner_id)
-        {
+        if ($user->id === $game->owner_id) {
             broadcast(new \App\Events\GameForceExit($game->id, "owner_left"));
             broadcast(new \App\Events\GameDeleted($game->id));
 
@@ -195,8 +215,7 @@ class GameController extends Controller
 
         $game->players()->detach($user->id);
 
-        if($game->current_players > 0)
-        {
+        if ($game->current_players > 0) {
             $game->decrement('current_players');
         }
 
@@ -204,8 +223,7 @@ class GameController extends Controller
 
         $remainingPlayers = $game->current_players;
 
-        if($remainingPlayers === 0)
-        {
+        if ($remainingPlayers === 0) {
             broadcast(new \App\Events\GameDeleted($game->id));
 
             $game->delete();
@@ -217,7 +235,7 @@ class GameController extends Controller
             ]);
         }
 
-        broadcast(new \App\Events\PlayerLeftGame (
+        broadcast(new \App\Events\PlayerLeftGame(
             $game->id,
             $user->id,
             $user->nickname,
@@ -233,8 +251,7 @@ class GameController extends Controller
 
     public function start(Game $game)
     {
-        if(auth()->id() !== $game->owner_id)
-        {
+        if (auth()->id() !== $game->owner_id) {
             return response()->json([
                 'error' => 'Solo el creador de la partida puede iniciarla.'
             ], 403);
