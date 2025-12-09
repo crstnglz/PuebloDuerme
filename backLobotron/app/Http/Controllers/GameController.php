@@ -6,6 +6,9 @@ use App\Events\PhaseTransition;
 use App\Events\PlayerJoined;
 use App\Models\Game;
 use App\Events\GameStarted;
+use App\Events\GameCreated;
+use App\Events\GameUpdated;
+use App\Events\GameDeleted;
 use App\Models\GamePhase;
 use App\Models\GameUser;
 use App\Models\Role;
@@ -69,6 +72,8 @@ class GameController extends Controller
             // Cargar los datos del dueño para el frontend
             $game->load('owner:id,nickname');
 
+            broadcast(new GameCreated($game));
+
             return response()->json([
                 'success' => true,
                 'message' => 'Partida creada correctamente',
@@ -86,6 +91,15 @@ class GameController extends Controller
         $user = $request->user();
 
         try {
+
+            //Comprobar si la partida está empezada
+            if($game->status !== 'esperando')
+            {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La partida ya está en curso. No puedes unirte.'
+                ], 403);
+            }
             // Comprobar si la partida está llena
             if ($game->current_players >= $game->max_players) {
                 return response()->json(['success' => false, 'message' => 'La partida está llena'], 403);
@@ -156,6 +170,9 @@ class GameController extends Controller
         }
 
         $game->update($request->all());
+        $game->load('owner:id,nickname');
+
+        broadcast(new GameUpdated($game));
 
         return response()->json(['success' => true, 'data' => ['game' => $game]], 200);
     }
@@ -167,7 +184,10 @@ class GameController extends Controller
             return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
         }
 
+        $id = $game->id;
         $game->delete();
+
+        broadcast(new GameDeleted($id));
 
         return response()->json(['success' => true, 'message' => 'Partida eliminada'], 200);
     }
@@ -183,8 +203,8 @@ class GameController extends Controller
 
         if($user->id === $game->owner_id)
         {
-            broadcast(new \App\Events\GameForceExit($game->id, "owner_left"));
-            broadcast(new \App\Events\GameDeleted($game->id));
+            broadcast(new \App\Events\GameForceExit($game->id, "owner_left"))->toOthers();
+            broadcast(new GameDeleted($game->id))->toOthers();
 
             $game->delete();
 
@@ -208,7 +228,7 @@ class GameController extends Controller
 
         if($remainingPlayers === 0)
         {
-            broadcast(new \App\Events\GameDeleted($game->id));
+            broadcast(new GameDeleted($game->id))->toOthers();
 
             $game->delete();
 
@@ -235,7 +255,7 @@ class GameController extends Controller
 
    public function start(Game $game)
 {
-    
+
     if (auth()->id() !== $game->owner_id) {
         return response()->json(['error' => 'Solo el creador de la partida puede iniciarla.'], 403);
     }
@@ -252,6 +272,10 @@ class GameController extends Controller
     $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
 
     $game->save();
+
+    $game->load('owner');
+
+    broadcast(new GameUpdated($game));
 
     event(new PhaseTransition(
         $game->id,

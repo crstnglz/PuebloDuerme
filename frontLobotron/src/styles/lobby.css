@@ -72,27 +72,28 @@ body {
 }
 
 .back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  text-decoration: none;
+position: absolute;
+    top: 20px;
+    left: 20px;
+    text-decoration: none;
 
-  background-color: var(--color-contraste);
-  color: var(--color-white);
+    background-color: var(--contrast-color);
+    color: white;
 
-  padding: 10px 18px;
-  font-size: 1rem;
-  border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 1rem;
+    border-radius: 10px;
 
-  box-shadow: 0 0 10px var(--color-black);
-  transition: 0.3s ease;
-  font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    transition: 0.3s ease;
+    font-family: sans-serif;
+    font-weight: bold;
 }
 
 .back-btn:hover {
-  background-color: var(--color-acento-1);
-  box-shadow: 0 0 13px var(--color-black);
-  transform: translateY(-2px);
+    background-color: var(--color-acento-1);
+    box-shadow: 0 0 13px rgba(0,0,0,0.6);
+    transform: translateY(-2px)
 }
 
 @keyframes temblor {
@@ -347,16 +348,45 @@ td {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  backdrop-filter: blur(4px);
 }
 
 .modal-content{
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 10px;
-  width: 350px;
+  background: var(--color-black);
+  padding: 22px;
+  border-radius: 12px;
+  width: 360px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+
+  font-family: var(--font-body);
+}
+
+.modal-content label {
+  margin-bottom: -6px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: white;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+
+  background: #111;
+  color: white;
+
+  border: 2px solid var(--dark-color);
+  border-radius: 8px;
+
+  outline: none;
+  transition: border .2s ease;
+}
+
+.modal-content input:focus {
+  border-color: var(--third-color);
 }
 
 .modal-actions{
@@ -365,22 +395,157 @@ td {
   gap: 10px;
 }
 
-.btn-cancel, .btn-confirm{
+.btn-cancel{
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  border: none;
+  border: 2px solid #222;
+
+  background: #444;
+  color: white;
+
+  font-family: var(--font-accent);
+  transition: 0.2s ease;
 }
 
-.btn-cancel{
-  background: #444;
+.btn-cancel:hover {
+  background: #333;
 }
 
 .btn-confirm{
-  background: #2ecc71;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  background: #4CAF50;
+  color: white;
+  
+  font-family: var(--font-accent);
+  font-size: 1.1rem;
+
+  border: 2px solid var(--color-white);
+  transition: .2s ease;
+}
+
+.btn-confirm:hover {
+  background: #3b8d3d;
+  transform: scale(1.05);
 }
 
 tr.selected {
-  background-color: #222;
-  outline: 2px solid #00b3ff;
+  background: #1b1b1b;
+  outline: none;
+
+  box-shadow: 
+    inset 4px 0 0 #00b3ff,
+    inset 0 0 10px rgba(0, 179, 255, 0.25);
+
+}
+
+/* Botones Editar y Borrar */
+.edit-btn, 
+.delete-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+
+  font-family: var(--font-accent);
+  font-size: 1rem;
+  font-weight: bold;
+
+  color: white;
+  border: 2px solid white;
+
+  background: var(--third-color);
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+  background: var(--dark-color);
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background: #b33939;
+  border: #ffb3b3;
+}
+
+.delete-btn:hover {
+  background: #8e2a2a;
+}
+
+
+#toastContainer {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 9999;
+  width: 360px;
+}
+
+.toast {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 18px;
+border-radius: 8px;
+font-size: 15px;
+font-weight: 600;
+
+background: rgba(20, 20, 20, 0.85);
+border: 2px solid rgba(255,255,255,0.12);
+box-shadow: 0 0 15px rgba(0,0,0,0.6);
+backdrop-filter: blur(3px);
+
+animation: toastPop 0.25s ease-out forwards;
+position: relative;
+color: #eee;
+}
+
+.toast.warning{
+  border-color: #ffc642;
+    box-shadow: 0 0 12px #ffc64280;
+}
+
+.toast.success {
+  border-color: #28d764;
+  box-shadow: 0 0 12px #28d76480;
+}
+
+.toast.error{
+  border-color: #ff4040;
+  box-shadow: 0 0 12px #ff404080;
+}
+
+.toast.info{
+  border-color: #4fa3ff;
+    box-shadow: 0 0 12px #4fa3ff80;
+}
+
+@keyframes toastPop {
+    0% { transform: scale(0.85) translateX(20px); opacity: 0; }
+    60% { transform: scale(1.05) translateX(0); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {opacity: 0; transform: translateX(20px);}
+}
+
+.gold-glow {
+    animation: glow 0.7s ease-out;
+}
+
+@keyframes glow {
+    0% { background-color: rgba(255, 215, 0, 0.4); }
+    100% { background-color: transparent; }
 }
