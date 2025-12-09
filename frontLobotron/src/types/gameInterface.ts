@@ -1,5 +1,5 @@
 import type { Player } from "./player";
-
+import type { GamePhaseInterface } from "./gamePhaseInterface";
 
 export interface GameInterface {
     id: number; 
@@ -15,4 +15,7 @@ export interface GameInterface {
     players?: Player[];
     created_at?: string;
     updated_at?: string;
+    current_phase?: GamePhaseInterface;
+    phase_ends_at?: string;
+    
 }

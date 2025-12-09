@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon; 
 
 class Game extends Model
 {
@@ -15,12 +16,22 @@ class Game extends Model
         'owner_id',
         'max_players',
         'current_players',
-        'status'
+        'status',
+        'current_phase_id',
+        'phase_ends_at',
+        'turn_number',
     ];
 
+    // Indica que phase_ends_at debe ser tratado como una instancia de Carbon
+    protected $dates = ['phase_ends_at']; 
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function currentPhase()
+    {
+        return $this->belongsTo(GamePhase::class, 'current_phase_id');
     }
 
     public function players()

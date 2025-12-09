@@ -1,13 +1,14 @@
 <?php
+
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GameStarted implements ShouldBroadcast
+class PhaseTransition implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -15,24 +16,25 @@ class GameStarted implements ShouldBroadcast
     public string $phaseName;
     public string $endTime;
 
-    public function __construct(int $gameId, string $phaseName = 'day', string $endTime = '')
+    public function __construct(int $gameId, string $phaseName, string $endTime)
     {
         $this->gameId = $gameId;
         $this->phaseName = $phaseName;
         $this->endTime = $endTime;
     }
 
-    public function broadcastOn()
+    public function broadcastOn(): Channel
     {
-        return new Channel("game.{$this->gameId}");
+        return new Channel('game.' . $this->gameId);
     }
 
-    public function broadcastAs()
+    
+    public function broadcastAs(): string
     {
-        return "game.started";
+        return 'phase-changed';
     }
 
-    public function broadcastWith()
+    public function broadcastWith(): array
     {
         return [
             'phaseName' => $this->phaseName,

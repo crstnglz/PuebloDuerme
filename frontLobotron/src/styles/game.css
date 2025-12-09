@@ -16,27 +16,44 @@ html, body {
 
 /* --- CONTENEDOR PRINCIPAL --- */
 #main-container {
-    height: calc(100vh - 5vh);
+    height: calc(100vh - 0.2vh);
     display: grid;
     grid-template-columns: 4fr 1.2fr;
     gap: 1vw;
     padding: 0 1vw;
     box-sizing: border-box;
+    background-image: url('/imagesGameRoom/backgroundDayGame.png');
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.8s ease-in-out;
+}
+
+/* --- FONDO SEGÚN FASE --- */
+#main-container.is-day {
+    background-image: url('/imagesGameRoom/BackgroundDayGame.png');
+    background-size: cover;
+    background-position: center;
+}
+
+#main-container.is-night {
+    background-image: url('/imagesGameRoom/BackgroundNightGame.png');
+    background-size: cover;
+    background-position: center;
 }
 
 /* --- GRID JUGADORES --- */
 #players-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 1vw;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 0.8vw;
     margin-top: 5vh;
 }
 
 .player {
-    background: var(--cream);
+    background: rgba(253, 248, 228);
     border-radius: 20px;
-    font-size: 1.3vw;
+    font-size: 1.1vw;
     text-align: center;
     font-weight: bold;
     display: flex;
@@ -46,12 +63,11 @@ html, body {
     box-shadow: 0 0 10px rgba(0,0,0,0.25);
 }
 
-/* ⭐ HOVER DE LAS CELDAS */
 .player:hover {
     transform: scale(1.07);
     background: var(--panel-bg);
     box-shadow: 0 0 18px var(--cream),
-                0 0 12px rgba(0, 0, 0, 0.35);
+                0 0 12px rgba(0,0,0,0.35);
     cursor: pointer;
 }
 
@@ -102,7 +118,41 @@ html, body {
     color: var(--dark-wood);
 }
 
-/* TEMPORIZADOR */
+/* ==============
+   ESTILO COMPARTIDO "Boton Iniciar Partida"
+   ============== */
+.start-btn {
+    background: var(--panel-bg);
+    padding: 0.6vw 1vw;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.3vw;
+    font-weight: 800;
+    color: var(--dark-wood);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    border: 2px solid rgba(93,64,55,0.15);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.start-btn:not(.disabled):hover {
+    transform: translateY(-2px) scale(1.02);
+    background: #d4a24c;
+    color: #fff;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+}
+
+.start-btn.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+    transform: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+}
+
+/* --- TEMPORIZADOR (por defecto) --- */
 #timer-box {
     background: var(--panel-bg);
     padding: 0.5vw;
@@ -116,18 +166,37 @@ html, body {
     transition: 0.2s;
 }
 
-#timer-box:not(.disabled):hover{
-    transform: scale(1.05);
-    background: #d4a24c;
-    color: white;
+/* CUANDO EL TEMPORIZADOR ESTÁ ACTIVO*/
+#timer-box.active-timer {
+    background: var(--panel-bg);
+    padding: 0.6vw 1vw;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.3vw;
+    font-weight: 800;
+    color: var(--dark-wood);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    border: 2px solid rgba(93,64,55,0.15);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    width: 100%;
+    box-sizing: border-box;
+    opacity: 1 !important;
 }
 
-#timer-box.disabled{
-    opacity: 0.5;
+#timer-box.active-timer:not(.disabled):hover {
+    transform: translateY(-2px) scale(1.02);
+    background: #d4a24c;
+    color: #fff;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+}
+
+#timer-box.disabled {
+    opacity: 0.55;
     pointer-events: none;
 }
 
-/* CHAT */
+/* --- CHAT --- */
 #chat-box {
     background: rgba(223,204,184,0.75);
     padding: 1vw;
@@ -170,7 +239,7 @@ html, body {
     color: white;
 }
 
-/* MODAL DE INFORMACIÓN DE ROLES */
+/* --- MODAL --- */
 .modal {
     display: none;
     position: fixed;
@@ -199,7 +268,7 @@ html, body {
     font-size: 2vw;
 }
 
-/* CONTENEDOR LOGO + SALIR */
+/* --- TOP BAR / SALIR --- */
 #top-bar {
     display: flex;
     align-items: center;
@@ -207,7 +276,6 @@ html, body {
     gap: 1vw;
 }
 
-/* BOTÓN SALIR */
 #exit-button {
     background: #b15454;
     color: white;
@@ -226,7 +294,7 @@ html, body {
     transform: scale(1.08);
 }
 
-/* Mensajes enviados por ti */
+/* --- chat messages --- */
 .my-msg {
     background: rgba(0, 150, 255, 0.25);
     padding: 6px 10px;
@@ -234,8 +302,6 @@ html, body {
     margin: 4px 0;
     text-align: right;
 }
-
-/* Mensajes enviados por otros */
 .other-msg {
     background: rgba(255, 255, 255, 0.25);
     padding: 6px 10px;
@@ -244,7 +310,7 @@ html, body {
     text-align: left;
 }
 
-/* Overlay cuenta atrás */
+/* --- OVERLAY CUENTA ATRÁS --- */
 #start-overlay {
     position: fixed;
     top: 0;
@@ -258,28 +324,89 @@ html, body {
     z-index: 999999;
     transition: opacity 0.5s ease-out;
 }
-
-
-.hidden-overlay{
+.hidden-overlay {
     opacity: 0 !important;
     pointer-events: none !important;
 }
-
-.show-overlay{
+.show-overlay {
     opacity: 1 !important;
     pointer-events: all !important;
 }
 
-#start-countdown{
+#start-countdown {
     font-size: 10vw;
     color: #f8e4b6;
     font-weight: 900;
     text-shadow: 0 0 25px #d69936, 0 0 40px #b56a0a;
     animation: pop 0.7s ease-out forwards;
 }
-
-@keyframes pop{
+@keyframes pop {
     0% { transform: scale(0.2); opacity: 0; }
     40% { transform: scale(1.15); opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- RESPONSIVE: TABLET (<= 1024px) ---------- */
+@media (max-width: 1024px) {
+    #main-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+
+    #players-grid {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        gap: 0.9rem;
+        margin-top: 4vh;
+    }
+
+    #roles-box { width: 320px; }
+    #timer-box, .start-btn { font-size: 1.4rem; padding: 0.5rem 0.9rem; }
+    #timer-box.active-timer, .start-btn { font-size: 1.6rem; padding: 0.6rem 1rem; }
+    .player { font-size: 1rem; }
+    #logo { font-size: 2.6rem; }
+    .modal-content { padding: 1.5rem; }
+}
+
+/* ---------- RESPONSIVE: MÓVIL (<= 600px) ---------- */
+@media (max-width: 600px) {
+    html, body { overflow: auto; }
+    #main-container {
+        display: block;
+        height: auto;
+        padding: 1rem;
+    }
+
+    #players-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: minmax(60px, auto);
+        gap: 0.7rem;
+        margin-top: 3rem;
+        max-height: 45vh;
+        overflow: auto;
+    }
+
+    #right-panel {
+        margin-top: 1rem;
+        width: 100%;
+        display: block;
+    }
+
+    #roles-box { width: 100%; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    #timer-box, .start-btn {
+        width: 100%;
+        font-size: 1.2rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+    }
+    #timer-box.active-timer, .start-btn {
+        font-size: 1.8rem;
+        padding: 0.9rem 1rem;
+    }
+
+    #chat-box { height: 36vh; }
+    #start-countdown { font-size: 18vw; }
+    .modal-content { margin: 1rem; width: calc(100% - 2rem); padding: 1rem; }
 }
