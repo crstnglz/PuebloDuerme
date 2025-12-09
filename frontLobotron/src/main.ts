@@ -1,10 +1,10 @@
+// import './echo'
 import { initLobby } from './pages/lobby'; 
 import { initRegisterForm, clearRegisterForm } from './pages/register';
 import { initLoginForm, clearLoginForm } from './pages/login';
 import { indexUI } from './pages/indexUI';
 import { enableSaveOnChanges, modalProfile, saveProfile, showImage } from './pages/profile';
 import { initAdmin } from './pages/admin'
-// import './echo'
 import { initGameUI } from './pages/gameUI'
 
 
