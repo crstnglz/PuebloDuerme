@@ -16,7 +16,10 @@ html, body {
 
 /* --- CONTENEDOR PRINCIPAL --- */
 #main-container {
-    height: calc(100vh - 0.2vh);
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+
     display: grid;
     grid-template-columns: 4fr 1.2fr;
     gap: 1vw;
@@ -76,6 +79,9 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 1vh;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 /* --- LOGO --- */
@@ -203,7 +209,8 @@ html, body {
     border-radius: 15px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     gap: 0.7vw;
 }
 
@@ -212,6 +219,7 @@ html, body {
     border-radius: 10px;
     padding: 0.5vw;
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     color: var(--dark-wood);
 }
