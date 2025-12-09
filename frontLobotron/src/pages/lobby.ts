@@ -1,3 +1,4 @@
+import Pusher from "pusher-js";
 import { Game } from '../models/Game';
 import { showToast } from '../toast';
 import {
@@ -133,6 +134,70 @@ export function initLobby() {
 
     // Cargar Partidas
     loadGamesAndRender()
+
+    const token = localStorage.getItem("access_token")
+
+  const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
+  const wsPort = Number(import.meta.env.VITE_REVERB_PORT ?? 9090);
+  const apiHost = "localhost";
+  const apiPort = 8000;
+
+  const pusherKey = import.meta.env.VITE_REVERB_APP_KEY as string;
+  const pusher = new Pusher(pusherKey, {
+    wsHost,
+    wsPort,
+    forceTLS: false,
+    enabledTransports: ["ws"],
+    cluster: "mt1",
+    disableStats: true,
+    authEndpoint: `http://${apiHost}:${apiPort}/broadcasting/auth`,
+    auth: { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } },
+  });
+
+  const lobbyChannel = pusher.subscribe("lobby");
+
+  lobbyChannel.bind("GameCreated", (e: any) => {
+    console.log("GameCreated recibido:", e.game)
+
+    addGame(new Game(
+        e.game.id,
+        e.game.name,
+        e.game.current_players,
+        e.game.status,
+        e.game.owner
+    ))
+    highlightRow(e.game.id)
+  })
+
+  lobbyChannel.bind("GameUpdated", (e:any) => {
+    console.log("GameUpdated recibido:", e.game)
+
+    updateRow(new Game (
+        e.game.id,
+        e.game.name,
+        e.game.current_players,
+        e.game.status,
+        e.game.owner
+    ))
+
+    highlightRow(e.game.id)
+  })
+
+  lobbyChannel.bind("GameDeleted", (editGame: any) => {
+    console.log("GameDeleted recibido:", editGame.id)
+
+    const row = document.querySelector(`tr[data-id="${editGame.id}"]`)
+    row?.remove()
+  })
+}
+
+function highlightRow(id: number)
+{
+     const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (!row) return;
+
+    row.classList.add("gold-glow");
+    setTimeout(() => row.classList.remove("gold-glow"), 700);
 }
 
 // Carga partidas del servidor y las pinta en la tabla

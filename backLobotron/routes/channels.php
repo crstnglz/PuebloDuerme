@@ -14,6 +14,6 @@ Broadcast::channel('game.{gameId}', function () {
 
 Broadcast::channel('lobby', function ($user)
 {
-    return $user !== null;
+    return true;
 });
 
