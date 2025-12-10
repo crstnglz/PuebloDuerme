@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             RoleSeeder::class,
             GamePhasesSeeder::class,
+            BotSeeder::class
         ]);
 
          DB::statement('SET FOREIGN_KEY_CHECKS=1;');
