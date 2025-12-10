@@ -13,7 +13,7 @@ interface PlayerJoinedEvent {
 
 export async function initGameUI() {
   const params = new URLSearchParams(window.location.search);
-  const gameId = params.get("game");
+  const gameId = params.get("game");  
 
   const token = localStorage.getItem("access_token");
   const raw = localStorage.getItem("user");
@@ -694,6 +694,20 @@ if (myRoleModal) {
   const updatePhaseAndTimer = function (phase: GamePhaseInterface, end_time: string) {
     updateGamePhase(phase);
     startCountdown(end_time);
+
+    const night = phase.name.toLowerCase() === "night"
+
+    if(nightFilter)
+    {
+      if(night && myRoleSlug !== "lobo")
+      {
+        nightFilter.classList.add("show")
+      }
+      else 
+      {
+        nightFilter.classList.remove("show")
+      }
+    }
   };
 
   channel.bind("phase-changed", (data: { phaseName: string; endTime: string }) => {
