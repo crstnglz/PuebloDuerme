@@ -432,6 +432,28 @@ html, body {
     border-left: 3px solid rgba(180, 120, 60, 0.6);
 }
 
+.wolf-msg {
+   max-width: 80%;
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-left: auto; 
+    
+    background: linear-gradient(
+        135deg,
+        rgba(255, 120, 120, 0.25),
+        rgba(220, 80, 80, 0.22)
+    );
+    
+    color: #5c0606; 
+    font-weight: 600;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    backdrop-filter: blur(2px);
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 /* --- OVERLAY CUENTA ATRÁS --- */
 #start-overlay {
     position: fixed;

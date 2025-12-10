@@ -59,7 +59,7 @@ class Game extends Model
      * @param  int  $ratio  Número de aldeanos por cada lobo
      *                      (ejemplo: 3 → 1 lobo cada 3 jugadores aprox.)
      */
-    public function assignBasicRoles(int $ratio = 1): void
+    public function assignBasicRoles(int $ratio = 3): void
     {
         // Jugadores de esta partida en orden aleatorio
         $players = $this->players()->inRandomOrder()->get();

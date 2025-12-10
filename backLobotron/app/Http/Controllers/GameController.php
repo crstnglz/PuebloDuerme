@@ -293,8 +293,8 @@ class GameController extends Controller
         ]);
     }
 
-    $game->current_phase_id = $dayPhase->id;
-    $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
+        $game->current_phase_id = $dayPhase->id;
+        $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
 
     $game->save();
 
@@ -302,35 +302,42 @@ class GameController extends Controller
 
     broadcast(new GameUpdated($game));
 
-    event(new PhaseTransition(
-        $game->id,
-        $dayPhase->name,
-        $game->phase_ends_at->toIso8601String()
-    ));
+        event(new PhaseTransition(
+            $game->id,
+            $dayPhase->name,
+            $game->phase_ends_at->toIso8601String()
+        ));
 
-    event(new GameStarted(
-        $game->id,
-        $dayPhase->name,
-        $game->phase_ends_at->toIso8601String()
-    ));
+        event(new GameStarted(
+            $game->id,
+            $dayPhase->name,
+            $game->phase_ends_at->toIso8601String()
+        ));
 
-    return response()->json([
-        'message' => 'Partida iniciada',
-        'game_id' => $game->id,
-        'data' => [
-            'turn_state' => $dayPhase->name,
-            'end_time' => $game->phase_ends_at->toIso8601String()
-        ]
-    ]);
-}
+        return response()->json([
+            'message' => 'Partida iniciada',
+            'game_id' => $game->id,
+            'data' => [
+                'turn_state' => $dayPhase->name,
+                'end_time' => $game->phase_ends_at->toIso8601String()
+            ]
+        ]);
+    }
+
+    public function meRole(Request $request, Game $game)
+    {
+        $user = $request->user(); // usuario autenticado (por Sanctum)
+
+        // Buscamos al jugador en esta partida
+        $player = $game->players()
+            ->where('users.id', $user->id)
+            ->first();
 
         // Si no está en la partida o aún no tiene rol asignado
         if (! $player || ! $player->pivot->role_id) {
             return response()->json([
-                'role_name'      => null,
-                'role_team'      => null,
-                'role_slug'      => null,
-                'visible_wolves' => [],
+                'role_name' => null,
+                'role_team' => null,
             ], 200);
         }
 

@@ -17,3 +17,13 @@ Broadcast::channel('lobby', function ($user)
     return true;
 });
 
+Broadcast::channel('wolves.{gameId}', function($user, $gameId)
+{
+    $game = Game::find($gameId);
+    if (!$game) return false;
+
+    $player = $game->players()->where('user_id', $user->id)->first();
+    if(!$player) return false;
+
+    return $player->role && $player->role->name === 'lobo';
+});
