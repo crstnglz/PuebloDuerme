@@ -53,28 +53,28 @@ export async function initGameUI() {
   }
 
   // Click en casillas de jugadores para votar
-playersGrid.addEventListener("click", (e: MouseEvent) => {
-  const target = e.target as HTMLElement;
-  const cell = target.closest(".player") as HTMLElement | null;
-  if (!cell) return;
+  playersGrid.addEventListener("click", (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const cell = target.closest(".player") as HTMLElement | null;
+    if (!cell) return;
 
-  const userIdStr = cell.dataset.userId;
-  if (!userIdStr) return;
+    const userIdStr = cell.dataset.userId;
+    if (!userIdStr) return;
 
-  const targetId = Number(userIdStr);
+    const targetId = Number(userIdStr);
 
-  // NOCHE: solo lobos votan
-  if (isNightPhase() && myRoleSlug === "lobo") {
-    sendNightVote(targetId, cell);
-    return;
-  }
+    // NOCHE: solo lobos votan
+    if (isNightPhase() && myRoleSlug === "lobo") {
+      sendNightVote(targetId, cell);
+      return;
+    }
 
-  // DÍA: cualquiera vivo puede votar (la validación de "vivo" la hace el back)
-  if (isDayPhase()) {
-    sendDayVote(targetId, cell);
-    return;
-  }
-});
+    // DÍA: cualquiera vivo puede votar (la validación de "vivo" la hace el back)
+    if (isDayPhase()) {
+      sendDayVote(targetId, cell);
+      return;
+    }
+  });
 
 
   // === ESTADO DE ROL EN CLIENTE ===
@@ -387,10 +387,42 @@ playersGrid.addEventListener("click", (e: MouseEvent) => {
     currentPlayers.push(event.user as Player);
   });
 
+  channel.bind("player.killed", (data: {
+    gameId: number;
+    userId: number;
+    phase: string;
+    roleName?: string | null;
+    roleTeam?: string | null;
+  }) => {
+    console.log("PLAYER KILLED EVENT", data);
+
+    const userIdStr = String(data.userId);
+    const cells = Array.from(playersGrid.children) as HTMLElement[];
+    const slot = cells.find(c => c.dataset.userId === userIdStr);
+    if (!slot) return;
+
+    slot.classList.add("dead-player");
+
+    const label = document.createElement("div");
+    label.classList.add("dead-role-badge");
+    const niceName = data.roleName ?? "Desconocido";
+
+    label.textContent = `Muerto: ${niceName}`;
+    slot.appendChild(label);
+
+    if (data.roleTeam === "wolves") {
+      const img = slot.querySelector("img") as HTMLImageElement | null;
+      if (img) {
+        img.src = "/imagesUI/roles/lobo.png";
+      }
+    }
+  });
+
+
   let botsSpokeThisDay = false;
 
   // Escucha el evento bots.joined
-  channel.bind("bots.joined", (payload: { bots?: MaybeBot[]; bot?: MaybeBot; added?: MaybeBot[]; joined?: MaybeBot[] } ) => {
+  channel.bind("bots.joined", (payload: { bots?: MaybeBot[]; bot?: MaybeBot; added?: MaybeBot[]; joined?: MaybeBot[] }) => {
     const arr = payload?.bots ?? payload?.added ?? payload?.joined ?? (payload?.bot ? [payload.bot] : null);
     if (Array.isArray(arr) && arr.length > 0) {
       fillEmptySlotsWithBots(arr);
@@ -427,8 +459,7 @@ playersGrid.addEventListener("click", (e: MouseEvent) => {
   });
 
   channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
-    if(chatMessages)
-    {
+    if (chatMessages) {
       const p = document.createElement("p")
       p.innerHTML = `<b>Se ha iniciado la partida.</b>`
       p.classList.add("system-msg")
@@ -543,7 +574,7 @@ playersGrid.addEventListener("click", (e: MouseEvent) => {
       }
 
       try {
-        await fetch (`http://${apiHost}:${apiPort}/api/chat/wolves`, {
+        await fetch(`http://${apiHost}:${apiPort}/api/chat/wolves`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -584,7 +615,7 @@ playersGrid.addEventListener("click", (e: MouseEvent) => {
     }
   }
 
-    // ======================================================
+  // ======================================================
   //  VOTACIONES: noche (lobos) y día (aldea)
   // ======================================================
   async function sendNightVote(targetId: number, cell: HTMLElement) {
@@ -678,7 +709,7 @@ playersGrid.addEventListener("click", (e: MouseEvent) => {
             fillEmptySlotsWithBots(added as MaybeBot[]);
           }
         } else if (fillResp && fillResp.error) {
-    
+
           console.warn("fillBots devolvió error:", fillResp);
         }
       } catch (err) {
@@ -860,12 +891,12 @@ playersGrid.addEventListener("click", (e: MouseEvent) => {
   };
 
   function isNightPhase(): boolean {
-  return mainContainer?.classList.contains("is-night") ?? false;
-}
+    return mainContainer?.classList.contains("is-night") ?? false;
+  }
 
-function isDayPhase(): boolean {
-  return mainContainer?.classList.contains("is-day") ?? false;
-}
+  function isDayPhase(): boolean {
+    return mainContainer?.classList.contains("is-day") ?? false;
+  }
 
 
   const startCountdown = function (endTime: string) {

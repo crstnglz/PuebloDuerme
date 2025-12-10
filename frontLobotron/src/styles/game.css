@@ -829,3 +829,23 @@ color: #eee;
 .player.voted-night {
   box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.9);
 }
+
+.player.dead-player {
+  opacity: 0.4;
+  filter: grayscale(0.9);
+  position: relative;
+}
+
+.dead-role-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #f8e4b6;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.7vw;
+  font-weight: bold;
+  pointer-events: none;
+}
