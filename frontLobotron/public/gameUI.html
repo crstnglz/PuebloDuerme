@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lobotron</title>
-    <link rel="icon" type="image/png" href="/images/logo.jpg" />
-    <link rel="stylesheet" href="/src/styles/game.css" />
-  </head>
 
-  <body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lobotron</title>
+  <link rel="icon" type="image/png" href="/images/logo.jpg" />
+  <link rel="stylesheet" href="/src/styles/game.css" />
+</head>
+
+<body>
 
      <div id="start-overlay" class="hidden-overlay">
       <div id="start-countdown">5</div>
@@ -58,52 +59,65 @@
       </div>
       </div>
 
-      <!-- PANEL DERECHO -->
-      <div id="right-panel">
-        <div id="top-bar">
-          <div id="logo">LOBOTRON</div>
-          <button id="exit-button">Salir</button>
+    <!-- PANEL DERECHO -->
+    <div id="right-panel">
+      <div id="top-bar">
+        <div id="logo">LOBOTRON</div>
+        <button id="exit-button">Salir</button>
+      </div>
+
+
+      <div id="roles-box">
+        <div class="role role-img" data-role="aldeano">Aldeano</div>
+        <div class="role role-img" data-role="lobo">Lobo</div>
+        <div class="role role-img" data-role="bruja">Bruja</div>
+        <div class="role role-img" data-role="cazador">Cazador</div>
+        <div class="role role-img" data-role="cupido">Cupido</div>
+        <div class="role role-img" data-role="vidente">Vidente</div>
+      </div>
+
+      <div id="timer-box" class="disabled">Iniciar Partida</div>
+
+      <!-- CHAT -->
+      <div id="chat-box">
+        <div id="chat-messages">
         </div>
-        
-      
-        <div id="roles-box">
-          <div class="role role-img" data-role="aldeano">Aldeano</div>
-          <div class="role role-img" data-role="lobo">Lobo</div>
-          <div class="role role-img" data-role="bruja">Bruja</div>
-          <div class="role role-img" data-role="cazador">Cazador</div>
-          <div class="role role-img" data-role="cupido">Cupido</div>
-          <div class="role role-img" data-role="vidente">Vidente</div>
-        </div>
 
-        <div id="timer-box" class="disabled">Iniciar Partida</div>
-
-        <!-- CHAT -->
-        <div id="chat-box">
-          <div id="chat-messages">
-          </div>
-
-          <div id="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Tu mensaje..." />
-            <button id="send-button">➤</button>
-          </div>
+        <div id="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Tu mensaje..." />
+          <button id="send-button">➤</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- MODAL DE ROLES (EXISTENTE) -->
-    <div id="role-info-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-role-info">&times;</span>
-        <img id="role-modal-img" src="" alt="Rol" />
-        <h2 id="role-info-title"></h2>
-        <p id="role-info-text"></p>
-      </div>
+  <!-- MODAL DE ROLES (EXISTENTE) -->
+  <div id="role-info-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-role-info">&times;</span>
+      <img id="role-modal-img" src="" alt="Rol" />
+      <h2 id="role-info-title"></h2>
+      <p id="role-info-text"></p>
     </div>
+  </div>
 
-      
+
+  <div id="my-role-modal">
+    <div class="my-role-backdrop"></div>
+
+    <div class="my-role-card">
+      <img id="my-role-img" src="/imagesUI/roles/aldeano.png" alt="Rol" />
+      <h2 id="my-role-title">Tu rol</h2>
+      <p id="my-role-text">Aldeano</p>
+      <button id="close-my-role-modal">Cerrar</button>
+    </div>
+  </div>
+
+
 
   <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
-    <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/main.ts"></script>
 
-  </body>
+</body>
+
 </html>
