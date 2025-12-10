@@ -50,6 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/games/{game}/changePhase', [PhaseTransitionController::class, 'changePhase']);
 
+    Route::post('/games/{game}/night-vote', [GameController::class, 'nightVote']);
+    Route::post('/games/{game}/day-vote',   [GameController::class, 'dayVote']);
+
     //ADMIN
     Route::middleware('abilities:admin')->group(function () {
 
