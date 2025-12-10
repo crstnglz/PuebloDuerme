@@ -518,6 +518,133 @@ html, body {
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
+
+/* MODAL MI ROL */
+#my-role-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#my-role-modal.show {
+    display: flex;
+}
+
+/* Fondo oscuro */
+.my-role-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Carta principal */
+.my-role-card {
+    position: relative;
+    z-index: 1;
+    width: min(80vw, 320px);
+    aspect-ratio: 3 / 4;
+    border-radius: 18px;
+    padding: 20px 18px;
+    background: radial-gradient(circle at top, #ffebc1 0%, #b36b2c 65%, #4e2b10 100%);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.65);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    font-family: "Cinzel", system-ui, serif;
+    transform-origin: center bottom;
+    opacity: 0;
+    transform: translateY(80vh) scale(0.8) rotate(6deg);
+}
+
+/* Cartas de fondo para efecto baraja */
+.my-role-card::before,
+.my-role-card::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: inherit;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.03);
+    z-index: -1;
+}
+
+.my-role-card::before {
+    transform: translate(-10px, -10px) rotate(-4deg);
+    opacity: 0.8;
+}
+
+.my-role-card::after {
+    transform: translate(10px, 6px) rotate(3deg);
+    opacity: 0.5;
+}
+
+/* Imagen del rol */
+#my-role-img {
+    width: 55%;
+    max-width: 160px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Título y texto */
+#my-role-title {
+    margin: 10px 0 4px;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#my-role-text {
+    text-align: center;
+    font-size: 1rem;
+}
+
+/* Botón cerrar */
+#close-my-role-modal {
+    margin-top: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: none;
+    background: #ffebc1;
+    color: #4e2b10;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45);
+}
+
+#close-my-role-modal:hover {
+    transform: translateY(-1px);
+}
+
+/* Animación de entrada de la carta */
+.my-role-card.animate-in {
+    animation: role-card-in 0.7s cubic-bezier(0.22, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes role-card-in {
+    0% {
+        opacity: 0;
+        transform: translateY(80vh) scale(0.8) rotate(8deg);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.03) rotate(-2deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+}
+
+
 /* ---------- RESPONSIVE: TABLET (<= 1024px) ---------- */
 @media (max-width: 1024px) {
     #main-container {
@@ -589,6 +716,8 @@ html, body {
       max-width: none;
       max-height: none;
     }
+
+    
 }
 
 #toastContainer {
