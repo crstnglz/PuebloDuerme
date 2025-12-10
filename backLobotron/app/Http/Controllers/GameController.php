@@ -264,8 +264,10 @@ class GameController extends Controller
 
         $game->current_phase_id = $dayPhase->id;
         $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
-
         $game->save();
+
+        $game->load('owner');
+        broadcast(new GameUpdated($game))->toOthers();
 
         // 3) Emitir evento "la partida ha empezado"
         event(new GameStarted($game->id));
