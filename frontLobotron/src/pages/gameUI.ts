@@ -276,6 +276,19 @@ if (myRoleModal) {
 
   const channel = pusher.subscribe(`game.${gameId}`);
 
+  const wolvesChannel = pusher.subscribe(`wolves.${gameId}`);
+
+ wolvesChannel.bind("wolves.message", (data: any) => {
+    if (myRoleSlug !== "lobo") return;
+
+    const p = document.createElement("p");
+    p.innerHTML = `<b>🐺 ${data.from}:</b> ${data.message}`;
+    p.classList.add("wolf-msg");
+    chatMessages.appendChild(p);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+
   channel.bind("game.force-exit", (data: { reason: string }) => {
     const p = document.createElement("p");
     p.classList.add("system-msg");
@@ -414,7 +427,41 @@ if (myRoleModal) {
       return;
     }
 
-    try {
+    const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night"
+
+    if(currentPhase === "night")
+    {
+      if(myRoleSlug !== "lobo")
+      {
+        chatInput.value = ""
+        return
+      }
+
+      try {
+        await fetch (`http://${apiHost}:${apiPort}/api/chat/wolves`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${msgToken}`
+          },
+          body: JSON.stringify({
+            message: content,
+            game_id: Number(gameId),
+            from: nickname,
+          }),
+        });
+        chatInput.value = ""
+      } catch (err)
+      {
+        console.error("Error al enviar mensaje al chat de los lobos:", err)
+      }
+
+      return
+    }
+
+    try
+    {
       await fetch(`http://${apiHost}:${apiPort}/api/chat/send`, {
         method: "POST",
         headers: {
@@ -422,11 +469,16 @@ if (myRoleModal) {
           Accept: "application/json",
           Authorization: `Bearer ${msgToken}`,
         },
-        body: JSON.stringify({ message: content, game_id: Number(gameId), from: nickname }),
+        body: JSON.stringify({
+          message:content,
+          game_id: Number(gameId),
+          from: nickname,
+        }),
       });
-      if (chatInput) chatInput.value = "";
-    } catch (err) {
-      console.error("Error al enviar mensaje:", err);
+      chatInput.value = ""
+    }catch (err)
+    {
+      console.error("Error al enviar mensaje:", err)
     }
   }
 
