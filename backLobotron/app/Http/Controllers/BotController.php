@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\BotJoined;
 use App\Events\BotsAdded;
+use App\Events\GenericChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Game;
@@ -112,5 +113,79 @@ class BotController extends Controller
             'max_players' => $totalSlots,
             'message' => 'Bots añadidos hasta completar la partida.'
         ], 200);
+    }
+
+    public function speak($gameId){
+
+       $game = Game::findOrFail($gameId);
+
+        $idsInGame = $game->players()->pluck('user_id')->toArray();
+
+        $bots = User::whereIn('id', $idsInGame)
+                    ->where('is_bot', true)
+                    ->get();
+
+        if ($bots->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay bots en esta partida.'
+            ]);
+        }
+
+        // Mensajes posibles
+        $messages = [
+            "Creo que ha sido %PLAYER%",
+            "No me fio nada de %PLAYER%",
+            "Yo soy inocente, lo juro.",
+            "Anoche escuché ruidos raros cerca de la casa de %PLAYER%.",
+            "Tengo un mal presentimiento…",
+            "¿Y si votamos a %PLAYER%?",
+            "Estoy muy confundido, pero creo que %PLAYER% miente.",
+            "Los lobos están entre nosotros…",
+            "No sé qué pensar, pero alguien nos engaña.",
+            "%PLAYER% actuó raro ayer.", 
+            "Fernando tiene cara de malo.", // lo ha ducho el bot jajaja
+        ];
+
+        $players = $game->players()->get();
+        if ($players->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay jugadores en la partida.'
+            ]);
+        }
+
+        // Número de mensajes a enviar
+        $count = rand(2, 5);
+
+        $sent = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $bot = $bots->random();      
+            $target = $players->random(); 
+
+            $msgTemplate = $messages[array_rand($messages)];
+            $msg = str_replace('%PLAYER%', $target->nickname, $msgTemplate);
+
+        
+            event(new GenericChatMessage(
+                gameId: $gameId,
+                from: $bot->nickname,
+                message: $msg
+            ));
+
+            $sent[] = [
+                'from' => $bot->nickname,
+                'message' => $msg
+            ];
+
+            sleep(1); 
+        }
+
+        return response()->json([
+            'success' => true,
+            'sent_messages' => count($sent),
+            'messages' => $sent
+        ]);
     }
 }
