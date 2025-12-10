@@ -14,6 +14,7 @@ use App\Models\GameUser;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\GameVote;
 use Exception;
 
 class GameController extends Controller
@@ -365,4 +366,87 @@ class GameController extends Controller
             'visible_wolves' => $visibleWolves,               // [id_admin, id_otro_lobo, ...]
         ], 200);
     }
+
+public function nightVote(Request $request, Game $game)
+{
+    $user = $request->user();
+
+    // 1) Comprobar que estamos en fase night
+    if (! $game->current_phase || $game->current_phase->name !== 'night') {
+        return response()->json(['error' => 'No es fase de noche'], 400);
+    }
+
+    // 2) Comprobar que el usuario es jugador de la partida
+    $player = $game->players()->where('users.id', $user->id)->first();
+    if (! $player || ! $player->pivot->role_id) {
+        return response()->json(['error' => 'No estás en esta partida'], 403);
+    }
+
+    $role = Role::find($player->pivot->role_id);
+    if (! $role || strtolower($role->name) !== 'lobo') {
+        return response()->json(['error' => 'Solo los lobos pueden votar de noche'], 403);
+    }
+
+    // 3) Validar objetivo
+    $data = $request->validate([
+        'target_id' => 'required|exists:users,id',
+    ]);
+
+    // 4) Registrar o actualizar voto (de momento turno 1 fijo)
+    $turn = 1;
+
+    GameVote::updateOrCreate(
+        [
+            'game_id'     => $game->id,
+            'voter_id'    => $user->id,
+            'phase_type'  => 'night',
+            'turn_number' => $turn,
+        ],
+        [
+            'target_id'   => $data['target_id'],
+        ]
+    );
+
+    return response()->json(['success' => true]);
+}
+
+// POST /api/games/{game}/day-vote
+public function dayVote(Request $request, Game $game)
+{
+    $user = $request->user();
+
+    // 1) Comprobar que estamos en fase day
+    if (! $game->current_phase || $game->current_phase->name !== 'day') {
+        return response()->json(['error' => 'No es fase de día'], 400);
+    }
+
+    // 2) Comprobar que es jugador vivo
+    $player = $game->players()->where('users.id', $user->id)->first();
+    if (! $player || $player->pivot->player_status !== 'alive') {
+        return response()->json(['error' => 'No puedes votar'], 403);
+    }
+
+    // 3) Validar objetivo
+    $data = $request->validate([
+        'target_id' => 'required|exists:users,id',
+    ]);
+
+    $turn = 1;
+
+    GameVote::updateOrCreate(
+        [
+            'game_id'     => $game->id,
+            'voter_id'    => $user->id,
+            'phase_type'  => 'day',
+            'turn_number' => $turn,
+        ],
+        [
+            'target_id'   => $data['target_id'],
+        ]
+    );
+
+    return response()->json(['success' => true]);
+}
+
+
 }
