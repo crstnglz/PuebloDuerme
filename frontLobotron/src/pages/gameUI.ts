@@ -3,7 +3,7 @@ import type { RoleInfo, RoleKey } from "../types/roleInfo";
 import type { User } from "../types/user";
 import type { Player } from "../types/player";
 import { getGame, changeGamePhase } from "../providers/game.provider";
-import { fillBots, botSpeak } from "../providers/bots.provider";
+import { fillBots, botSpeak, botSpeakWolves } from "../providers/bots.provider";
 import type { GamePhaseInterface } from "../types/gamePhaseInterface";
 import { showToast } from "../toast";
 
@@ -363,6 +363,7 @@ export async function initGameUI() {
   });
 
   let botsSpokeThisDay = false;
+  let wolvesSpokeThisNight = false; 
 
   // Escucha el evento bots.joined
   channel.bind("bots.joined", (payload: { bots?: MaybeBot[]; bot?: MaybeBot; added?: MaybeBot[]; joined?: MaybeBot[] } ) => {
@@ -903,7 +904,27 @@ export async function initGameUI() {
       }
     }
 
-    // Si pasa a night permitimos que al próximo día vuelvan a hablar
+    // Si pasa a night pedimos a los bots-lobo hablar (una vez por noche)
+    if (phaseName === "night" && !wolvesSpokeThisNight) {
+      wolvesSpokeThisNight = true;
+      try {
+        const resp = await botSpeakWolves(numericGameId);
+        if (resp?.error) {
+          console.warn("botSpeakWolves devolvió error:", resp);
+        } else {
+          console.log("botSpeakWolves solicitado OK:", resp);
+        }
+      } catch (err) {
+        console.warn("Error pidiendo a backend que los bots-lobo hablen:", err);
+      }
+    }
+
+    // Cuando vuelva a day reseteamos ambos flags para las siguientes fases
+    if (phaseName === "day") {
+      wolvesSpokeThisNight = false;
+    }
+
+    // Si pasa a night permitimos que al próximo día vuelvan a hablar los bots de día
     if (phaseName === "night") {
       botsSpokeThisDay = false;
     }
