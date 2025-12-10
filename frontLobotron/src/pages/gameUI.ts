@@ -52,6 +52,39 @@ export async function initGameUI() {
     return;
   }
 
+  // === ESTADO DE ROL EN CLIENTE ===
+  let myRoleSlug: RoleKey | null = null;       // "lobo", "aldeano", etc.
+  let visibleWolfIds: number[] = [];           // IDs de jugadores que yo sé que son lobo
+  let currentPlayers: Player[] = [];           // Para re-renderizar avatares cuando sepamos los roles
+
+  // Devuelve la imagen que debe ver ESTE jugador para un jugador dado
+  function getAvatarForPlayer(data: Player | User | MaybeBot): string {
+    // Antes de saber mi rol, usamos la foto normal o un placeholder
+    const photo = (data as any).profile_photo as string | null | undefined;
+    if (!myRoleSlug) {
+      return photo || "/images/usuario_predeterminado.png";
+    }
+
+    // Si soy lobo: veo a mis compis como lobo y al resto como aldeano
+    if (myRoleSlug === "lobo") {
+      if ((data as any).id && visibleWolfIds.includes((data as any).id)) {
+        return "/imagesUI/roles/lobo.png";
+      }
+      return "/imagesUI/roles/aldeano.png";
+    }
+
+    // Si soy aldeano (u otro rol "no ve" nada especial): todos aldeanos
+    return "/imagesUI/roles/aldeano.png";
+  }
+
+  // Re-renderiza todos los avatares con la regla de arriba (se usa tras saber los roles)
+  function refreshAllPlayerAvatars() {
+    currentPlayers.forEach((player, index) => {
+      renderPlayer(player, index);
+    });
+  }
+
+  // === RENDERIZADO DE JUGADORES CON LÓGICA DE ROLES ===
   const renderPlayer = (data: Player | User | MaybeBot, index: number) => {
     const cells = playersGrid.children;
     if (index < cells.length) {
@@ -65,7 +98,7 @@ export async function initGameUI() {
       avatarContainer.style.pointerEvents = "none";
 
       const img = document.createElement("img");
-      img.src = (data as any).profile_photo || "/images/usuario_predeterminado.png";
+      img.src = getAvatarForPlayer(data);
       img.style.width = "3vw";
       img.style.height = "3vw";
       img.style.borderRadius = "50%";
@@ -96,43 +129,42 @@ export async function initGameUI() {
   };
 
   // Pinta los bots en las celdas vacías (en orden). Lo más simple posible.
-const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
-  if (!Array.isArray(bots) || bots.length === 0) return;
+  const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
+    if (!Array.isArray(bots) || bots.length === 0) return;
 
-  const cells = Array.from(playersGrid.children) as HTMLElement[];
+    const cells = Array.from(playersGrid.children) as HTMLElement[];
 
-  // índice del bot que vamos a colocar
-  let botIndex = 0;
+    // índice del bot que vamos a colocar
+    let botIndex = 0;
 
-  for (let i = 0; i < cells.length && botIndex < bots.length; i++) {
-    const cell = cells[i] as HTMLElement;
+    for (let i = 0; i < cells.length && botIndex < bots.length; i++) {
+      const cell = cells[i] as HTMLElement;
 
-    // si la celda está vacía (no tiene userId), colocamos un bot
-    if (!cell.dataset.userId) {
-      const b = bots[botIndex];
-      const bot: MaybeBot = {
-        id: b.id,
-        nickname: b.nickname ?? "Bot",
-        profile_photo: b.profile_photo ?? null,
-        is_bot: true,
-      };
+      // si la celda está vacía (no tiene userId), colocamos un bot
+      if (!cell.dataset.userId) {
+        const b = bots[botIndex];
+        const bot: MaybeBot = {
+          id: b.id,
+          nickname: b.nickname ?? "Bot",
+          profile_photo: b.profile_photo ?? null,
+          is_bot: true,
+        };
 
-      renderPlayer(bot, i);
-      botIndex++;
+        renderPlayer(bot, i);
+        botIndex++;
+      }
     }
-  }
 
-  // actualizar contador si existe
-  const countEl = document.getElementById("players-count");
-  if (countEl) {
-    const current = Array.from(playersGrid.children).filter(
-      (c) => (c as HTMLElement).dataset.userId
-    ).length;
-    const max = Number(countEl.textContent?.split(" / ")[1] ?? 30);
-    countEl.textContent = `${current} / ${max}`;
-  }
-};
-
+    // actualizar contador si existe
+    const countEl = document.getElementById("players-count");
+    if (countEl) {
+      const current = Array.from(playersGrid.children).filter(
+        (c) => (c as HTMLElement).dataset.userId
+      ).length;
+      const max = Number(countEl.textContent?.split(" / ")[1] ?? 30);
+      countEl.textContent = `${current} / ${max}`;
+    }
+  };
 
   /* ========================================================================
       CHAT Y PUSHER
@@ -141,6 +173,121 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
   const chatMessages = document.getElementById("chat-messages") as HTMLDivElement;
   const chatInput = document.getElementById("chat-input") as HTMLInputElement;
   const sendButton = document.getElementById("send-button") as HTMLButtonElement;
+
+  const myRoleModal = document.getElementById("my-role-modal") as HTMLDivElement | null;
+  const myRoleTitle = document.getElementById("my-role-title") as HTMLElement | null;
+  const myRoleText = document.getElementById("my-role-text") as HTMLElement | null;
+  const myRoleImg = document.getElementById("my-role-img") as HTMLImageElement | null;
+  const closeMyRoleBtn = document.getElementById("close-my-role-modal") as HTMLButtonElement | null;
+
+  function openMyRoleModal(roleName: string, roleSlug?: RoleKey) {
+    if (!myRoleModal || !myRoleText) return;
+
+    if (myRoleTitle) {
+      myRoleTitle.textContent = "Tu rol";
+    }
+
+    myRoleText.textContent = roleName;
+
+    // Imagen según rol
+    if (myRoleImg && roleSlug) {
+      myRoleImg.src = `/imagesUI/roles/${roleSlug}.png`;
+      myRoleImg.alt = roleName;
+    }
+
+    const card = myRoleModal.querySelector(".my-role-card") as HTMLDivElement | null;
+
+    myRoleModal.classList.add("show");
+
+    if (card) {
+      card.classList.remove("animate-in");
+      void card.offsetWidth;
+      card.classList.add("animate-in");
+    }
+  }
+
+  function closeMyRoleModal() {
+    if (!myRoleModal) return;
+    myRoleModal.classList.remove("show");
+  }
+
+  if (closeMyRoleBtn) {
+    closeMyRoleBtn.addEventListener("click", closeMyRoleModal);
+  }
+
+  if (myRoleModal) {
+    myRoleModal.addEventListener("click", (e: MouseEvent) => {
+      if (e.target === myRoleModal) {
+        closeMyRoleModal();
+      }
+    });
+  }
+
+  // === PETICIÓN AL BACK PARA OBTENER MI ROL ===
+  async function fetchMyRole(): Promise<string | null> {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      console.error("No hay token, no puedo pedir el rol.");
+      return null;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/games/${gameId}/me/role`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        console.error("Error al obtener mi rol:", res.status);
+        return null;
+      }
+
+      const data = await res.json();
+      console.log("Respuesta /me/role:", data);
+
+      const rawRoleName = data?.role_name as string | undefined;
+
+      if (rawRoleName) {
+        myRoleSlug = rawRoleName.toLowerCase() as RoleKey;
+      } else {
+        myRoleSlug = null;
+      }
+
+      if (Array.isArray(data?.visible_wolves)) {
+        visibleWolfIds = data.visible_wolves;
+      } else if (myRoleSlug === "lobo" && myUser) {
+        // Como mínimo, si soy lobo, me veo a mí misma como lobo
+        visibleWolfIds = [myUser.id];
+      } else {
+        visibleWolfIds = [];
+      }
+
+      refreshAllPlayerAvatars();
+
+      // Devolvemos el nombre bonito del rol para el modal
+      return rawRoleName ?? null;
+    } catch (error) {
+      console.error("Error de red al obtener mi rol:", error);
+      return null;
+    }
+  }
+
+  // === MUESTRA MI ROL EN PANTALLA USANDO EL MODAL ===
+  async function showMyRoleOnScreen() {
+    const roleName = await fetchMyRole();
+
+    if (!roleName) {
+      console.warn("No se pudo obtener el rol del jugador.");
+      return;
+    }
+
+    // Si por lo que sea myRoleSlug es null, mostramos sólo el texto;
+    // si está, además ponemos la imagen correcta.
+    openMyRoleModal(roleName, myRoleSlug || undefined);
+  }
 
   const wsHost = import.meta.env.VITE_REVERB_HOST ?? window.location.hostname;
   const wsPort = Number(import.meta.env.VITE_REVERB_PORT ?? 9090);
@@ -160,6 +307,17 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
   });
 
   const channel = pusher.subscribe(`game.${gameId}`);
+  const wolvesChannel = pusher.subscribe(`wolves.${gameId}`);
+
+  wolvesChannel.bind("wolves.message", (data: any) => {
+    if (myRoleSlug !== "lobo") return;
+
+    const p = document.createElement("p");
+    p.innerHTML = `<b>🐺 ${data.from}:</b> ${data.message}`;
+    p.classList.add("wolf-msg");
+    chatMessages.appendChild(p);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
 
   channel.bind("game.force-exit", (data: { reason: string }) => {
     const p = document.createElement("p");
@@ -197,15 +355,17 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
 
     const cells = Array.from(playersGrid.children) as HTMLElement[];
     const emptyIndex = cells.findIndex((cell) => !cell.dataset.userId);
-    if (emptyIndex !== -1) renderPlayer(event.user, emptyIndex);
-  });
+    if (emptyIndex !== -1) {
+      renderPlayer(event.user, emptyIndex);
+    }
 
+    currentPlayers.push(event.user as Player);
+  });
 
   let botsSpokeThisDay = false;
 
   // Escucha el evento bots.joined
   channel.bind("bots.joined", (payload: { bots?: MaybeBot[]; bot?: MaybeBot; added?: MaybeBot[]; joined?: MaybeBot[] } ) => {
-   
     const arr = payload?.bots ?? payload?.added ?? payload?.joined ?? (payload?.bot ? [payload.bot] : null);
     if (Array.isArray(arr) && arr.length > 0) {
       fillEmptySlotsWithBots(arr);
@@ -218,7 +378,6 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
     } else {
-    
       (async () => {
         try {
           const resp = await getGame(gameId);
@@ -287,24 +446,27 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
       if (counter === 0) {
         countdownEl.textContent = "¡Ya!";
 
-        clearInterval(interval)
+        clearInterval(interval);
 
         setTimeout(() => {
-          overlay.style.opacity = "0"
-          overlay.style.pointerEvents = "none"
+          overlay.style.opacity = "0";
+          overlay.style.pointerEvents = "none";
 
           setTimeout(() => {
-            overlay.style.display = "none"
-            overlay.classList.remove("show-overlay")
-            overlay.classList.add("hidden-overlay")
-          }, 500)
-        }, 700)
-        return
+            overlay.style.display = "none";
+            overlay.classList.remove("show-overlay");
+            overlay.classList.add("hidden-overlay");
+
+            void showMyRoleOnScreen();
+
+          }, 500);
+        }, 700);
+
+        return;
       }
     }, 1000);
   });
 
-  // Mensajes normales de chat
   channel.bind("message.sent", (data: any) => {
     const p = document.createElement("p");
     if (data.from === nickname) {
@@ -334,6 +496,36 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
       return;
     }
 
+    const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night";
+
+    if (currentPhase === "night") {
+      if (myRoleSlug !== "lobo") {
+        chatInput.value = "";
+        return;
+      }
+
+      try {
+        await fetch (`http://${apiHost}:${apiPort}/api/chat/wolves`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${msgToken}`
+          },
+          body: JSON.stringify({
+            message: content,
+            game_id: numericGameId,
+            from: nickname,
+          }),
+        });
+        chatInput.value = "";
+      } catch (err) {
+        console.error("Error al enviar mensaje al chat de los lobos:", err);
+      }
+
+      return;
+    }
+
     try {
       await fetch(`http://${apiHost}:${apiPort}/api/chat/send`, {
         method: "POST",
@@ -342,9 +534,13 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
           Accept: "application/json",
           Authorization: `Bearer ${msgToken}`,
         },
-        body: JSON.stringify({ message: content, game_id: numericGameId, from: nickname }),
+        body: JSON.stringify({
+          message: content,
+          game_id: numericGameId,
+          from: nickname,
+        }),
       });
-      if (chatInput) chatInput.value = "";
+      chatInput.value = "";
     } catch (err) {
       console.error("Error al enviar mensaje:", err);
     }
@@ -480,6 +676,8 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
       slot.style.background = "";
       slot.style.color = "";
       slot.style.border = "";
+
+      currentPlayers = currentPlayers.filter((p) => p.id !== data.userId);
     }
   }
 
@@ -595,7 +793,8 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
         const currentPhaseLocal = mainContainer?.classList.contains("is-day") ? "day" : "night";
         const nextPhaseLocal: "day" | "night" = currentPhaseLocal === "day" ? "night" : "day";
 
-        playPhaseAnimation(nextPhaseLocal).catch(() => {});
+        // Reproducimos animación en todos los clientes al llegar a 0
+        playPhaseAnimation(nextPhaseLocal).catch(() => { });
 
         if (!isOwner) return;
 
@@ -650,6 +849,16 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
   const updatePhaseAndTimer = function (phase: GamePhaseInterface, end_time: string) {
     updateGamePhase(phase);
     startCountdown(end_time);
+
+    const night = phase.name.toLowerCase() === "night";
+
+    if (nightFilter) {
+      if (night && myRoleSlug !== "lobo") {
+        nightFilter.classList.add("show");
+      } else {
+        nightFilter.classList.remove("show");
+      }
+    }
   };
 
   channel.bind("phase-changed", async (data: { phaseName: string; endTime: string }) => {
@@ -717,8 +926,9 @@ const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
     isOwner = myUser?.id === game.owner_id;
     showStartButtonIfOwner(isOwner);
 
-    // Renderizamos jugadores reales en sus celdas
-    game.players?.forEach((player: Player, index: number) => renderPlayer(player, index));
+    currentPlayers = game.players ?? [];
+
+    currentPlayers.forEach((player: Player, index: number) => renderPlayer(player, index));
 
     // Fase inicial (día/noche)
     if (game.current_phase) {

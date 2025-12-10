@@ -38,10 +38,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/games/{game}/start', [GameController::class, 'start']);
     Route::post('/games/{game}/bots', [BotController::class, 'fill']);
     Route::post('/games/{game}/bots/speak', [BotController::class, 'speak']);
+    Route::get('/games/{game}/me/role', [GameController::class, 'meRole']);
 
 
     //Chat
     Route::post('/chat/send', [ChatController::class, 'send']);
+    //Chat Lobos
+    Route::post('/chat/wolves', [ChatController::class, 'sendWolfMessage']);
 
     //Partida
 
