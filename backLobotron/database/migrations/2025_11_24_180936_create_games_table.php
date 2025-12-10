@@ -17,7 +17,7 @@ return new class extends Migration
             $table-> foreignId('owner_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
-            $table->integer('max_players')->default(16);
+            $table->integer('max_players')->default(30);
             $table->integer('current_players')->default(1);
             $table->enum('status', ['esperando', 'en curso', 'finalizada'])->default('esperando');
             $table->timestamps();

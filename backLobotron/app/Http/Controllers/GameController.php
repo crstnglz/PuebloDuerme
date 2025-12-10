@@ -56,7 +56,7 @@ class GameController extends Controller
             $game = Game::create([
                 'name' => $request->name,
                 'owner_id' => $user->id,
-                'max_players' => 16,
+                'max_players' => 30,
                 'current_players' => 1,
                 'status' => 'esperando'
             ]);
@@ -92,8 +92,7 @@ class GameController extends Controller
         try {
 
             //Comprobar si la partida está empezada
-            if($game->status !== 'esperando')
-            {
+            if ($game->status !== 'esperando') {
                 return response()->json([
                     'success' => false,
                     'message' => 'La partida ya está en curso. No puedes unirte.'
@@ -291,16 +290,16 @@ class GameController extends Controller
                 'end_time' => $game->phase_ends_at->toIso8601String()
             ]
         ]);
-    }
+
 
         $game->current_phase_id = $dayPhase->id;
         $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
 
-    $game->save();
+        $game->save();
 
-    $game->load('owner');
+        $game->load('owner');
 
-    broadcast(new GameUpdated($game));
+        broadcast(new GameUpdated($game));
 
         event(new PhaseTransition(
             $game->id,

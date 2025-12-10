@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\BotController;
 use App\Http\Controllers\PhaseTransitionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
@@ -35,7 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/games/{game}', [GameController::class, 'show']);
     Route::post('/games/{game}/leave', [GameController::class, 'leave']);
     Route::post('/games/{game}/start', [GameController::class, 'start']);
+    Route::post('/games/{game}/bots', [BotController::class, 'fill']);
+    Route::post('/games/{game}/bots/speak', [BotController::class, 'speak']);
     Route::get('/games/{game}/me/role', [GameController::class, 'meRole']);
+    Route::post('/games/{game}/bots/speak-wolves', [BotController::class, 'speakWolves']);
 
 
     //Chat
