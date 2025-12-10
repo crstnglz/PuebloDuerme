@@ -220,11 +220,13 @@ class BotController extends Controller
         }
 
         $messages = [
-            "Creo que ha sido %PLAYER%",
-            "No me fio nada de %PLAYER%",
-            "Anoche vi a %PLAYER% actuando raro.",
-            "Tengo un mal presentimiento…",
-            "%PLAYER% actuó raro ayer.",
+            "Creo que ha sido %PLAYER%. Me pareció verlo muy nervioso.",
+            "No me fío nada de %PLAYER%, habría que vigilarlo de cerca.",
+            "Durante el día vi a %PLAYER% actuando raro, como si se supiera algo.",
+            "Tengo un mal presentimiento… %PLAYER% no me cuadra.",
+            "%PLAYER% actuó raro ayer, podría ser el alcalde o alguien con poder.",
+            "Hay que tener cuidado con %PLAYER%, es muy listo y podría manipular la votación.",
+            "Me ha parecido ver a %PLAYER% con los ojos entreabiertos, estaba raro.",
         ];
 
         $players = $game->players()->get();
