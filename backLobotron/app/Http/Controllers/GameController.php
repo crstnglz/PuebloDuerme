@@ -90,6 +90,15 @@ class GameController extends Controller
         $user = $request->user();
 
         try {
+
+            //Comprobar si la partida está empezada
+            if($game->status !== 'esperando')
+            {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La partida ya está en curso. No puedes unirte.'
+                ], 403);
+            }
             // Comprobar si la partida está llena
             if ($game->current_players >= $game->max_players) {
                 return response()->json(['success' => false, 'message' => 'La partida está llena'], 403);
@@ -284,14 +293,36 @@ class GameController extends Controller
         ]);
     }
 
-    public function meRole(Request $request, Game $game)
-    {
-        $user = $request->user(); // usuario autenticado
+    $game->current_phase_id = $dayPhase->id;
+    $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
 
-        // Buscamos al jugador en esta partida
-        $player = $game->players()
-            ->where('users.id', $user->id)
-            ->first();
+    $game->save();
+
+    $game->load('owner');
+
+    broadcast(new GameUpdated($game));
+
+    event(new PhaseTransition(
+        $game->id,
+        $dayPhase->name,
+        $game->phase_ends_at->toIso8601String()
+    ));
+
+    event(new GameStarted(
+        $game->id,
+        $dayPhase->name,
+        $game->phase_ends_at->toIso8601String()
+    ));
+
+    return response()->json([
+        'message' => 'Partida iniciada',
+        'game_id' => $game->id,
+        'data' => [
+            'turn_state' => $dayPhase->name,
+            'end_time' => $game->phase_ends_at->toIso8601String()
+        ]
+    ]);
+}
 
         // Si no está en la partida o aún no tiene rol asignado
         if (! $player || ! $player->pivot->role_id) {

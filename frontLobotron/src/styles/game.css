@@ -16,16 +16,16 @@ html, body {
 
 /* --- CONTENEDOR PRINCIPAL --- */
 #main-container {
-    height: calc(100vh - 0.2vh);
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+
     display: grid;
     grid-template-columns: 4fr 1.2fr;
     gap: 1vw;
-    padding: 0 1vw;
+
+    padding: 2vh 1vw 2vh 1vw;
     box-sizing: border-box;
-    background-image: url('/imagesGameRoom/backgroundDayGame.png');
-    background-size: cover;
-    background-position: center;
-    transition: background-image 0.8s ease-in-out;
 }
 
 /* --- FONDO SEGÚN FASE --- */
@@ -42,12 +42,69 @@ html, body {
 }
 
 /* --- GRID JUGADORES --- */
+#left-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-around;
+    padding-bottom: 1vh;
+    padding-top: 1vh;
+}
+
 #players-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(6, 1fr);
     gap: 0.8vw;
-    margin-top: 5vh;
+    flex: 1;
+    align-content: center;
+    margin-bottom: 2vh;
+}
+
+#action-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 1.5vh 0;
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+}
+
+#action-btn {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    padding: 0;
+
+    background: linear-gradient(#f7d9a2, #e6b770);
+    border: 5px solid #6b4a2e; 
+
+    font-size: 2.5rem;
+    font-weight: 900;
+
+    cursor: pointer;
+    box-sizing: border-box;
+
+    box-shadow: 
+        0 6px 0 #6b4a2e,
+        0 10px 18px rgba(0,0,0,0.25);
+
+        transition: transform 0.12s ease, box-shado 0.12s ease;
+}
+
+#action-btn:active {
+    transform: translateY(4px);
+    box-shadow: 
+        0 2px 0 #6b4a2e,
+        0 4px 10px rgba(0,0,0,0.25);
+}
+
+#action-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    background: linear-gradient(#ffe8b8, #e6b770);
+    box-shadow: 
+        0 10px 0 #6b4a2e,
+        0 14px 22px rgba(0,0,0,0.35);
 }
 
 .player {
@@ -75,7 +132,14 @@ html, body {
 #right-panel {
     display: flex;
     flex-direction: column;
-    gap: 1vh;
+    gap: 1.5vh;
+
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 /* --- LOGO --- */
@@ -203,7 +267,8 @@ html, body {
     border-radius: 15px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     gap: 0.7vw;
 }
 
@@ -212,9 +277,33 @@ html, body {
     border-radius: 10px;
     padding: 0.5vw;
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     color: var(--dark-wood);
 }
+
+/* Barra Scroll Chat  */
+#chat-messages::-webkit-scrollbar {
+    width: 10px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: rgba(120, 90, 60, 0.12);
+    border-radius: 10px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(185, 150, 95, 0.55);
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.35);
+    box-shadow: 0 0 4px rgba(0,0,0,0.25) inset;
+    transition: background 0.25s ease;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(205, 170, 110, 0.8);
+}
+
 
 #chat-input-area {
     display: flex;
@@ -296,18 +385,51 @@ html, body {
 
 /* --- chat messages --- */
 .my-msg {
-    background: rgba(0, 150, 255, 0.25);
-    padding: 6px 10px;
-    border-radius: 8px;
-    margin: 4px 0;
-    text-align: right;
+    max-width: 80%;
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-left: auto;
+    background: linear-gradient(
+        135deg,
+        rgba(120, 175, 255, 0.25),
+        rgba(90, 145, 220, 0.22)
+    );
+    color: #06385c;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 .other-msg {
-    background: rgba(255, 255, 255, 0.25);
-    padding: 6px 10px;
-    border-radius: 8px;
-    margin: 4px 0;
-    text-align: left;
+    max-width: 80%;
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-right: auto;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 244, 255, 0.7),
+        rgba(245, 230, 210, 0.6)
+    );
+    color: #4a3725;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(93, 64, 55, 0.25);
+}
+
+.system-msg {
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    opacity: 0.8;
+    color: #3e2f20;
+    background: rgba(255, 240, 210, 0.45);
+    padding: 4px 10px;
+    margin: 6px 0;
+    border-radius: 10px;
+    border-left: 3px solid rgba(180, 120, 60, 0.6);
 }
 
 /* --- OVERLAY CUENTA ATRÁS --- */
@@ -563,6 +685,7 @@ html, body {
         margin-top: 3rem;
         max-height: 45vh;
         overflow: auto;
+        align-items: center;
     }
 
     #right-panel {
@@ -595,4 +718,84 @@ html, body {
     }
 
     
+}
+
+#toastContainer {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 9999;
+  width: 360px;
+}
+
+.toast {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 18px;
+border-radius: 8px;
+font-size: 15px;
+font-weight: 600;
+
+background: rgba(20, 20, 20, 0.85);
+border: 2px solid rgba(255,255,255,0.12);
+box-shadow: 0 0 15px rgba(0,0,0,0.6);
+backdrop-filter: blur(3px);
+
+animation: toastPop 0.25s ease-out forwards;
+position: relative;
+color: #eee;
+}
+
+.toast.warning{
+  border-color: #ffc642;
+    box-shadow: 0 0 12px #ffc64280;
+}
+
+.toast.success {
+  border-color: #28d764;
+  box-shadow: 0 0 12px #28d76480;
+}
+
+.toast.error{
+  border-color: #ff4040;
+  box-shadow: 0 0 12px #ff404080;
+}
+
+.toast.info{
+  border-color: #4fa3ff;
+    box-shadow: 0 0 12px #4fa3ff80;
+}
+
+@keyframes toastPop {
+    0% { transform: scale(0.85) translateX(20px); opacity: 0; }
+    60% { transform: scale(1.05) translateX(0); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {opacity: 0; transform: translateX(20px);}
+}
+
+/* Filtro nocturno */
+#night-filter {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,40,90,0.45);
+    backdrop-filter: brightness(0.75) saturate(0.8);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 999;
+}
+
+#night-filter.show {
+    opacity: 1;
 }

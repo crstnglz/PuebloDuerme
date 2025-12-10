@@ -4,6 +4,7 @@ import type { User } from "../types/user";
 import type { Player } from "../types/player";
 import { getGame, changeGamePhase } from "../providers/game.provider";
 import type { GamePhaseInterface } from "../types/gamePhaseInterface";
+import { showToast } from "../toast";
 
 interface PlayerJoinedEvent {
   user: User;
@@ -315,6 +316,16 @@ export async function initGameUI() {
   });
 
   channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
+
+    if(chatMessages)
+    {
+      const p = document.createElement("p")
+      p.innerHTML = `<b>Se ha iniciado la partida.</b>`
+      p.classList.add("system-msg")
+      chatMessages.appendChild(p)
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
     if (data?.phaseName && data?.endTime) {
       try {
         const phaseName = String(data.phaseName).toLowerCase();
@@ -399,7 +410,7 @@ export async function initGameUI() {
 
     const msgToken = localStorage.getItem("access_token");
     if (!msgToken) {
-      alert("Debes iniciar sesión.");
+      showToast("Debes iniciar sesión.", "info");
       return;
     }
 
@@ -545,6 +556,8 @@ export async function initGameUI() {
     document.body.appendChild(phaseIconEl);
   }
 
+  const nightFilter = document.getElementById("night-filter") as HTMLDivElement | null;
+
   const PHASE_ANIM_MS = 3000;
   const CHANGE_DELAY_MS = 0;
 
@@ -584,6 +597,12 @@ export async function initGameUI() {
     mainContainer.classList.remove("is-day", "is-night");
     if (name === "day") mainContainer.classList.add("is-day");
     else if (name === "night") mainContainer.classList.add("is-night");
+
+    if(nightFilter)
+    {
+      if(name === "night") nightFilter.classList.add("show")
+      else nightFilter.classList.remove("show")
+    }
 
     const phaseDisplay = document.getElementById("phase-display");
     if (phaseDisplay) phaseDisplay.textContent = `Fase: ${name}`;
@@ -683,6 +702,20 @@ export async function initGameUI() {
     const phaseName = data.phaseName.toLowerCase();
     const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night";
 
+    if(chatMessages)
+    {
+      const p = document.createElement("p")
+      const readable = 
+        phaseName === "day"
+        ? "🌞 Comienza el día. ¡La aldea despierta!"
+        : "🌚 Comienza la noche... los lobos salen a cazar."
+
+      p.innerHTML = `<b>${readable}</b>`
+      p.classList.add("system-msg")
+      chatMessages.appendChild(p)
+      chatMessages.scrollTop = chatMessages.scrollHeight
+    }
+
     if (phaseName !== currentPhase) {
       const phase: GamePhaseInterface = { name: phaseName };
       updatePhaseAndTimer(phase, data.endTime);
@@ -705,7 +738,7 @@ export async function initGameUI() {
 
     if ("error" in response) {
       console.error("Error cargando partida:", response.data.message);
-      alert("No se pudo cargar la partida: " + (response.data.message || "Error desconocido"));
+      showToast("No se pudo cargar la partida: " + (response.data.message || "Error desconocido", "error"));
       return;
     }
 
