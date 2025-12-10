@@ -134,53 +134,53 @@ export async function initGameUI() {
   const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
   const myRoleModal = document.getElementById("my-role-modal") as HTMLDivElement | null;
-const myRoleTitle = document.getElementById("my-role-title") as HTMLElement | null;
-const myRoleText = document.getElementById("my-role-text") as HTMLElement | null;
-const myRoleImg = document.getElementById("my-role-img") as HTMLImageElement | null;
-const closeMyRoleBtn = document.getElementById("close-my-role-modal") as HTMLButtonElement | null;
+  const myRoleTitle = document.getElementById("my-role-title") as HTMLElement | null;
+  const myRoleText = document.getElementById("my-role-text") as HTMLElement | null;
+  const myRoleImg = document.getElementById("my-role-img") as HTMLImageElement | null;
+  const closeMyRoleBtn = document.getElementById("close-my-role-modal") as HTMLButtonElement | null;
 
-function openMyRoleModal(roleName: string, roleSlug?: RoleKey) {
-  if (!myRoleModal || !myRoleText) return;
+  function openMyRoleModal(roleName: string, roleSlug?: RoleKey) {
+    if (!myRoleModal || !myRoleText) return;
 
-  if (myRoleTitle) {
-    myRoleTitle.textContent = "Tu rol";
-  }
-
-  myRoleText.textContent = roleName;
-
-  // Imagen según rol
-  if (myRoleImg && roleSlug) {
-    myRoleImg.src = `/imagesUI/roles/${roleSlug}.png`;
-    myRoleImg.alt = roleName;
-  }
-
-  const card = myRoleModal.querySelector(".my-role-card") as HTMLDivElement | null;
-
-  myRoleModal.classList.add("show");
-
-  if (card) {
-    card.classList.remove("animate-in");
-    void card.offsetWidth;
-    card.classList.add("animate-in");
-  }
-}
-
-function closeMyRoleModal() {
-  if (!myRoleModal) return;
-  myRoleModal.classList.remove("show");
-}
-
-if (closeMyRoleBtn) {
-  closeMyRoleBtn.addEventListener("click", closeMyRoleModal);
-}
-
-if (myRoleModal) {
-  myRoleModal.addEventListener("click", (e: MouseEvent) => {
-    if (e.target === myRoleModal) {
-      closeMyRoleModal();
+    if (myRoleTitle) {
+      myRoleTitle.textContent = "Tu rol";
     }
-  });
-}
+
+    myRoleText.textContent = roleName;
+
+    // Imagen según rol
+    if (myRoleImg && roleSlug) {
+      myRoleImg.src = `/imagesUI/roles/${roleSlug}.png`;
+      myRoleImg.alt = roleName;
+    }
+
+    const card = myRoleModal.querySelector(".my-role-card") as HTMLDivElement | null;
+
+    myRoleModal.classList.add("show");
+
+    if (card) {
+      card.classList.remove("animate-in");
+      void card.offsetWidth;
+      card.classList.add("animate-in");
+    }
+  }
+
+  function closeMyRoleModal() {
+    if (!myRoleModal) return;
+    myRoleModal.classList.remove("show");
+  }
+
+  if (closeMyRoleBtn) {
+    closeMyRoleBtn.addEventListener("click", closeMyRoleModal);
+  }
+
+  if (myRoleModal) {
+    myRoleModal.addEventListener("click", (e: MouseEvent) => {
+      if (e.target === myRoleModal) {
+        closeMyRoleModal();
+      }
+    });
+  }
 
   // === PETICIÓN AL BACK PARA OBTENER MI ROL ===
   async function fetchMyRole(): Promise<string | null> {
@@ -207,17 +207,14 @@ if (myRoleModal) {
       const data = await res.json();
       console.log("Respuesta /me/role:", data);
 
-      // Tu back AHORA MISMO devuelve { role_name: "lobo", role_team: "lobos" }
       const rawRoleName = data?.role_name as string | undefined;
 
-      // 🔹 Usamos role_name como "slug" en minúsculas (aldeano, lobo...)
       if (rawRoleName) {
         myRoleSlug = rawRoleName.toLowerCase() as RoleKey;
       } else {
         myRoleSlug = null;
       }
 
-      // 🔹 Si en el futuro devolvéis visible_wolves, lo usamos; de momento, lista vacía
       if (Array.isArray(data?.visible_wolves)) {
         visibleWolfIds = data.visible_wolves;
       } else if (myRoleSlug === "lobo" && myUser) {
@@ -227,7 +224,6 @@ if (myRoleModal) {
         visibleWolfIds = [];
       }
 
-      // Repintamos jugadores con las nuevas reglas de avatar
       refreshAllPlayerAvatars();
 
       // Devolvemos el nombre bonito del rol para el modal
@@ -325,7 +321,11 @@ if (myRoleModal) {
 
     const cells = Array.from(playersGrid.children) as HTMLElement[];
     const emptyIndex = cells.findIndex((cell) => !cell.dataset.userId);
-    if (emptyIndex !== -1) renderPlayer(event.user, emptyIndex);
+    if (emptyIndex !== -1) {
+      renderPlayer(event.user, emptyIndex);
+    }
+
+    currentPlayers.push(event.user as Player);
   });
 
   channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
@@ -562,6 +562,8 @@ if (myRoleModal) {
       slot.style.background = "";
       slot.style.color = "";
       slot.style.border = "";
+
+      currentPlayers = currentPlayers.filter((p) => p.id !== data.userId);
     }
   }
 

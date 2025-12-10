@@ -266,6 +266,36 @@ class GameController extends Controller
         $game->current_phase_id = $dayPhase->id;
         $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
 
+        $game->save();
+
+        // 3) Emitir evento "la partida ha empezado"
+        event(new GameStarted($game->id));
+
+        event(new PhaseTransition(
+            $game->id,
+            $dayPhase->name,
+            $game->phase_ends_at->toIso8601String()
+        ));
+
+        event(new GameStarted(
+            $game->id,
+            $dayPhase->name,
+            $game->phase_ends_at->toIso8601String()
+        ));
+
+        return response()->json([
+            'message' => 'Partida iniciada',
+            'game_id' => $game->id,
+            'data' => [
+                'turn_state' => $dayPhase->name,
+                'end_time' => $game->phase_ends_at->toIso8601String()
+            ]
+        ]);
+    }
+
+        $game->current_phase_id = $dayPhase->id;
+        $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
+
     $game->save();
 
     $game->load('owner');
@@ -313,9 +343,27 @@ class GameController extends Controller
 
         $role = Role::find($player->pivot->role_id);
 
+        // Por defecto, ningún lobo visible
+        $visibleWolves = [];
+
+        // Si YO soy lobo, quiero ver a TODOS los lobos de la partida
+        if ($role && strtolower($role->name) === 'lobo') {
+            $wolfRole = Role::where('name', 'lobo')->first();
+
+            if ($wolfRole) {
+                $visibleWolves = $game->players()
+                    ->wherePivot('role_id', $wolfRole->id)
+                    ->pluck('users.id')   // ids de los usuarios-lobo
+                    ->values()
+                    ->all();
+            }
+        }
+
         return response()->json([
-            'role_name' => $role?->name,
-            'role_team' => $role?->team,
+            'role_name'      => $role?->name,                 // "Lobo"
+            'role_team'      => $role?->team,                 // "lobos"
+            'role_slug'      => $role ? strtolower($role->name) : null, // "lobo"
+            'visible_wolves' => $visibleWolves,               // [id_admin, id_otro_lobo, ...]
         ], 200);
     }
 }
