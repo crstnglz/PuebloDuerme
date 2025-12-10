@@ -291,7 +291,6 @@ class GameController extends Controller
                 'end_time' => $game->phase_ends_at->toIso8601String()
             ]
         ]);
-    }
 
         $game->current_phase_id = $dayPhase->id;
         $game->phase_ends_at = now()->addMinutes($dayPhase->duration_minutes ?? 1);
@@ -365,5 +364,5 @@ class GameController extends Controller
             'role_slug'      => $role ? strtolower($role->name) : null, // "lobo"
             'visible_wolves' => $visibleWolves,               // [id_admin, id_otro_lobo, ...]
         ], 200);
-    }
+}
 }
