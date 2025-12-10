@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/games/{game}/bots', [BotController::class, 'fill']);
     Route::post('/games/{game}/bots/speak', [BotController::class, 'speak']);
     Route::get('/games/{game}/me/role', [GameController::class, 'meRole']);
+    Route::post('/games/{game}/bots/speak-wolves', [BotController::class, 'speakWolves']);
 
 
     //Chat

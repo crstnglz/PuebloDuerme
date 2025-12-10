@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\BotJoined;
 use App\Events\BotsAdded;
 use App\Events\GenericChatMessage;
+use App\Events\WolfMessageSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Game;
@@ -188,4 +189,62 @@ class BotController extends Controller
             'messages' => $sent
         ]);
     }
+
+public function speakWolves($gameId)
+{
+    $game = Game::findOrFail($gameId);
+
+    $role = DB::table('roles')->where('name', 'lobo')->first();
+    if (!$role) {
+        return response()->json(['success' => false, 'message' => 'No existe el rol lobo'], 404);
+    }
+
+    $wolfUserIds = DB::table('game_users')
+        ->where('game_id', $game->id)
+        ->where('role_id', $role->id)
+        ->pluck('user_id')
+        ->toArray();
+
+    if (empty($wolfUserIds)) {
+        return response()->json(['success' => false, 'message' => 'No hay jugadores con rol lobo'], 200);
+    }
+
+    // quedarnos sólo con los que sean bots
+    $wolvesBots = DB::table('users')
+        ->whereIn('id', $wolfUserIds)
+        ->where('is_bot', true)
+        ->get();
+
+    if ($wolvesBots->isEmpty()) {
+        return response()->json(['success' => false, 'message' => 'No hay bots-lobo'], 200);
+    }
+
+    // Mensajes simples
+    $messages = [
+        "Creo que ha sido %PLAYER%",
+        "No me fio nada de %PLAYER%",
+        "Anoche vi a %PLAYER% actuando raro.",
+        "Tengo un mal presentimiento…",
+        "%PLAYER% actuó raro ayer.",
+    ];
+
+    $players = $game->players()->get();
+    if ($players->isEmpty()) {
+        return response()->json(['success' => false, 'message' => 'No hay jugadores en la partida'], 200);
+    }
+
+    $sent = [];
+    foreach ($wolvesBots as $bot) {
+        $target = $players->random();
+        $template = $messages[array_rand($messages)];
+        $msg = str_replace('%PLAYER%', $target->nickname, $template);
+
+        event(new WolfMessageSent($game->id, $bot->nickname, $msg, true));
+        $sent[] = ['from' => $bot->nickname, 'message' => $msg];
+
+        sleep(1);
+    }
+
+    return response()->json(['success' => true, 'sent' => $sent], 200);
+}
 }

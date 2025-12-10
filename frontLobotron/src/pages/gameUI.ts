@@ -480,6 +480,19 @@ export async function initGameUI() {
     if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
+  channel.bind("messageBots.sent", (payload: { from: string; message: string; is_bot?: boolean }) => {
+    const p = document.createElement("p");
+    if (payload.from === nickname) {
+      p.innerHTML = `<b>Tú:</b> ${payload.message}`;
+      p.classList.add("my-msg");
+    } else {
+      p.innerHTML = `<b>${payload.from}:</b> ${payload.message}`;
+      p.classList.add("other-msg");
+    }
+    chatMessages?.appendChild(p);
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+
   if (sendButton) sendButton.addEventListener("click", sendMsg);
   if (chatInput)
     chatInput.addEventListener("keydown", (e) => {
