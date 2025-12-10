@@ -286,7 +286,7 @@ class GameController extends Controller
 
     public function meRole(Request $request, Game $game)
     {
-        $user = $request->user(); // usuario autenticado (por Sanctum)
+        $user = $request->user(); // usuario autenticado
 
         // Buscamos al jugador en esta partida
         $player = $game->players()
@@ -296,16 +296,36 @@ class GameController extends Controller
         // Si no está en la partida o aún no tiene rol asignado
         if (! $player || ! $player->pivot->role_id) {
             return response()->json([
-                'role_name' => null,
-                'role_team' => null,
+                'role_name'      => null,
+                'role_team'      => null,
+                'role_slug'      => null,
+                'visible_wolves' => [],
             ], 200);
         }
 
         $role = Role::find($player->pivot->role_id);
 
+        // Por defecto, ningún lobo visible
+        $visibleWolves = [];
+
+        // Si YO soy lobo, quiero ver a TODOS los lobos de la partida
+        if ($role && strtolower($role->name) === 'lobo') {
+            $wolfRole = Role::where('name', 'lobo')->first();
+
+            if ($wolfRole) {
+                $visibleWolves = $game->players()
+                    ->wherePivot('role_id', $wolfRole->id)
+                    ->pluck('users.id')   // ids de los usuarios-lobo
+                    ->values()
+                    ->all();
+            }
+        }
+
         return response()->json([
-            'role_name' => $role?->name,
-            'role_team' => $role?->team,
+            'role_name'      => $role?->name,                 // "Lobo"
+            'role_team'      => $role?->team,                 // "lobos"
+            'role_slug'      => $role ? strtolower($role->name) : null, // "lobo"
+            'visible_wolves' => $visibleWolves,               // [id_admin, id_otro_lobo, ...]
         ], 200);
     }
 }
