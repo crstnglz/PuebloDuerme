@@ -30,7 +30,7 @@ class GenericChatMessage implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'message.sent';
+        return 'messageBots.sent';
     }
 
     public function broadcastWith()

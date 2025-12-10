@@ -36,6 +36,6 @@ class BotJoined implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'bots.added';
+        return 'bots.joined';
     }
 }
