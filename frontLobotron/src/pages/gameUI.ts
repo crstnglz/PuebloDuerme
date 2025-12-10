@@ -3,6 +3,7 @@ import type { RoleInfo, RoleKey } from "../types/roleInfo";
 import type { User } from "../types/user";
 import type { Player } from "../types/player";
 import { getGame, changeGamePhase } from "../providers/game.provider";
+import { fillBots, botSpeak } from "../providers/bots.provider";
 import type { GamePhaseInterface } from "../types/gamePhaseInterface";
 import { showToast } from "../toast";
 
@@ -11,17 +12,19 @@ interface PlayerJoinedEvent {
   gameId: number;
 }
 
+type MaybeBot = { id?: number; nickname?: string; profile_photo?: string | null; is_bot?: boolean; };
+
 export async function initGameUI() {
   const params = new URLSearchParams(window.location.search);
   const gameId = params.get("game");
-
-  const token = localStorage.getItem("access_token");
-  const raw = localStorage.getItem("user");
-
   if (!gameId) {
     console.error("No se encontró el ID de la partida en la URL.");
     return;
   }
+  const numericGameId = Number(gameId);
+
+  const token = localStorage.getItem("access_token");
+  const raw = localStorage.getItem("user");
 
   if (!raw || !token) {
     console.error("Usuario o token no encontrado.");
@@ -49,7 +52,7 @@ export async function initGameUI() {
     return;
   }
 
-  const renderPlayer = (data: Player | User, index: number) => {
+  const renderPlayer = (data: Player | User | MaybeBot, index: number) => {
     const cells = playersGrid.children;
     if (index < cells.length) {
       const cell = cells[index] as HTMLElement;
@@ -62,16 +65,20 @@ export async function initGameUI() {
       avatarContainer.style.pointerEvents = "none";
 
       const img = document.createElement("img");
-      img.src = data.profile_photo || "/images/usuario_predeterminado.png";
+      img.src = (data as any).profile_photo || "/images/usuario_predeterminado.png";
       img.style.width = "3vw";
       img.style.height = "3vw";
       img.style.borderRadius = "50%";
       img.style.marginBottom = "5px";
       img.style.border = "2px solid #3e2723";
       img.style.transition = "filter 0.3s";
+      img.onerror = () => { img.src = "/images/usuario_predeterminado.png"; };
 
       const nameSpan = document.createElement("span");
-      nameSpan.textContent = data.nickname;
+      const d = data as MaybeBot;
+      const nick = d.nickname ?? "Jugador";
+      // Marca visual para bots
+      nameSpan.textContent = d.is_bot ? `${nick} 🤖` : nick;
       nameSpan.style.fontSize = "0.9vw";
       nameSpan.style.fontWeight = "bold";
 
@@ -83,9 +90,49 @@ export async function initGameUI() {
       cell.style.color = "white";
       cell.style.border = "2px solid #5d4037";
 
-      cell.dataset.userId = data.id.toString();
+      if ((data as any).id) cell.dataset.userId = String((data as any).id);
+      else delete cell.dataset.userId;
     }
   };
+
+  // Pinta los bots en las celdas vacías (en orden). Lo más simple posible.
+const fillEmptySlotsWithBots = (bots: MaybeBot[]) => {
+  if (!Array.isArray(bots) || bots.length === 0) return;
+
+  const cells = Array.from(playersGrid.children) as HTMLElement[];
+
+  // índice del bot que vamos a colocar
+  let botIndex = 0;
+
+  for (let i = 0; i < cells.length && botIndex < bots.length; i++) {
+    const cell = cells[i] as HTMLElement;
+
+    // si la celda está vacía (no tiene userId), colocamos un bot
+    if (!cell.dataset.userId) {
+      const b = bots[botIndex];
+      const bot: MaybeBot = {
+        id: b.id,
+        nickname: b.nickname ?? "Bot",
+        profile_photo: b.profile_photo ?? null,
+        is_bot: true,
+      };
+
+      renderPlayer(bot, i);
+      botIndex++;
+    }
+  }
+
+  // actualizar contador si existe
+  const countEl = document.getElementById("players-count");
+  if (countEl) {
+    const current = Array.from(playersGrid.children).filter(
+      (c) => (c as HTMLElement).dataset.userId
+    ).length;
+    const max = Number(countEl.textContent?.split(" / ")[1] ?? 30);
+    countEl.textContent = `${current} / ${max}`;
+  }
+};
+
 
   /* ========================================================================
       CHAT Y PUSHER
@@ -153,8 +200,49 @@ export async function initGameUI() {
     if (emptyIndex !== -1) renderPlayer(event.user, emptyIndex);
   });
 
-  channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
 
+  let botsSpokeThisDay = false;
+
+  // Escucha el evento bots.joined
+  channel.bind("bots.joined", (payload: { bots?: MaybeBot[]; bot?: MaybeBot; added?: MaybeBot[]; joined?: MaybeBot[] } ) => {
+   
+    const arr = payload?.bots ?? payload?.added ?? payload?.joined ?? (payload?.bot ? [payload.bot] : null);
+    if (Array.isArray(arr) && arr.length > 0) {
+      fillEmptySlotsWithBots(arr);
+
+      if (chatMessages) {
+        const msg = document.createElement("p");
+        msg.classList.add("system-msg");
+        msg.innerHTML = `<b>${arr.length}</b> bot(s) se han unido a la partida.`;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    } else {
+    
+      (async () => {
+        try {
+          const resp = await getGame(gameId);
+          if (!("error" in resp)) {
+            const game = resp.data.game;
+            // limpia y repinta todo
+            Array.from(playersGrid.children).forEach((cell, index) => {
+              const el = cell as HTMLElement;
+              el.innerHTML = (index + 1).toString();
+              el.dataset.index = String(index + 1);
+              delete el.dataset.userId;
+            });
+            game.players?.forEach((player: Player, index: number) => renderPlayer(player, index));
+            const countEl = document.getElementById("players-count");
+            if (countEl) countEl.textContent = `${game.players?.length ?? 0} / ${game.max_players ?? 30}`;
+          }
+        } catch (e) {
+          console.warn("Error recargando partida tras bots.joined:", e);
+        }
+      })();
+    }
+  });
+
+  channel.bind("game.started", (data: { phaseName?: string; endTime?: string }) => {
     if(chatMessages)
     {
       const p = document.createElement("p")
@@ -216,6 +304,7 @@ export async function initGameUI() {
     }, 1000);
   });
 
+  // Mensajes normales de chat
   channel.bind("message.sent", (data: any) => {
     const p = document.createElement("p");
     if (data.from === nickname) {
@@ -253,7 +342,7 @@ export async function initGameUI() {
           Accept: "application/json",
           Authorization: `Bearer ${msgToken}`,
         },
-        body: JSON.stringify({ message: content, game_id: Number(gameId), from: nickname }),
+        body: JSON.stringify({ message: content, game_id: numericGameId, from: nickname }),
       });
       if (chatInput) chatInput.value = "";
     } catch (err) {
@@ -288,7 +377,57 @@ export async function initGameUI() {
     timerBox.textContent = "Iniciando...";
 
     try {
-      const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${gameId}/start`, {
+
+      try {
+        const fillResp = await fillBots(numericGameId);
+        console.log("fillBots response:", fillResp);
+        if (fillResp && !fillResp.error) {
+
+          const body = (fillResp as any).data ?? (fillResp as any);
+          const added = body?.added ?? body?.joined ?? body?.bots ?? null;
+          if (Array.isArray(added) && added.length > 0) {
+            fillEmptySlotsWithBots(added as MaybeBot[]);
+          }
+        } else if (fillResp && fillResp.error) {
+    
+          console.warn("fillBots devolvió error:", fillResp);
+        }
+      } catch (err) {
+        console.warn("Error llamando fillBots:", err);
+      }
+
+      try {
+        const resp = await getGame(gameId);
+        if (!("error" in resp)) {
+          const game = resp.data.game;
+          // limpia casillas y resetea dataset
+          Array.from(playersGrid.children).forEach((cell, index) => {
+            const el = cell as HTMLElement;
+            el.innerHTML = (index + 1).toString();
+            el.dataset.index = String(index + 1);
+            delete el.dataset.userId;
+            el.style.background = "";
+            el.style.color = "";
+            el.style.border = "";
+          });
+
+          // Pinta todos los players tal cual vienen (incluidos bots)
+          game.players?.forEach((player: Player, index: number) => {
+            renderPlayer(player, index);
+          });
+
+          // Actualiza contador
+          const countEl = document.getElementById("players-count");
+          if (countEl) countEl.textContent = `${game.players?.length ?? 0} / ${game.max_players ?? 30}`;
+        } else {
+          console.warn("getGame devolvió error al recargar tras fillBots:", resp);
+        }
+      } catch (err) {
+        console.warn("Error recargando partida tras fillBots:", err);
+      }
+
+      // Inicia la partida
+      const res = await fetch(`http://${apiHost}:${apiPort}/api/games/${numericGameId}/start`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -385,7 +524,7 @@ export async function initGameUI() {
     document.body.appendChild(phaseIconEl);
   }
 
-  const nightFilter = document.getElementById("night-filter") as HTMLDivElement | null;
+  const nightFilter = document.getElementById("night-filter") as HTMLDivElement | null;
 
   const PHASE_ANIM_MS = 3000;
   const CHANGE_DELAY_MS = 0;
@@ -394,22 +533,15 @@ export async function initGameUI() {
     return new Promise((resolve) => {
       if (!phaseIconEl || !phaseOverlay) return resolve();
 
-      // escoge la imagen según la fase que hay
       phaseIconEl.src = phaseName === "day" ? sunPath : moonPath;
       phaseIconEl.alt = phaseName === "day" ? "Sol" : "Luna";
 
-      // reset clases
       phaseOverlay.classList.remove("show");
       phaseIconEl.classList.remove("show");
-
-      // gracias a esto la animación se puede reiniciar todas las veces
       phaseIconEl.offsetHeight;
-
-      // añadimos la clase
       phaseOverlay.classList.add("show");
       phaseIconEl.classList.add("show");
 
-      // la quitamos después de la duración
       setTimeout(() => {
         phaseIconEl?.classList.remove("show");
         phaseOverlay?.classList.remove("show");
@@ -427,10 +559,9 @@ export async function initGameUI() {
     if (name === "day") mainContainer.classList.add("is-day");
     else if (name === "night") mainContainer.classList.add("is-night");
 
-    if(nightFilter)
-    {
-      if(name === "night") nightFilter.classList.add("show")
-      else nightFilter.classList.remove("show")
+    if (nightFilter) {
+      if (name === "night") nightFilter.classList.add("show");
+      else nightFilter.classList.remove("show");
     }
 
     const phaseDisplay = document.getElementById("phase-display");
@@ -461,26 +592,20 @@ export async function initGameUI() {
           countdownInterval = null;
         }
 
-        // Calculamos siguiente fase local para la animación
         const currentPhaseLocal = mainContainer?.classList.contains("is-day") ? "day" : "night";
         const nextPhaseLocal: "day" | "night" = currentPhaseLocal === "day" ? "night" : "day";
 
-        // Reproducimos animación en todos los clientes al llegar a 0
         playPhaseAnimation(nextPhaseLocal).catch(() => {});
 
-        // Si no eres el owner no cambias fase
         if (!isOwner) return;
 
-        // Evitamos que se lance dos veces
         if (autoChangeInProgress) return;
         autoChangeInProgress = true;
 
-        // Cambiar la fase durante la animación
         setTimeout(async () => {
           try {
             await handleAutomaticPhaseChange();
           } finally {
-            // Pequeño margen para evitar repetidos
             autoChangeInProgress = false;
           }
         }, CHANGE_DELAY_MS);
@@ -527,22 +652,38 @@ export async function initGameUI() {
     startCountdown(end_time);
   };
 
-  channel.bind("phase-changed", (data: { phaseName: string; endTime: string }) => {
+  channel.bind("phase-changed", async (data: { phaseName: string; endTime: string }) => {
     const phaseName = data.phaseName.toLowerCase();
     const currentPhase = mainContainer?.classList.contains("is-day") ? "day" : "night";
 
-    if(chatMessages)
-    {
-      const p = document.createElement("p")
-      const readable = 
+    if (chatMessages) {
+      const p = document.createElement("p");
+      const readable =
         phaseName === "day"
-        ? "🌞 Comienza el día. ¡La aldea despierta!"
-        : "🌚 Comienza la noche... los lobos salen a cazar."
+          ? "🌞 Comienza el día. ¡La aldea despierta!"
+          : "🌚 Comienza la noche... los lobos salen a cazar.";
 
-      p.innerHTML = `<b>${readable}</b>`
-      p.classList.add("system-msg")
-      chatMessages.appendChild(p)
-      chatMessages.scrollTop = chatMessages.scrollHeight
+      p.innerHTML = `<b>${readable}</b>`;
+      p.classList.add("system-msg");
+      chatMessages.appendChild(p);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Si ha cambiado a day y pedimos al backend que hable.
+    if (phaseName === "day" && !botsSpokeThisDay) {
+      botsSpokeThisDay = true;
+      try {
+        // Llamada simple: el backend decide cuántos mensajes enviar
+        await botSpeak(numericGameId);
+        console.log("botSpeak: solicitado correctamente");
+      } catch (err) {
+        console.warn("botSpeak error:", err);
+      }
+    }
+
+    // Si pasa a night permitimos que al próximo día vuelvan a hablar
+    if (phaseName === "night") {
+      botsSpokeThisDay = false;
     }
 
     if (phaseName !== currentPhase) {
@@ -567,7 +708,7 @@ export async function initGameUI() {
 
     if ("error" in response) {
       console.error("Error cargando partida:", response.data.message);
-      showToast("No se pudo cargar la partida: " + (response.data.message || "Error desconocido", "error"));
+      showToast("No se pudo cargar la partida: " + (response.data.message || "Error desconocido"), "error");
       return;
     }
 
@@ -596,6 +737,7 @@ export async function initGameUI() {
   /* ========================================================================
       ROL MODALS Y DESCRIPCIONES
      ======================================================================== */
+
   const roleDescriptions: Record<RoleKey, RoleInfo> = {
     aldeano: {
       title: "Aldeano",
