@@ -245,6 +245,9 @@ async function loadGamesAndRender() {
 
 // Añade una fila de partida a la tabla
 function addGame(game: Game) {
+    const emptyRow = document.querySelector(".empty-row")
+    if(emptyRow) emptyRow.remove();
+    
     const row = document.createElement("tr")
     row.dataset.id = game.id.toString()
 
