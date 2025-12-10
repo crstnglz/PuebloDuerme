@@ -32,6 +32,6 @@ class WolfMessageSent implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return "wolf.message"
+        return "wolves.message";
     }
 }
