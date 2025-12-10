@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Chat
     Route::post('/chat/send', [ChatController::class, 'send']);
+    //Chat Lobos
+    Route::post('/chat/wolves', [ChatController::class, 'sendWolfMessage']);
 
     //Partida
 
