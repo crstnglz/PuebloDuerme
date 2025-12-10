@@ -821,3 +821,11 @@ color: #eee;
 #night-filter.show {
     opacity: 1;
 }
+
+.player.voted-day {
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.9);
+}
+
+.player.voted-night {
+  box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.9);
+}

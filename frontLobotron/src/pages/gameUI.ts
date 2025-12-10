@@ -52,6 +52,31 @@ export async function initGameUI() {
     return;
   }
 
+  // Click en casillas de jugadores para votar
+playersGrid.addEventListener("click", (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  const cell = target.closest(".player") as HTMLElement | null;
+  if (!cell) return;
+
+  const userIdStr = cell.dataset.userId;
+  if (!userIdStr) return;
+
+  const targetId = Number(userIdStr);
+
+  // NOCHE: solo lobos votan
+  if (isNightPhase() && myRoleSlug === "lobo") {
+    sendNightVote(targetId, cell);
+    return;
+  }
+
+  // DÍA: cualquiera vivo puede votar (la validación de "vivo" la hace el back)
+  if (isDayPhase()) {
+    sendDayVote(targetId, cell);
+    return;
+  }
+});
+
+
   // === ESTADO DE ROL EN CLIENTE ===
   let myRoleSlug: RoleKey | null = null;       // "lobo", "aldeano", etc.
   let visibleWolfIds: number[] = [];           // IDs de jugadores que yo sé que son lobo
@@ -546,6 +571,61 @@ export async function initGameUI() {
     }
   }
 
+    // ======================================================
+  //  VOTACIONES: noche (lobos) y día (aldea)
+  // ======================================================
+  async function sendNightVote(targetId: number, cell: HTMLElement) {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    try {
+      await fetch(`http://${apiHost}:${apiPort}/api/games/${numericGameId}/night-vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ target_id: targetId }),
+      });
+
+      markVotedCell(cell, "night");
+    } catch (err) {
+      console.error("Error enviando voto nocturno:", err);
+    }
+  }
+
+  async function sendDayVote(targetId: number, cell: HTMLElement) {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    try {
+      await fetch(`http://${apiHost}:${apiPort}/api/games/${numericGameId}/day-vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ target_id: targetId }),
+      });
+
+      markVotedCell(cell, "day");
+    } catch (err) {
+      console.error("Error enviando voto diurno:", err);
+    }
+  }
+
+  function markVotedCell(cell: HTMLElement, kind: "day" | "night") {
+    // Quitar marcas anteriores
+    Array.from(playersGrid.children).forEach((c) => {
+      (c as HTMLElement).classList.remove("voted-day", "voted-night");
+    });
+
+    cell.classList.add(kind === "day" ? "voted-day" : "voted-night");
+  }
+
+
   /* ===================================================================
       BOTÓN INICIAR PARTIDA
   ====================================================================== */
@@ -765,6 +845,15 @@ export async function initGameUI() {
     const phaseDisplay = document.getElementById("phase-display");
     if (phaseDisplay) phaseDisplay.textContent = `Fase: ${name}`;
   };
+
+  function isNightPhase(): boolean {
+  return mainContainer?.classList.contains("is-night") ?? false;
+}
+
+function isDayPhase(): boolean {
+  return mainContainer?.classList.contains("is-day") ?? false;
+}
+
 
   const startCountdown = function (endTime: string) {
     if (!timerBox) return;
