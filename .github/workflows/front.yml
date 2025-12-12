@@ -15,24 +15,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Mostrar estructura (debug útil)
-      - name: Show project structure
-        run: ls -R .
-
-      # 3. Construir solo el servicio frontend usando docker compose
+      # 2. Construir solo el servicio frontend usando docker compose
       - name: Build Frontend with Docker Compose
         run: |
           docker compose -f docker-compose.yml build frontend
+
+      # 3. Ejecutar build para asegurarnos que compile
+      - name: Run frontend build (vite)
+        run: docker compose -f docker-compose.yml run --rm frontend npm run build
 
       # 4. (Opcional pero recomendado) levantar el front y comprobar que arranca
       - name: Run frontend container
         run: |
           docker compose -f docker-compose.yml up -d frontend
-          sleep 5
-          docker ps
+          docker compose -f docker-compose.yml ps frontend
+
+      - name: Wait for frontend (http://localhost:5173)
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://localhost:5173 >/dev/null; then
+              echo "Frontend is responding"
+              exit 0
+            fi
+            echo "Waiting for frontend... ($attempt/30)"
+            sleep 2
+          done
+          docker compose -f docker-compose.yml logs frontend
+          exit 1
 
       # 5. Limpiar contenedores al final
       - name: Cleanup
         if: always()
         run: |
           docker compose -f docker-compose.yml down || true
+
+      - name: Frontend logs (on failure)
+        if: failure()
+        run: docker compose -f docker-compose.yml logs frontend

@@ -15,10 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Mostrar archivos (debug)
-      - name: Show project structure
-        run: ls -R .
-
       # Construir TODOS los servicios definidos en docker-compose.yml
       - name: Build all services
         run: |
@@ -28,8 +24,35 @@ jobs:
       - name: Start full stack
         run: |
           docker compose -f docker-compose.yml up -d
-          sleep 12
-          docker ps
+
+      - name: Wait for backend (http://localhost:8000)
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://localhost:8000 >/dev/null; then
+              echo "Backend is responding"
+              exit 0
+            fi
+            echo "Waiting for backend... ($attempt/30)"
+            sleep 2
+          done
+          docker compose -f docker-compose.yml logs backend
+          exit 1
+
+      - name: Wait for frontend (http://localhost:5173)
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://localhost:5173 >/dev/null; then
+              echo "Frontend is responding"
+              exit 0
+            fi
+            echo "Waiting for frontend... ($attempt/30)"
+            sleep 2
+          done
+          docker compose -f docker-compose.yml logs frontend
+          exit 1
+
+      - name: Show running containers
+        run: docker compose -f docker-compose.yml ps
 
       # Logs opcionales (útil si pasa algo raro)
       - name: Show docker logs
