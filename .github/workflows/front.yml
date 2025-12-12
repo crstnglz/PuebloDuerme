@@ -22,12 +22,12 @@ jobs:
       # 3. Construir solo el servicio frontend usando docker compose
       - name: Build Frontend with Docker Compose
         run: |
-          docker compose -f docker-compose.yml build front
+          docker compose -f docker-compose.yml build frontend
 
       # 4. (Opcional pero recomendado) levantar el front y comprobar que arranca
       - name: Run frontend container
         run: |
-          docker compose -f docker-compose.yml up -d front
+          docker compose -f docker-compose.yml up -d frontend
           sleep 5
           docker ps
 
