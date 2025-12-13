@@ -14,9 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Show project structure
-        run: ls -R .
-
       - name: Build Backend with Docker Compose
         run: |
           docker compose -f docker-compose.yml build backend
@@ -24,10 +21,33 @@ jobs:
       - name: Run Backend Container
         run: |
           docker compose -f docker-compose.yml up -d backend
-          sleep 10
-          docker ps
+          docker compose -f docker-compose.yml ps backend
+
+      - name: Wait for backend (http://localhost:8000)
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://localhost:8000 >/dev/null; then
+              echo "Backend is responding"
+              exit 0
+            fi
+            echo "Waiting for backend... ($attempt/30)"
+            sleep 2
+          done
+          docker compose -f docker-compose.yml logs backend
+          exit 1
+
+      - name: Run backend test suite
+        run: |
+          docker compose -f docker-compose.yml up \
+            --abort-on-container-exit \
+            --exit-code-from backend_test \
+            backend_test
 
       - name: Cleanup
         if: always()
         run: |
           docker compose -f docker-compose.yml down || true
+
+      - name: Backend logs (on failure)
+        if: failure()
+        run: docker compose -f docker-compose.yml logs backend
